@@ -34,9 +34,22 @@ public class MarkDownBuilder {
         this.stringBuffer = new StringBuffer();
     }
 
+    public MarkDownBuilder(boolean hasCatalogue) {
+        this.stringBuffer = new StringBuffer();
+        if (hasCatalogue) {
+            stringBuffer.append("\n");
+            blankRow();
+        }
+    }
+
     public static MarkDownBuilder create() {
         return new MarkDownBuilder();
     }
+
+    public static MarkDownBuilder create(boolean hasCatalogue) {
+        return new MarkDownBuilder();
+    }
+
 
     /**
      * 标题
