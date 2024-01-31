@@ -37,7 +37,7 @@ public class MarkDownBuilder {
     public MarkDownBuilder(boolean hasCatalogue) {
         this.stringBuffer = new StringBuffer();
         if (hasCatalogue) {
-            stringBuffer.append("\n");
+            stringBuffer.append("[TOC]\n");
             blankRow();
         }
     }
