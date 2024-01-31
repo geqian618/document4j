@@ -36,18 +36,19 @@ public class MarkDownBuilder {
 
     public MarkDownBuilder(boolean hasCatalogue) {
         this.stringBuffer = new StringBuffer();
-        if (hasCatalogue) {
-            stringBuffer.append("[TOC]\n");
-            blankRow();
+        if (hasCatalogue){
+            this.stringBuffer.append("[TOC]\n");
         }
     }
+
+
 
     public static MarkDownBuilder create() {
         return new MarkDownBuilder();
     }
 
     public static MarkDownBuilder create(boolean hasCatalogue) {
-        return new MarkDownBuilder();
+        return new MarkDownBuilder(hasCatalogue);
     }
 
 
@@ -685,7 +686,7 @@ public class MarkDownBuilder {
 
 
     public static void main(String[] args) {
-        MarkDownBuilder.create()
+        MarkDownBuilder.create(true)
                 .raw("### hahaaha")
                 .raw("**hahaaha**")
                 .raw("### hahaaha")
