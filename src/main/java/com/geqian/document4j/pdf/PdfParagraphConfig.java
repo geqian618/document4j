@@ -9,7 +9,7 @@ import com.itextpdf.text.Font;
  * @date 16:14 2024/1/16
  */
 
-public class ParagraphConfig {
+public class PdfParagraphConfig {
 
     /**
      * 首航缩进
@@ -46,18 +46,18 @@ public class ParagraphConfig {
      */
     private String fontFamily = "fonts/simsun.ttc,0";
 
-    private ParagraphConfig() {
+    private PdfParagraphConfig() {
     }
 
-    public static ParagraphConfig create() {
-        return new ParagraphConfig();
+    public static PdfParagraphConfig create() {
+        return new PdfParagraphConfig();
     }
 
     public float getFirstLineIndent() {
         return firstLineIndent;
     }
 
-    public ParagraphConfig setFirstLineIndent(float firstLineIndent) {
+    public PdfParagraphConfig setFirstLineIndent(float firstLineIndent) {
         this.firstLineIndent = firstLineIndent;
         return this;
     }
@@ -66,7 +66,7 @@ public class ParagraphConfig {
         return alignment;
     }
 
-    public ParagraphConfig setAlignment(int alignment) {
+    public PdfParagraphConfig setAlignment(int alignment) {
         this.alignment = alignment;
         return this;
     }
@@ -76,12 +76,12 @@ public class ParagraphConfig {
         return lineHeight;
     }
 
-    public ParagraphConfig setLineHeight(int lineHeight) {
+    public PdfParagraphConfig setLineHeight(int lineHeight) {
         this.lineHeight = lineHeight;
         return this;
     }
 
-    public ParagraphConfig setLineHeight(float lineHeight) {
+    public PdfParagraphConfig setLineHeight(float lineHeight) {
         this.lineHeight = lineHeight;
         return this;
     }
@@ -90,7 +90,7 @@ public class ParagraphConfig {
         return fontSize;
     }
 
-    public ParagraphConfig setFontSize(int fontSize) {
+    public PdfParagraphConfig setFontSize(int fontSize) {
         this.fontSize = fontSize;
         return this;
     }
@@ -99,7 +99,7 @@ public class ParagraphConfig {
         return fontColor;
     }
 
-    public ParagraphConfig setFontColor(BaseColor fontColor) {
+    public PdfParagraphConfig setFontColor(BaseColor fontColor) {
         this.fontColor = fontColor;
         return this;
     }
@@ -108,7 +108,7 @@ public class ParagraphConfig {
         return fontStyle;
     }
 
-    public ParagraphConfig setFontStyle(int... fontStyles) {
+    public PdfParagraphConfig setFontStyle(int... fontStyles) {
         for (int fontStyle : fontStyles) {
             this.fontStyle |= fontStyle;
         }
@@ -119,7 +119,7 @@ public class ParagraphConfig {
         return fontFamily;
     }
 
-    public ParagraphConfig setFontFamily(String fontFamily) {
+    public PdfParagraphConfig setFontFamily(String fontFamily) {
         this.fontFamily = fontFamily;
         return this;
     }

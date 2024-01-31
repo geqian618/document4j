@@ -1,5 +1,9 @@
-package com.geqian.commontools.markdown;
+package com.geqian.document4j.md;
 
+import com.geqian.document4j.common.extend.Converter;
+import com.geqian.document4j.common.extend.NoConverter;
+import com.geqian.document4j.common.annotation.TableField;
+import com.geqian.document4j.common.extend.WriteTableable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +57,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder blankRow() {
-        stringBuffer.append("\n\n\n");
+        stringBuffer.append("\n\n");
         return this;
     }
 
@@ -271,8 +275,8 @@ public class MarkDownBuilder {
             //获取表头
             List<String> tableHeaders = getTableHeaders(fields);
 
-            if (writeTableable instanceof MdWriteTableIntercepter) {
-                ((MdWriteTableIntercepter) writeTableable).interceptMdHeaders(writeTableable.getClass(), tableHeaders);
+            if (writeTableable instanceof MarkdownTableIntercepter) {
+                ((MarkdownTableIntercepter) writeTableable).interceptMdHeaders(writeTableable.getClass(), tableHeaders);
             }
 
             StringBuilder tableBuilder = new StringBuilder();
@@ -336,8 +340,8 @@ public class MarkDownBuilder {
         for (Field field : fieldList) {
             String cellValue = getCellValue(obj, field);
             //拦截单元格
-            if (obj instanceof MdWriteTableIntercepter) {
-                cellValue = ((MdWriteTableIntercepter) obj).interceptMdCellValue(cellValue, obj, field);
+            if (obj instanceof MarkdownTableIntercepter) {
+                cellValue = ((MarkdownTableIntercepter) obj).interceptMdCellValue(cellValue, obj, field);
             }
             tableBuilder.append("|").append(cellValue);
         }
@@ -440,8 +444,8 @@ public class MarkDownBuilder {
                 .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
 
-        if (obj instanceof MdWriteTableIntercepter) {
-            fields = ((MdWriteTableIntercepter) obj).interceptMdFields(obj.getClass(), fields);
+        if (obj instanceof MarkdownTableIntercepter) {
+            fields = ((MarkdownTableIntercepter) obj).interceptMdFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {

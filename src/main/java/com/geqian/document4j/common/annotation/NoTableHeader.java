@@ -1,4 +1,4 @@
-package com.geqian.document4j.common;
+package com.geqian.document4j.common.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

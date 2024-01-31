@@ -1,5 +1,10 @@
-package com.geqian.commontools.pdf;
+package com.geqian.document4j.pdf;
 
+import com.geqian.document4j.common.annotation.NoTableHeader;
+import com.geqian.document4j.common.annotation.TableField;
+import com.geqian.document4j.common.extend.Converter;
+import com.geqian.document4j.common.extend.NoConverter;
+import com.geqian.document4j.common.extend.WriteTableable;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -149,9 +154,9 @@ public class PDFBuilder {
      *
      * @return
      */
-    public PDFBuilder addTitle(String text, ParagraphConfig config) {
+    public PDFBuilder addTitle(String text, PdfParagraphConfig config) {
         if (config == null) {
-            config = ParagraphConfig.create();
+            config = PdfParagraphConfig.create();
             config.setAlignment(Element.ALIGN_CENTER);
             config.setFontSize(25);
         }
@@ -167,7 +172,7 @@ public class PDFBuilder {
      * @param config
      * @return
      */
-    public PDFBuilder addList(List<String> elements, ParagraphConfig config) {
+    public PDFBuilder addList(List<String> elements, PdfParagraphConfig config) {
         try {
             com.itextpdf.text.List list = new com.itextpdf.text.List();
             for (String element : elements) {
@@ -188,7 +193,7 @@ public class PDFBuilder {
      * @return
      */
     public PDFBuilder addParagraph(String text) {
-        return addParagraph(text, ParagraphConfig.create());
+        return addParagraph(text, PdfParagraphConfig.create());
     }
 
     /**
@@ -198,7 +203,7 @@ public class PDFBuilder {
      * @param config
      * @return
      */
-    public PDFBuilder addParagraph(String text, ParagraphConfig config) {
+    public PDFBuilder addParagraph(String text, PdfParagraphConfig config) {
         try {
             Paragraph paragraph = createParagraph(text, config);
             this.document.add(paragraph);
@@ -236,7 +241,7 @@ public class PDFBuilder {
      * @param dataList 数据列表
      */
     public PDFBuilder addTable(List<? extends WriteTableable> dataList) {
-        return addTable(dataList, ParagraphConfig.create());
+        return addTable(dataList, PdfParagraphConfig.create());
     }
 
     /**
@@ -244,7 +249,7 @@ public class PDFBuilder {
      *
      * @param dataList 数据列表
      */
-    public PDFBuilder addTable(List<? extends WriteTableable> dataList, ParagraphConfig config) {
+    public PDFBuilder addTable(List<? extends WriteTableable> dataList, PdfParagraphConfig config) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
@@ -260,8 +265,8 @@ public class PDFBuilder {
             PdfPTable table = createTable(colums);
 
 
-            if (writeTableable instanceof PDFWriteTableIntercepter) {
-                ((PDFWriteTableIntercepter) writeTableable).interceptPdfTable(table);
+            if (writeTableable instanceof PDFTableIntercepter) {
+                ((PDFTableIntercepter) writeTableable).interceptPdfTable(table);
             }
 
             //加载枚举映射关系
@@ -274,8 +279,8 @@ public class PDFBuilder {
                 //获取表头
                 List<String> tableHeaders = getTableHeaders(fields);
 
-                if (writeTableable instanceof PDFWriteTableIntercepter) {
-                    ((PDFWriteTableIntercepter) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
+                if (writeTableable instanceof PDFTableIntercepter) {
+                    ((PDFTableIntercepter) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
                 }
                 //写入表头
                 writeTableHeaders(table, tableHeaders, writeTableable, config);
@@ -299,7 +304,7 @@ public class PDFBuilder {
      */
     public PDFBuilder writeTableRows(Object[][] tableRows) {
         try {
-            return writeTableRows(tableRows, ParagraphConfig.create());
+            return writeTableRows(tableRows, PdfParagraphConfig.create());
         } catch (Exception e) {
             log.error("添加表格异常", e);
             return this;
@@ -312,7 +317,7 @@ public class PDFBuilder {
      *
      * @param rows 数据列表
      */
-    public PDFBuilder writeTableRows(Object[][] rows, ParagraphConfig config) throws Exception {
+    public PDFBuilder writeTableRows(Object[][] rows, PdfParagraphConfig config) throws Exception {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -481,12 +486,12 @@ public class PDFBuilder {
      * @param tableHeaders
      * @param config
      */
-    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, ParagraphConfig config) {
+    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, PdfParagraphConfig config) {
 
         for (String header : tableHeaders) {
             PdfPCell cell = createCell(header, config);
-            if (obj instanceof PDFWriteTableIntercepter) {
-                ((PDFWriteTableIntercepter) obj).interceptPdfHeaderCell(cell, obj.getClass());
+            if (obj instanceof PDFTableIntercepter) {
+                ((PDFTableIntercepter) obj).interceptPdfHeaderCell(cell, obj.getClass());
             }
             table.addCell(cell);
         }
@@ -500,7 +505,7 @@ public class PDFBuilder {
      * @param fields
      * @param config
      */
-    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, ParagraphConfig config) {
+    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, PdfParagraphConfig config) {
         for (WriteTableable writeTableable : dataList) {
             writeTableRow(table, writeTableable, fields, config);
         }
@@ -515,13 +520,13 @@ public class PDFBuilder {
      * @param fieldList
      * @param config
      */
-    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, ParagraphConfig config) {
+    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, PdfParagraphConfig config) {
         for (Field field : fieldList) {
             String cellValue = getCellValue(obj, field);
             PdfPCell cell = createCell(cellValue, config);
             //拦截单元格
-            if (obj instanceof PDFWriteTableIntercepter) {
-                ((PDFWriteTableIntercepter) obj).interceptPdfContentCell(cell, obj, field);
+            if (obj instanceof PDFTableIntercepter) {
+                ((PDFTableIntercepter) obj).interceptPdfContentCell(cell, obj, field);
             }
             table.addCell(cell);
         }
@@ -579,7 +584,7 @@ public class PDFBuilder {
      * @param obj
      * @return
      */
-    private <T extends WriteTableable> List<Field> getFieldList(T obj) {
+    private <T> List<Field> getFieldList(T obj) {
 
         List<Class<?>> classes = new ArrayList<>();
 
@@ -597,8 +602,8 @@ public class PDFBuilder {
                 .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
 
-        if (obj instanceof PDFWriteTableIntercepter) {
-            fields = ((PDFWriteTableIntercepter) obj).interceptPdfFields(obj.getClass(), fields);
+        if (obj instanceof PDFTableIntercepter) {
+            fields = ((PDFTableIntercepter) obj).interceptPdfFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {
@@ -669,7 +674,7 @@ public class PDFBuilder {
      * @param text
      * @return
      */
-    private Paragraph createParagraph(String text, ParagraphConfig config) {
+    private Paragraph createParagraph(String text, PdfParagraphConfig config) {
         Paragraph paragraph = new Paragraph(text, createFont(config));
         paragraph.setFirstLineIndent(config.getFirstLineIndent() * config.getFontSize());
         paragraph.setAlignment(config.getAlignment());
@@ -683,7 +688,7 @@ public class PDFBuilder {
      *
      * @return
      */
-    private Font createFont(ParagraphConfig config) {
+    private Font createFont(PdfParagraphConfig config) {
         int fontSize = config.getFontSize();
         BaseColor fontColor = config.getFontColor();
         int fontStyle = config.getFontStyle();
@@ -720,7 +725,7 @@ public class PDFBuilder {
      * @param fontConfig
      * @return
      */
-    private PdfPCell createCell(String text, ParagraphConfig fontConfig) {
+    private PdfPCell createCell(String text, PdfParagraphConfig fontConfig) {
         PdfPCell cell = new PdfPCell(new Phrase(text, createFont(fontConfig)));
         // 设置单元格的水平和垂直对齐方式
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -742,7 +747,7 @@ public class PDFBuilder {
             paragraph = new Paragraph();
         }
 
-        public PDFBuilder.NowrapBuilder addText(String text, ParagraphConfig config) {
+        public NowrapBuilder addText(String text, PdfParagraphConfig config) {
             Chunk chunk = new Chunk(text, createFont(config));
             paragraph.add(chunk);
             paragraph.setFirstLineIndent(config.getFirstLineIndent() * config.getFontSize());
@@ -752,8 +757,8 @@ public class PDFBuilder {
         }
 
 
-        public PDFBuilder.NowrapBuilder addText(String text) {
-            return addText(text, ParagraphConfig.create());
+        public NowrapBuilder addText(String text) {
+            return addText(text, PdfParagraphConfig.create());
         }
 
 

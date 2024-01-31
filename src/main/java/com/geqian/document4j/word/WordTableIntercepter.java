@@ -1,4 +1,4 @@
-package com.geqian.document4j.utils;
+package com.geqian.document4j.word;
 
 import com.geqian.document4j.common.extend.WriteTableable;
 import org.apache.poi.wp.usermodel.Paragraph;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface WordWriteTableIntercepter extends WriteTableable {
+public interface WordTableIntercepter extends WriteTableable {
 
     /**
      * 拦截写入表格的属性集合

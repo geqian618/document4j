@@ -1,5 +1,10 @@
-package com.geqian.commontools.word.word写;
+package com.geqian.document4j.word;
 
+import com.geqian.document4j.common.annotation.NoTableHeader;
+import com.geqian.document4j.common.annotation.TableField;
+import com.geqian.document4j.common.extend.Converter;
+import com.geqian.document4j.common.extend.NoConverter;
+import com.geqian.document4j.common.extend.WriteTableable;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
@@ -84,11 +89,11 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addTitle(String text, ParagraphConfig config) {
+    public WordBuilder addTitle(String text, WordParagraphConfig config) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
         if (config == null) {
-            config = ParagraphConfig.create();
+            config = WordParagraphConfig.create();
             config.setFontBold(true);
             config.setAlignment(ParagraphAlignment.CENTER);
             config.setFontSize(25);
@@ -103,7 +108,7 @@ public class WordBuilder {
      * @return
      */
     public WordBuilder addParagraphText(String text) {
-        addParagraphText(text, ParagraphConfig.create());
+        addParagraphText(text, WordParagraphConfig.create());
         return this;
     }
 
@@ -113,7 +118,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addParagraphText(String text, ParagraphConfig config) {
+    public WordBuilder addParagraphText(String text, WordParagraphConfig config) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
         addParagraphText(paragraph, text, config);
@@ -125,7 +130,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public void addParagraphText(XWPFParagraph paragraph, String text, ParagraphConfig config) {
+    public void addParagraphText(XWPFParagraph paragraph, String text, WordParagraphConfig config) {
         // 设置对齐方式 paragraph.setAlignment(ParagraphAlignment.CENTER);
         paragraph.setAlignment(config.getAlignment());
         //设置行距
@@ -192,7 +197,7 @@ public class WordBuilder {
      * @param dataList 数据列表
      */
     public WordBuilder addTable(List<? extends WriteTableable> dataList) {
-        return addTable(dataList, ParagraphConfig.create());
+        return addTable(dataList, WordParagraphConfig.create());
     }
 
     /**
@@ -200,7 +205,7 @@ public class WordBuilder {
      *
      * @param dataList 数据列表
      */
-    public WordBuilder addTable(List<? extends WriteTableable> dataList, ParagraphConfig config) {
+    public WordBuilder addTable(List<? extends WriteTableable> dataList, WordParagraphConfig config) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
@@ -217,8 +222,8 @@ public class WordBuilder {
 
             XWPFTable table = createTable(rows, colums);
 
-            if (writeTableable instanceof WordWriteTableIntercepter) {
-                ((WordWriteTableIntercepter) writeTableable).interceptWordTable(table);
+            if (writeTableable instanceof WordTableIntercepter) {
+                ((WordTableIntercepter) writeTableable).interceptWordTable(table);
             }
 
             //加载枚举映射关系
@@ -234,8 +239,8 @@ public class WordBuilder {
                 //获取表头
                 List<String> tableHeaders = getTableHeaders(fields);
 
-                if (writeTableable instanceof WordWriteTableIntercepter) {
-                    ((WordWriteTableIntercepter) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
+                if (writeTableable instanceof WordTableIntercepter) {
+                    ((WordTableIntercepter) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
                 }
 
                 //写入表头
@@ -255,7 +260,7 @@ public class WordBuilder {
      * @param tableRows 数据列表
      */
     public WordBuilder writeTableRows(Object[][] tableRows) {
-        return writeTableRows(tableRows, ParagraphConfig.create());
+        return writeTableRows(tableRows, WordParagraphConfig.create());
     }
 
 
@@ -264,7 +269,7 @@ public class WordBuilder {
      *
      * @param rows 数据列表
      */
-    public WordBuilder writeTableRows(Object[][] rows, ParagraphConfig config) {
+    public WordBuilder writeTableRows(Object[][] rows, WordParagraphConfig config) {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -461,7 +466,7 @@ public class WordBuilder {
      * @param tableHeaders
      * @param config
      */
-    private void writeTableHeaders(XWPFTable table, List<String> tableHeaders, WriteTableable obj, List<Field> fields, ParagraphConfig config) {
+    private void writeTableHeaders(XWPFTable table, List<String> tableHeaders, WriteTableable obj, List<Field> fields, WordParagraphConfig config) {
 
         for (int i = 0; i < tableHeaders.size(); i++) {
 
@@ -471,8 +476,8 @@ public class WordBuilder {
 
             addParagraphText(paragraph, tableHeaders.get(i), config);
 
-            if (obj instanceof WordWriteTableIntercepter) {
-                ((WordWriteTableIntercepter) obj).interceptWordHeaderCell(cell, paragraph, obj.getClass());
+            if (obj instanceof WordTableIntercepter) {
+                ((WordTableIntercepter) obj).interceptWordHeaderCell(cell, paragraph, obj.getClass());
             }
         }
     }
@@ -485,7 +490,7 @@ public class WordBuilder {
      * @param fields
      * @param config
      */
-    private void writeTableRows(XWPFTable table, int startRow, List<? extends WriteTableable> dataList, List<Field> fields, ParagraphConfig config) {
+    private void writeTableRows(XWPFTable table, int startRow, List<? extends WriteTableable> dataList, List<Field> fields, WordParagraphConfig config) {
         for (int i = 0; i < dataList.size(); i++) {
             writeTableRow(table, i + startRow, dataList.get(i), fields, config);
         }
@@ -501,15 +506,15 @@ public class WordBuilder {
      * @param fieldList
      * @param config
      */
-    private void writeTableRow(XWPFTable table, int rowIndex, WriteTableable obj, List<Field> fieldList, ParagraphConfig config) {
+    private void writeTableRow(XWPFTable table, int rowIndex, WriteTableable obj, List<Field> fieldList, WordParagraphConfig config) {
         for (int i = 0; i < fieldList.size(); i++) {
             XWPFTableCell cell = table.getRow(rowIndex).getCell(i);
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
             String cellValue = getCellValue(obj, fieldList.get(i));
             addParagraphText(paragraph, cellValue, config);
             //拦截单元格
-            if (obj instanceof WordWriteTableIntercepter) {
-                ((WordWriteTableIntercepter) obj).interceptWordContentCell(cell, paragraph, obj, fieldList.get(i));
+            if (obj instanceof WordTableIntercepter) {
+                ((WordTableIntercepter) obj).interceptWordContentCell(cell, paragraph, obj, fieldList.get(i));
             }
         }
     }
@@ -607,8 +612,8 @@ public class WordBuilder {
                 .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
 
-        if (obj instanceof WordWriteTableIntercepter) {
-            fields = ((WordWriteTableIntercepter) obj).interceptWordFields(obj.getClass(), fields);
+        if (obj instanceof WordTableIntercepter) {
+            fields = ((WordTableIntercepter) obj).interceptWordFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {
@@ -641,14 +646,14 @@ public class WordBuilder {
             paragraph = WordBuilder.this.document.createParagraph();
         }
 
-        public NowrapBuilder addText(String text, ParagraphConfig config) {
+        public NowrapBuilder addText(String text, WordParagraphConfig config) {
             WordBuilder.this.addParagraphText(paragraph, text, config);
             return this;
         }
 
 
         public NowrapBuilder addText(String text) {
-            WordBuilder.this.addParagraphText(paragraph, text, ParagraphConfig.create());
+            WordBuilder.this.addParagraphText(paragraph, text, WordParagraphConfig.create());
             return this;
         }
 

@@ -2,7 +2,7 @@ package com.geqian.document4j.word;
 
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 
-public class ParagraphConfig {
+public class WordParagraphConfig {
     //首行缩进字符个数
     private Integer firstLineIndent = 0;
     //对齐方式
@@ -22,18 +22,18 @@ public class ParagraphConfig {
     private boolean fontBold = false;
 
 
-    private ParagraphConfig() {
+    private WordParagraphConfig() {
     }
 
-    public static ParagraphConfig create() {
-        return new ParagraphConfig();
+    public static WordParagraphConfig create() {
+        return new WordParagraphConfig();
     }
 
     public Integer getFirstLineIndent() {
         return firstLineIndent;
     }
 
-    public ParagraphConfig setFirstLineIndent(Integer firstLineIndent) {
+    public WordParagraphConfig setFirstLineIndent(Integer firstLineIndent) {
         this.firstLineIndent = firstLineIndent;
         return this;
     }
@@ -42,7 +42,7 @@ public class ParagraphConfig {
         return alignment;
     }
 
-    public ParagraphConfig setAlignment(ParagraphAlignment alignment) {
+    public WordParagraphConfig setAlignment(ParagraphAlignment alignment) {
         this.alignment = alignment;
         return this;
     }
@@ -51,7 +51,7 @@ public class ParagraphConfig {
         return lineSpacing;
     }
 
-    public ParagraphConfig setLineSpacing(double lineSpacing) {
+    public WordParagraphConfig setLineSpacing(double lineSpacing) {
         this.lineSpacing = lineSpacing;
         return this;
     }
@@ -60,7 +60,7 @@ public class ParagraphConfig {
         return fontSize;
     }
 
-    public ParagraphConfig setFontSize(Integer fontSize) {
+    public WordParagraphConfig setFontSize(Integer fontSize) {
         this.fontSize = fontSize;
         return this;
     }
@@ -69,7 +69,7 @@ public class ParagraphConfig {
         return fontColor;
     }
 
-    public ParagraphConfig setFontColor(String fontColor) {
+    public WordParagraphConfig setFontColor(String fontColor) {
         this.fontColor = fontColor;
         return this;
     }
@@ -78,7 +78,7 @@ public class ParagraphConfig {
         return fontFamily;
     }
 
-    public ParagraphConfig setFontFamily(String fontFamily) {
+    public WordParagraphConfig setFontFamily(String fontFamily) {
         this.fontFamily = fontFamily;
         return this;
     }
@@ -87,7 +87,7 @@ public class ParagraphConfig {
         return fontItalic;
     }
 
-    public ParagraphConfig setFontItalic(boolean fontItalic) {
+    public WordParagraphConfig setFontItalic(boolean fontItalic) {
         this.fontItalic = fontItalic;
         return this;
     }
@@ -96,7 +96,7 @@ public class ParagraphConfig {
         return fontBold;
     }
 
-    public ParagraphConfig setFontBold(boolean fontBold) {
+    public WordParagraphConfig setFontBold(boolean fontBold) {
         this.fontBold = fontBold;
         return this;
     }

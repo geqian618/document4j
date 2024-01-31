@@ -1,4 +1,4 @@
-package com.geqian.commontools.markdown;
+package com.geqian.document4j.md;
 
 /**
  * @author geqian
@@ -14,14 +14,14 @@ public class MarkDownConfig {
         RIGHT("-:"),
         CENTER(":-:");
 
-        private final String mark;
+        private final String alignment;
 
-        Alignment(String mark) {
-            this.mark = mark;
+        Alignment(String alignment) {
+            this.alignment = alignment;
         }
 
         public String getMark() {
-            return mark;
+            return alignment;
         }
     }
 
@@ -30,12 +30,12 @@ public class MarkDownConfig {
      */
     public enum Level {
 
-        First("# %s\n"),
-        Second("## %s\n"),
-        Third("### %s\n"),
-        Four("#### %s\n"),
-        Five("##### %s\n"),
-        Six("###### %s\n");
+        FIRST("# %s\n"),
+        SECOND("## %s\n"),
+        THIRD("### %s\n"),
+        FOUR("#### %s\n"),
+        FIVE("##### %s\n"),
+        SIX("###### %s\n");
 
         private final String template;
 

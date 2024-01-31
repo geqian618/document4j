@@ -1,4 +1,4 @@
-package com.geqian.commontools.markdown;
+package com.geqian.document4j.md;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface MdWriteTableIntercepter extends WriteTableable {
+public interface MarkdownTableIntercepter {
 
 
     /**

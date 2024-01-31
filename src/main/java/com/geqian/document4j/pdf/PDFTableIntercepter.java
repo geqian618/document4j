@@ -1,4 +1,4 @@
-package com.geqian.commontools.pdf;
+package com.geqian.document4j.pdf;
 
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -10,7 +10,7 @@ import java.util.List;
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface PDFWriteTableIntercepter extends WriteTableable {
+public interface PDFTableIntercepter {
 
 
     /**

@@ -1,4 +1,4 @@
-package com.geqian.document4j.common;
+package com.geqian.document4j.common.extend;
 
 /**
  * @author geqian
