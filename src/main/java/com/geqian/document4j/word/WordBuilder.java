@@ -87,7 +87,7 @@ public class WordBuilder {
             WordStyle.Paragraph center = WordStyle.Paragraph.ALIGN_CENTER;
             wordStyles = new WordStyle[]{bold, fontSize, center};
         }
-        addParagraphText(paragraph, text, wordStyles);
+        addParagraph(paragraph, text, wordStyles);
         return this;
     }
 
