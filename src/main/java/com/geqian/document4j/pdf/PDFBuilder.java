@@ -669,11 +669,11 @@ public class PDFBuilder {
             font = fontFamily != null ?
                     FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED)
                     : FontFactory.getFont("fonts/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-            font.setStyle(Font.NORMAL);
-            font.setSize(Font.DEFAULTSIZE);
         } catch (Exception ignored) {
             font = FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
         }
+        font.setStyle(Font.NORMAL);
+        font.setSize(Font.DEFAULTSIZE);
         for (PdfStyle pdfStyle : pdfStyles) {
             if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.wrapperStyle(font);
