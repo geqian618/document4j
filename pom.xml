@@ -36,6 +36,13 @@
         </dependency>
 
 
+        <!-- slf4j、JUL适配器-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
         <!-- slf4j核心 -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -43,12 +50,10 @@
             <version>1.7.25</version>
         </dependency>
 
-
-        <!-- logback依赖 -->
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
         </dependency>
 
 
