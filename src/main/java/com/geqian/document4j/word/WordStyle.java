@@ -65,7 +65,7 @@ public interface WordStyle {
         }
 
 
-        public static Font fontcolor(String fontColor) {
+        public static Font fontColor(String fontColor) {
             return new Font(run -> run.setColor(fontColor));
         }
 
