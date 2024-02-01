@@ -6,7 +6,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
-
 import java.math.BigInteger;
 import java.util.function.Consumer;
 
@@ -14,11 +13,11 @@ import java.util.function.Consumer;
  * @author geqian
  * @date 21:08 2024/2/1
  */
-public abstract class WordStyle {
+public interface WordStyle {
 
-    abstract public void wrapperStyle(Object obj);
+    void wrapperStyle(Object obj);
 
-    public static class Font extends WordStyle {
+    class Font implements WordStyle {
         /**
          * 加粗
          */
@@ -81,38 +80,44 @@ public abstract class WordStyle {
     }
 
 
-    public static class Paragraph extends WordStyle {
+    class Paragraph implements WordStyle {
 
         /**
          * 左对齐
          */
-        public static final Paragraph LEFT = new Paragraph(paragraph -> paragraph.setAlignment(ParagraphAlignment.LEFT));
+        public static final Paragraph ALIGN_LEFT = new Paragraph(paragraph -> paragraph.setAlignment(ParagraphAlignment.LEFT));
 
         /**
          * 右对齐
          */
-        public static final Paragraph RIGHT = new Paragraph(paragraph -> paragraph.setAlignment(ParagraphAlignment.RIGHT));
+        public static final Paragraph ALIGN_RIGHT = new Paragraph(paragraph -> paragraph.setAlignment(ParagraphAlignment.RIGHT));
 
         /**
          * 居中对齐
          */
-        public static final Paragraph CENTER = new Paragraph(paragraph -> paragraph.setAlignment(ParagraphAlignment.CENTER));
+        public static final Paragraph ALIGN_CENTER = new Paragraph(paragraph -> paragraph.setAlignment(ParagraphAlignment.CENTER));
 
 
         private final Consumer<XWPFParagraph> wrapper;
 
 
-        Paragraph(Consumer<XWPFParagraph> wrapper) {
+        public Paragraph(Consumer<XWPFParagraph> wrapper) {
             this.wrapper = wrapper;
         }
 
 
+        /**
+         * 行间距倍数（fontSize为基数）
+         *
+         * @param lineSpacing
+         * @return
+         */
         public static Paragraph lineSpacing(int lineSpacing) {
             return new Paragraph(paragraph -> paragraph.setSpacingBetween(lineSpacing));
         }
 
         /**
-         * 创建段落缩对象
+         * 段落首行缩进
          *
          * @param indent
          * @return

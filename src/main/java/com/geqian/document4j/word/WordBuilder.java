@@ -13,6 +13,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
@@ -83,7 +84,7 @@ public class WordBuilder {
         if (wordStyles == null) {
             WordStyle.Font bold = WordStyle.Font.BOLD;
             WordStyle.Font fontSize = WordStyle.Font.fontSize(25);
-            WordStyle.Paragraph center = WordStyle.Paragraph.CENTER;
+            WordStyle.Paragraph center = WordStyle.Paragraph.ALIGN_CENTER;
             wordStyles = new WordStyle[]{bold, fontSize, center};
         }
         addParagraphText(paragraph, text, wordStyles);
@@ -96,10 +97,10 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addParagraphText(String text, WordStyle... wordStyles) {
+    public WordBuilder addParagraph(String text, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
-        addParagraphText(paragraph, text, wordStyles);
+        addParagraph(paragraph, text, wordStyles);
         return this;
     }
 
@@ -108,7 +109,7 @@ public class WordBuilder {
      *
      * @return
      */
-    private void addParagraphText(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
+    private void addParagraph(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
 
         //创建段落文本
         XWPFRun run = paragraph.createRun();
@@ -236,7 +237,7 @@ public class WordBuilder {
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < rows[i].length; j++) {
                         XWPFParagraph paragraph = table.getRow(i).getCell(j).getParagraphs().get(0);
-                        addParagraphText(paragraph, String.valueOf(rows[i][j]), wordStyles);
+                        addParagraph(paragraph, String.valueOf(rows[i][j]), wordStyles);
                     }
                 }
             }
@@ -426,7 +427,7 @@ public class WordBuilder {
 
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
 
-            addParagraphText(paragraph, tableHeaders.get(i), wordStyles);
+            addParagraph(paragraph, tableHeaders.get(i), wordStyles);
 
             if (obj instanceof WordTableIntercepter) {
                 ((WordTableIntercepter) obj).interceptWordHeaderCell(cell, paragraph, obj.getClass());
@@ -463,7 +464,7 @@ public class WordBuilder {
             XWPFTableCell cell = table.getRow(rowIndex).getCell(i);
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
             String cellValue = getCellValue(obj, fieldList.get(i));
-            addParagraphText(paragraph, cellValue, wordStyles);
+            addParagraph(paragraph, cellValue, wordStyles);
             //拦截单元格
             if (obj instanceof WordTableIntercepter) {
                 ((WordTableIntercepter) obj).interceptWordContentCell(cell, paragraph, obj, fieldList.get(i));
@@ -599,13 +600,13 @@ public class WordBuilder {
         }
 
         public NowrapBuilder addText(String text, WordStyle... wordStyles) {
-            WordBuilder.this.addParagraphText(paragraph, text, wordStyles);
+            WordBuilder.this.addParagraph(paragraph, text, wordStyles);
             return this;
         }
 
 
         public NowrapBuilder addText(String text) {
-            WordBuilder.this.addParagraphText(paragraph, text);
+            WordBuilder.this.addParagraph(paragraph, text);
             return this;
         }
 

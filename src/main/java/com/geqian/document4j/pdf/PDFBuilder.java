@@ -154,13 +154,13 @@ public class PDFBuilder {
      *
      * @return
      */
-    public PDFBuilder addTitle(String text, PdfParagraphConfig config) {
-        if (config == null) {
-            config = PdfParagraphConfig.create();
-            config.setAlignment(Element.ALIGN_CENTER);
-            config.setFontSize(25);
+    public PDFBuilder addTitle(String text, PdfStyle... pdfStyles) {
+        if (pdfStyles == null) {
+            PdfStyle.Paragraph alignCenter = PdfStyle.Paragraph.ALIGN_CENTER;
+            PdfStyle.Font fontSize = PdfStyle.Font.fontSize(25);
+            pdfStyles = new PdfStyle[]{alignCenter, fontSize};
         }
-        addParagraph(text, config);
+        addParagraph(text, pdfStyles);
         return this;
     }
 
@@ -169,10 +169,10 @@ public class PDFBuilder {
      * 添加列表
      *
      * @param elements
-     * @param config
+     * @param pdfStyles
      * @return
      */
-    public PDFBuilder addList(List<String> elements, PdfParagraphConfig config) {
+    public PDFBuilder addList(List<String> elements, PdfStyle... pdfStyles) {
         try {
             com.itextpdf.text.List list = new com.itextpdf.text.List();
             for (String element : elements) {
@@ -190,22 +190,12 @@ public class PDFBuilder {
      * 添加段落
      *
      * @param text
+     * @param pdfStyles
      * @return
      */
-    public PDFBuilder addParagraph(String text) {
-        return addParagraph(text, PdfParagraphConfig.create());
-    }
-
-    /**
-     * 添加段落
-     *
-     * @param text
-     * @param config
-     * @return
-     */
-    public PDFBuilder addParagraph(String text, PdfParagraphConfig config) {
+    public PDFBuilder addParagraph(String text, PdfStyle... pdfStyles) {
         try {
-            Paragraph paragraph = createParagraph(text, config);
+            Paragraph paragraph = createParagraph(text, pdfStyles);
             this.document.add(paragraph);
         } catch (DocumentException e) {
             log.error("添加段落异常", e);
@@ -240,16 +230,7 @@ public class PDFBuilder {
      *
      * @param dataList 数据列表
      */
-    public PDFBuilder addTable(List<? extends WriteTableable> dataList) {
-        return addTable(dataList, PdfParagraphConfig.create());
-    }
-
-    /**
-     * 添加表格
-     *
-     * @param dataList 数据列表
-     */
-    public PDFBuilder addTable(List<? extends WriteTableable> dataList, PdfParagraphConfig config) {
+    public PDFBuilder addTable(List<? extends WriteTableable> dataList, PdfStyle... pdfStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
@@ -283,10 +264,10 @@ public class PDFBuilder {
                     ((PDFTableIntercepter) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
                 }
                 //写入表头
-                writeTableHeaders(table, tableHeaders, writeTableable, config);
+                writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
             }
             //写入表格主体数据
-            writeTableRows(table, dataList, fields, config);
+            writeTableRows(table, dataList, fields, pdfStyles);
             try {
                 this.document.add(table);
             } catch (DocumentException e) {
@@ -297,27 +278,13 @@ public class PDFBuilder {
         return this;
     }
 
-    /**
-     * 数据写入表格
-     *
-     * @param tableRows 数据列表
-     */
-    public PDFBuilder writeTableRows(Object[][] tableRows) {
-        try {
-            return writeTableRows(tableRows, PdfParagraphConfig.create());
-        } catch (Exception e) {
-            log.error("添加表格异常", e);
-            return this;
-        }
-    }
-
 
     /**
      * 数据写入表格
      *
      * @param rows 数据列表
      */
-    public PDFBuilder writeTableRows(Object[][] rows, PdfParagraphConfig config) throws Exception {
+    public PDFBuilder writeTableRows(Object[][] rows, PdfStyle... pdfStyles) throws Exception {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -332,7 +299,7 @@ public class PDFBuilder {
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < rows[i].length; j++) {
                         String cellValue = String.valueOf(rows[i][j]);
-                        PdfPCell cell = createCell(cellValue, config);
+                        PdfPCell cell = createCell(cellValue, pdfStyles);
                         table.addCell(cell);
                     }
                 }
@@ -484,12 +451,12 @@ public class PDFBuilder {
      *
      * @param table
      * @param tableHeaders
-     * @param config
+     * @param pdfStyles
      */
-    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, PdfParagraphConfig config) {
+    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, PdfStyle... pdfStyles) {
 
         for (String header : tableHeaders) {
-            PdfPCell cell = createCell(header, config);
+            PdfPCell cell = createCell(header, pdfStyles);
             if (obj instanceof PDFTableIntercepter) {
                 ((PDFTableIntercepter) obj).interceptPdfHeaderCell(cell, obj.getClass());
             }
@@ -503,11 +470,11 @@ public class PDFBuilder {
      * @param table
      * @param dataList
      * @param fields
-     * @param config
+     * @param pdfStyles
      */
-    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, PdfParagraphConfig config) {
+    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, PdfStyle... pdfStyles) {
         for (WriteTableable writeTableable : dataList) {
-            writeTableRow(table, writeTableable, fields, config);
+            writeTableRow(table, writeTableable, fields, pdfStyles);
         }
     }
 
@@ -518,12 +485,12 @@ public class PDFBuilder {
      * @param table
      * @param obj
      * @param fieldList
-     * @param config
+     * @param pdfStyles
      */
-    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, PdfParagraphConfig config) {
+    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, PdfStyle... pdfStyles) {
         for (Field field : fieldList) {
             String cellValue = getCellValue(obj, field);
-            PdfPCell cell = createCell(cellValue, config);
+            PdfPCell cell = createCell(cellValue, pdfStyles);
             //拦截单元格
             if (obj instanceof PDFTableIntercepter) {
                 ((PDFTableIntercepter) obj).interceptPdfContentCell(cell, obj, field);
@@ -674,47 +641,45 @@ public class PDFBuilder {
      * @param text
      * @return
      */
-    private Paragraph createParagraph(String text, PdfParagraphConfig config) {
-        Paragraph paragraph = new Paragraph(text, createFont(config));
-        paragraph.setFirstLineIndent(config.getFirstLineIndent() * config.getFontSize());
-        paragraph.setAlignment(config.getAlignment());
-        paragraph.setLeading(config.getLineHeight());
+    private Paragraph createParagraph(String text, PdfStyle... pdfStyles) {
+        Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
+        for (PdfStyle pdfStyle : pdfStyles) {
+            if (PdfStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+                pdfStyle.wrapperStyle(paragraph);
+            }
+        }
         return paragraph;
     }
 
 
     /**
-     * 创建认字体
+     * 创建字体
      *
      * @return
      */
-    private Font createFont(PdfParagraphConfig config) {
-        int fontSize = config.getFontSize();
-        BaseColor fontColor = config.getFontColor();
-        int fontStyle = config.getFontStyle();
-        String fontFamily = config.getFontFamily();
-        /**
-         * ① fontname:字体
-         * ② encoding:编码方式
-         * ③ size:字号
-         * ④ style:文本类型
-         *      NORMAL	正常
-         *      BOLD	粗体
-         *      ITALIC	斜体
-         *      UNDERLINE 下划线
-         *      STRIKETHRU	中划线
-         *      BOLDITALIC   加粗并斜体
-         *      UNDEFINED	中划线
-         *      DEFAULTSIZE	下划线并中划线
-         */
+    private Font createFont(PdfStyle... pdfStyles) {
+        String fontFamily = null;
+        Font font;
         try {
-            if (fontFamily != null) {
-                BaseFont baseFont = BaseFont.createFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-                return new Font(baseFont, fontSize, fontStyle, fontColor);
+            for (PdfStyle pdfStyle : pdfStyles) {
+                if (pdfStyle instanceof PdfStyle.Font && (fontFamily = ((PdfStyle.Font) pdfStyle).getFamilyStyle()) != null) {
+                    break;
+                }
             }
+            font = fontFamily != null ?
+                    FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED)
+                    : FontFactory.getFont("fonts/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            font.setStyle(Font.NORMAL);
+            font.setSize(Font.DEFAULTSIZE);
         } catch (Exception ignored) {
+            font = FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
         }
-        return FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED, fontSize, fontStyle, fontColor);
+        for (PdfStyle pdfStyle : pdfStyles) {
+            if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+                pdfStyle.wrapperStyle(font);
+            }
+        }
+        return font;
     }
 
 
@@ -722,11 +687,11 @@ public class PDFBuilder {
      * 创建表格单元格
      *
      * @param text
-     * @param fontConfig
+     * @param pdfStyles
      * @return
      */
-    private PdfPCell createCell(String text, PdfParagraphConfig fontConfig) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, createFont(fontConfig)));
+    private PdfPCell createCell(String text, PdfStyle... pdfStyles) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, createFont(pdfStyles)));
         // 设置单元格的水平和垂直对齐方式
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -747,18 +712,15 @@ public class PDFBuilder {
             paragraph = new Paragraph();
         }
 
-        public NowrapBuilder addText(String text, PdfParagraphConfig config) {
-            Chunk chunk = new Chunk(text, createFont(config));
+        public NowrapBuilder addText(String text, PdfStyle... pdfStyles) {
+            Chunk chunk = new Chunk(text, createFont(pdfStyles));
             paragraph.add(chunk);
-            paragraph.setFirstLineIndent(config.getFirstLineIndent() * config.getFontSize());
-            paragraph.setAlignment(config.getAlignment());
-            paragraph.setLeading(config.getLineHeight());
+            for (PdfStyle pdfStyle : pdfStyles) {
+                if (PdfStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+                    pdfStyle.wrapperStyle(paragraph);
+                }
+            }
             return this;
-        }
-
-
-        public NowrapBuilder addText(String text) {
-            return addText(text, PdfParagraphConfig.create());
         }
 
 
@@ -770,5 +732,30 @@ public class PDFBuilder {
                 throw new RuntimeException("写入文本发生异常", e);
             }
         }
+    }
+
+    public static void main(String[] args) {
+        PDFBuilder.create()
+                .addParagraph("哈哈哈", PdfStyle.Font.BOLD, PdfStyle.Font.UNDER_LINE, PdfStyle.Font.ITALIC)
+                .addParagraph("哈哈哈", PdfStyle.Font.ITALIC)
+                .addParagraph("哈哈哈", PdfStyle.Font.BOLD_ITALIC)
+                .addParagraph("哈哈哈", PdfStyle.Font.NORMAL)
+                .addParagraph("哈哈哈", PdfStyle.Font.UNDER_LINE)
+                .addParagraph("哈哈哈", PdfStyle.Font.DELETE_LINE)
+                .addParagraph("哈哈哈", PdfStyle.Font.fontColor(BaseColor.BLUE))
+                .addParagraph("哈哈哈", PdfStyle.Font.fontSize(40))
+                .addParagraph("哈哈哈", PdfStyle.Paragraph.ALIGN_CENTER)
+                .addParagraph("哈哈哈", PdfStyle.Paragraph.ALIGN_RIGHT)
+                .addParagraph("哈哈哈", PdfStyle.Paragraph.ALIGN_LEFT)
+                .addParagraph("哈哈哈", PdfStyle.Paragraph.firstLineIndent(2), PdfStyle.Font.fontColor(BaseColor.BLUE), PdfStyle.Font.fontSize(40))
+                .addParagraph("哈哈哈", PdfStyle.Paragraph.lineSpacing(5))
+                .startRow()
+                .addText("hahaha", PdfStyle.Font.ITALIC)
+                .addText("hahaha", PdfStyle.Font.BOLD)
+                .addText("hahaha", PdfStyle.Font.BOLD_ITALIC)
+                .endRow()
+                .addParagraph("呜呜呜")
+                .addParagraph("呜呜呜", PdfStyle.Font.fontFamily("C:\\Windows\\Fonts\\STHUPO.TTF"))
+                .asFile("d:/desktop/demo.pdf");
     }
 }
