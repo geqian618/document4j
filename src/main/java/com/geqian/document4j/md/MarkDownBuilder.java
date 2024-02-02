@@ -684,13 +684,4 @@ public class MarkDownBuilder {
 
     }
 
-
-    public static void main(String[] args) {
-        MarkDownBuilder.create(true)
-                .raw("### hahaaha")
-                .raw("**hahaaha**")
-                .raw("### hahaaha")
-                .asFile("d:/desktop/demo.md");
-    }
-
 }

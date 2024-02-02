@@ -734,28 +734,4 @@ public class PDFBuilder {
         }
     }
 
-    public static void main(String[] args) {
-        PDFBuilder.create()
-                .addParagraph("哈哈哈", PdfStyle.Font.BOLD, PdfStyle.Font.UNDER_LINE, PdfStyle.Font.ITALIC)
-                .addParagraph("哈哈哈", PdfStyle.Font.ITALIC)
-                .addParagraph("哈哈哈", PdfStyle.Font.BOLD_ITALIC)
-                .addParagraph("哈哈哈", PdfStyle.Font.NORMAL)
-                .addParagraph("哈哈哈", PdfStyle.Font.UNDER_LINE)
-                .addParagraph("哈哈哈", PdfStyle.Font.DELETE_LINE)
-                .addParagraph("哈哈哈", PdfStyle.Font.fontColor(BaseColor.BLUE))
-                .addParagraph("哈哈哈", PdfStyle.Font.fontSize(40))
-                .addParagraph("哈哈哈", PdfStyle.Paragraph.ALIGN_CENTER)
-                .addParagraph("哈哈哈", PdfStyle.Paragraph.ALIGN_RIGHT)
-                .addParagraph("哈哈哈", PdfStyle.Paragraph.ALIGN_LEFT)
-                .addParagraph("哈哈哈", PdfStyle.Paragraph.firstLineIndent(2), PdfStyle.Font.fontColor(BaseColor.BLUE), PdfStyle.Font.fontSize(40))
-                .addParagraph("哈哈哈", PdfStyle.Paragraph.lineSpacing(5))
-                .startRow()
-                .addText("hahaha", PdfStyle.Font.ITALIC)
-                .addText("hahaha", PdfStyle.Font.BOLD)
-                .addText("hahaha", PdfStyle.Font.BOLD_ITALIC)
-                .endRow()
-                .addParagraph("呜呜呜")
-                .addParagraph("呜呜呜", PdfStyle.Font.fontFamily("C:\\Windows\\Fonts\\STHUPO.TTF"))
-                .asFile("d:/desktop/demo.pdf");
-    }
 }
