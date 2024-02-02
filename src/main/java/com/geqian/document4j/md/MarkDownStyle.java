@@ -4,7 +4,7 @@ package com.geqian.document4j.md;
  * @author geqian
  * @date 1:36 2024/1/31
  */
-public class MarkDownConfig {
+public class MarkDownStyle {
 
     /**
      * 对齐方式
