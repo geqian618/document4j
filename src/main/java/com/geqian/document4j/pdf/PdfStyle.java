@@ -139,9 +139,52 @@ public interface PdfStyle {
         public static Paragraph lineSpacing(float lineSpacing) {
             return new Paragraph(paragraph -> {
                 float fontSize = paragraph.getFont().getSize();
-                paragraph.setSpacingBefore(fontSize * (lineSpacing - 1));
-                paragraph.setSpacingAfter(fontSize * (lineSpacing - 1));
+                paragraph.setLeading(fontSize * lineSpacing);
+            });
+        }
+
+
+        /**
+         * 段落间距倍数
+         *
+         * @param paragraphSpacing
+         * @return
+         */
+        public static Paragraph paragraphSpacing(float paragraphSpacing) {
+            return new Paragraph(paragraph -> {
+                float fontSize = paragraph.getFont().getSize();
+                paragraph.setSpacingBefore(fontSize * (paragraphSpacing - 1));
+                paragraph.setSpacingAfter(fontSize * (paragraphSpacing - 1));
+            });
+        }
+
+
+        /**
+         * 段落前间距倍数
+         *
+         * @param spacing
+         * @return
+         */
+        public static Paragraph paragraphBeforeSpacing(float spacing) {
+            return new Paragraph(paragraph -> {
+                float fontSize = paragraph.getFont().getSize();
+                paragraph.setSpacingBefore(fontSize * (spacing - 1));
+            });
+        }
+
+
+        /**
+         * 段落后间距倍数
+         *
+         * @param spacing
+         * @return
+         */
+        public static Paragraph paragraphAfterSpacing(float spacing) {
+            return new Paragraph(paragraph -> {
+                float fontSize = paragraph.getFont().getSize();
+                paragraph.setSpacingAfter(fontSize * (spacing - 1));
             });
         }
     }
+
 }
