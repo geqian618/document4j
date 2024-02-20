@@ -139,10 +139,9 @@ public interface PdfStyle {
         public static Paragraph lineSpacing(float lineSpacing) {
             return new Paragraph(paragraph -> {
                 float fontSize = paragraph.getFont().getSize();
-                paragraph.setLeading(fontSize * lineSpacing);
+                paragraph.setSpacingBefore(fontSize * (lineSpacing - 1));
+                paragraph.setSpacingAfter(fontSize * (lineSpacing - 1));
             });
         }
     }
-
-
 }
