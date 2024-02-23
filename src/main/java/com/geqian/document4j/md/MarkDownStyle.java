@@ -9,14 +9,14 @@ public class MarkDownStyle {
     /**
      * 对齐方式
      */
-    public enum Alignment {
+    public enum CellAlignment {
         LEFT(":-"),
         RIGHT("-:"),
         CENTER(":-:");
 
         private final String alignment;
 
-        Alignment(String alignment) {
+        CellAlignment(String alignment) {
             this.alignment = alignment;
         }
 
@@ -52,7 +52,7 @@ public class MarkDownStyle {
     /**
      * 字体样式
      */
-    public enum FontStyle {
+    public enum Font {
 
         BOLD("**%s**"),
         ITALIC("*%s*"),
@@ -62,7 +62,7 @@ public class MarkDownStyle {
 
         private final String template;
 
-        FontStyle(String template) {
+        Font(String template) {
             this.template = template;
         }
 

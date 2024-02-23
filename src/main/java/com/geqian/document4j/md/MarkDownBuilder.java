@@ -83,8 +83,8 @@ public class MarkDownBuilder {
      * @param styles
      * @return
      */
-    public MarkDownBuilder text(String text, MarkDownStyle.FontStyle... styles) {
-        for (MarkDownStyle.FontStyle style : styles) {
+    public MarkDownBuilder text(String text, MarkDownStyle.Font... styles) {
+        for (MarkDownStyle.Font style : styles) {
             text = style.fillStyle(text);
         }
         stringBuffer.append(text).append("\n");
@@ -99,8 +99,8 @@ public class MarkDownBuilder {
      * @param styles
      * @return
      */
-    public MarkDownBuilder text(String text, int size, MarkDownStyle.FontStyle... styles) {
-        for (MarkDownStyle.FontStyle style : styles) {
+    public MarkDownBuilder text(String text, int size, MarkDownStyle.Font... styles) {
+        for (MarkDownStyle.Font style : styles) {
             text = style.fillStyle(text);
         }
         text = String.format("<font size=\"%s\">%s</font>\n", size, text);
@@ -116,8 +116,8 @@ public class MarkDownBuilder {
      * @param styles
      * @return
      */
-    public MarkDownBuilder text(String text, String color, MarkDownStyle.FontStyle... styles) {
-        for (MarkDownStyle.FontStyle style : styles) {
+    public MarkDownBuilder text(String text, String color, MarkDownStyle.Font... styles) {
+        for (MarkDownStyle.Font style : styles) {
             text = style.fillStyle(text);
         }
         text = String.format("<font color=\"%s\">%s</font>\n", color, text);
@@ -135,8 +135,8 @@ public class MarkDownBuilder {
      * @param styles
      * @return
      */
-    public MarkDownBuilder text(String text, int fontSize, String color, MarkDownStyle.FontStyle... styles) {
-        for (MarkDownStyle.FontStyle style : styles) {
+    public MarkDownBuilder text(String text, int fontSize, String color, MarkDownStyle.Font... styles) {
+        for (MarkDownStyle.Font style : styles) {
             text = style.fillStyle(text);
         }
         text = String.format("<font size=\"%d\" color=\"%s\">%s</font>\n", fontSize, color, text);
@@ -271,7 +271,7 @@ public class MarkDownBuilder {
      * @param alignment
      * @return
      */
-    public <T extends WriteTableable> MarkDownBuilder table(List<T> dataList, MarkDownStyle.Alignment alignment) {
+    public <T extends WriteTableable> MarkDownBuilder table(List<T> dataList, MarkDownStyle.CellAlignment alignment) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
@@ -315,7 +315,7 @@ public class MarkDownBuilder {
      * @param alignment
      * @return
      */
-    public MarkDownBuilder table(Object[][] data, MarkDownStyle.Alignment alignment) {
+    public MarkDownBuilder table(Object[][] data, MarkDownStyle.CellAlignment alignment) {
         StringBuilder tableBuilder = new StringBuilder();
         if (data != null && data.length > 0) {
             for (int i = 0; i < data.length; i++) {
@@ -476,7 +476,7 @@ public class MarkDownBuilder {
      * @param tableBuilder
      * @param tableHeaders
      */
-    private void writeTableHeaders(StringBuilder tableBuilder, List<String> tableHeaders, MarkDownStyle.Alignment alignment) {
+    private void writeTableHeaders(StringBuilder tableBuilder, List<String> tableHeaders, MarkDownStyle.CellAlignment alignment) {
         if (tableHeaders != null && !tableHeaders.isEmpty()) {
             for (String header : tableHeaders) {
                 tableBuilder.append("|").append(header);
@@ -597,8 +597,8 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder text(String text, MarkDownStyle.FontStyle... styles) {
-            for (MarkDownStyle.FontStyle style : styles) {
+        public NowrapBuilder text(String text, MarkDownStyle.Font... styles) {
+            for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
             subStringBuffer.append(text);
@@ -613,8 +613,8 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder text(String text, int size, MarkDownStyle.FontStyle... styles) {
-            for (MarkDownStyle.FontStyle style : styles) {
+        public NowrapBuilder text(String text, int size, MarkDownStyle.Font... styles) {
+            for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
             text = String.format("<font size=\"%s\">%s</font>", size, text);
@@ -630,8 +630,8 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder text(String text, String color, MarkDownStyle.FontStyle... styles) {
-            for (MarkDownStyle.FontStyle style : styles) {
+        public NowrapBuilder text(String text, String color, MarkDownStyle.Font... styles) {
+            for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
             text = String.format("<font color=\"%s\">%s</font>", color, text);
@@ -649,8 +649,8 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder text(String text, int fontSize, String color, MarkDownStyle.FontStyle... styles) {
-            for (MarkDownStyle.FontStyle style : styles) {
+        public NowrapBuilder text(String text, int fontSize, String color, MarkDownStyle.Font... styles) {
+            for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
             text = String.format("<font size=\"%d\" color=\"%s\">%s</font>", fontSize, color, text);
