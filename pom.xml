@@ -53,16 +53,11 @@
 
     <build>
         <plugins>
-            <!--            含第三方依赖一并打包-->
+            <!--含第三方依赖一并打包-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
-                    <!--                    这部分可有可无,加上的话则直接生成可运行jar包-->
-                    <!--                    <archive>-->
-                    <!--                        <manifest>-->
-                    <!--                            <mainClass>${exec.mainClass}</mainClass>-->
-                    <!--                        </manifest>-->
-                    <!--                    </archive>-->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
