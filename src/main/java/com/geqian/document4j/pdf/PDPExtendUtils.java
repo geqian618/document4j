@@ -1,10 +1,13 @@
 package com.geqian.document4j.pdf;
 
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -96,7 +99,7 @@ public class PDPExtendUtils {
             reader = new PdfReader(is);
             stamper = new PdfStamper(reader, os);
             // 水印字体
-            BaseFont base = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
+            Font font = createFont();
             PdfGState gs = new PdfGState();
             gs.setFillOpacity(0.3f);
             gs.setStrokeOpacity(0.4f);
@@ -118,7 +121,7 @@ public class PDPExtendUtils {
                 under.saveState();
                 under.setGState(gs);
                 under.beginText();
-                under.setFontAndSize(base, 20);
+                under.setFontAndSize(font.getBaseFont(), 20);
                 under.setRGBColorFill(145, 145, 145);
                 // 页面填充水印
                 for (int height = textH; height < pageRect.getHeight(); height = height + textH * 10) {
@@ -197,5 +200,36 @@ public class PDPExtendUtils {
             }
         }
     }
+
+    /**
+     * 创建字体
+     *
+     * @return
+     */
+    private static com.itextpdf.text.Font createFont(PdfStyle... pdfStyles) {
+        String fontFamily = null;
+        com.itextpdf.text.Font font;
+        try {
+            for (PdfStyle pdfStyle : pdfStyles) {
+                if (pdfStyle instanceof PdfStyle.Font && (fontFamily = ((PdfStyle.Font) pdfStyle).getFamilyStyle()) != null) {
+                    break;
+                }
+            }
+            font = fontFamily != null ?
+                    FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED)
+                    : FontFactory.getFont("fonts/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+        } catch (Exception ignored) {
+            font = FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        }
+        font.setStyle(com.itextpdf.text.Font.NORMAL);
+        font.setSize(Font.DEFAULTSIZE);
+        for (PdfStyle pdfStyle : pdfStyles) {
+            if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+                pdfStyle.wrapperStyle(font);
+            }
+        }
+        return font;
+    }
+
 
 }

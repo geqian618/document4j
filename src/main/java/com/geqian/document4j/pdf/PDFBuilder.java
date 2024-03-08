@@ -245,16 +245,6 @@ public class PDFBuilder {
     }
 
 
-    public PDFBuilder addWatermark(String watermark) throws DocumentException {
-
-        PdfWriter writer = PdfWriter.getInstance(document, out);
-
-        writer.setPageEvent(new WaterMarkEvent(createFont(), watermark));
-
-        return this;
-    }
-
-
     /**
      * 添加表格
      *
