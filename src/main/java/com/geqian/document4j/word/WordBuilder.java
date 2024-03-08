@@ -184,8 +184,8 @@ public class WordBuilder {
 
             XWPFTable table = createTable(rows, colums);
 
-            if (writeTableable instanceof WordTableIntercepter) {
-                ((WordTableIntercepter) writeTableable).interceptWordTable(table);
+            if (writeTableable instanceof WordTableInterceptor) {
+                ((WordTableInterceptor) writeTableable).interceptWordTable(table);
             }
 
             //加载枚举映射关系
@@ -201,8 +201,8 @@ public class WordBuilder {
                 //获取表头
                 List<String> tableHeaders = getTableHeaders(fields);
 
-                if (writeTableable instanceof WordTableIntercepter) {
-                    ((WordTableIntercepter) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
+                if (writeTableable instanceof WordTableInterceptor) {
+                    ((WordTableInterceptor) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
                 }
 
                 //写入表头
@@ -429,8 +429,8 @@ public class WordBuilder {
 
             addParagraph(paragraph, tableHeaders.get(i), wordStyles);
 
-            if (obj instanceof WordTableIntercepter) {
-                ((WordTableIntercepter) obj).interceptWordHeaderCell(cell, paragraph, obj.getClass());
+            if (obj instanceof WordTableInterceptor) {
+                ((WordTableInterceptor) obj).interceptWordHeaderCell(cell, paragraph, obj.getClass());
             }
         }
     }
@@ -466,8 +466,8 @@ public class WordBuilder {
             String cellValue = getCellValue(obj, fieldList.get(i));
             addParagraph(paragraph, cellValue, wordStyles);
             //拦截单元格
-            if (obj instanceof WordTableIntercepter) {
-                ((WordTableIntercepter) obj).interceptWordContentCell(cell, paragraph, obj, fieldList.get(i));
+            if (obj instanceof WordTableInterceptor) {
+                ((WordTableInterceptor) obj).interceptWordContentCell(cell, paragraph, obj, fieldList.get(i));
             }
         }
     }
@@ -565,8 +565,8 @@ public class WordBuilder {
                 .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
 
-        if (obj instanceof WordTableIntercepter) {
-            fields = ((WordTableIntercepter) obj).interceptWordFields(obj.getClass(), fields);
+        if (obj instanceof WordTableInterceptor) {
+            fields = ((WordTableInterceptor) obj).interceptWordFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {

@@ -13,7 +13,7 @@ import java.util.List;
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface WordTableIntercepter extends WriteTableable {
+public interface WordTableInterceptor extends WriteTableable {
 
     /**
      * 拦截写入表格的属性集合

@@ -246,8 +246,8 @@ public class PDFBuilder {
             PdfPTable table = createTable(colums);
 
 
-            if (writeTableable instanceof PDFTableIntercepter) {
-                ((PDFTableIntercepter) writeTableable).interceptPdfTable(table);
+            if (writeTableable instanceof PDFTableInterceptor) {
+                ((PDFTableInterceptor) writeTableable).interceptPdfTable(table);
             }
 
             //加载枚举映射关系
@@ -260,8 +260,8 @@ public class PDFBuilder {
                 //获取表头
                 List<String> tableHeaders = getTableHeaders(fields);
 
-                if (writeTableable instanceof PDFTableIntercepter) {
-                    ((PDFTableIntercepter) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
+                if (writeTableable instanceof PDFTableInterceptor) {
+                    ((PDFTableInterceptor) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
                 }
                 //写入表头
                 writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
@@ -457,8 +457,8 @@ public class PDFBuilder {
 
         for (String header : tableHeaders) {
             PdfPCell cell = createCell(header, pdfStyles);
-            if (obj instanceof PDFTableIntercepter) {
-                ((PDFTableIntercepter) obj).interceptPdfHeaderCell(cell, obj.getClass());
+            if (obj instanceof PDFTableInterceptor) {
+                ((PDFTableInterceptor) obj).interceptPdfHeaderCell(cell, obj.getClass());
             }
             table.addCell(cell);
         }
@@ -492,8 +492,8 @@ public class PDFBuilder {
             String cellValue = getCellValue(obj, field);
             PdfPCell cell = createCell(cellValue, pdfStyles);
             //拦截单元格
-            if (obj instanceof PDFTableIntercepter) {
-                ((PDFTableIntercepter) obj).interceptPdfContentCell(cell, obj, field);
+            if (obj instanceof PDFTableInterceptor) {
+                ((PDFTableInterceptor) obj).interceptPdfContentCell(cell, obj, field);
             }
             table.addCell(cell);
         }
@@ -569,8 +569,8 @@ public class PDFBuilder {
                 .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
 
-        if (obj instanceof PDFTableIntercepter) {
-            fields = ((PDFTableIntercepter) obj).interceptPdfFields(obj.getClass(), fields);
+        if (obj instanceof PDFTableInterceptor) {
+            fields = ((PDFTableInterceptor) obj).interceptPdfFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {

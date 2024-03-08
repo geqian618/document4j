@@ -10,7 +10,7 @@ import java.util.List;
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface PDFTableIntercepter {
+public interface PDFTableInterceptor {
 
 
     /**

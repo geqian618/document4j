@@ -289,8 +289,8 @@ public class MarkDownBuilder {
             //获取表头
             List<String> tableHeaders = getTableHeaders(fields);
 
-            if (writeTableable instanceof MarkdownTableIntercepter) {
-                ((MarkdownTableIntercepter) writeTableable).interceptMdHeaders(writeTableable.getClass(), tableHeaders);
+            if (writeTableable instanceof MarkdownTableInterceptor) {
+                ((MarkdownTableInterceptor) writeTableable).interceptMdHeaders(writeTableable.getClass(), tableHeaders);
             }
 
             StringBuilder tableBuilder = new StringBuilder();
@@ -354,8 +354,8 @@ public class MarkDownBuilder {
         for (Field field : fieldList) {
             String cellValue = getCellValue(obj, field);
             //拦截单元格
-            if (obj instanceof MarkdownTableIntercepter) {
-                cellValue = ((MarkdownTableIntercepter) obj).interceptMdCellValue(cellValue, obj, field);
+            if (obj instanceof MarkdownTableInterceptor) {
+                cellValue = ((MarkdownTableInterceptor) obj).interceptMdCellValue(cellValue, obj, field);
             }
             tableBuilder.append("|").append(cellValue);
         }
@@ -458,8 +458,8 @@ public class MarkDownBuilder {
                 .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
 
-        if (obj instanceof MarkdownTableIntercepter) {
-            fields = ((MarkdownTableIntercepter) obj).interceptMdFields(obj.getClass(), fields);
+        if (obj instanceof MarkdownTableInterceptor) {
+            fields = ((MarkdownTableInterceptor) obj).interceptMdFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {
