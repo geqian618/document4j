@@ -47,6 +47,21 @@ public class WordBuilder {
     }
 
     /**
+     * 基于模板创建一个WordBuilder
+     *
+     * @return
+     */
+    public static WordBuilder create(String templatePath) {
+        try {
+            FileInputStream inputStream = new FileInputStream(templatePath);
+            return new WordBuilder(new XWPFDocument(inputStream));
+        } catch (IOException e) {
+            throw new RuntimeException("获取word模板时发生异常", e);
+        }
+    }
+
+
+    /**
      * 换行
      *
      * @return
