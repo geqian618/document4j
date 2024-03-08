@@ -6,12 +6,10 @@ import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
 import com.geqian.document4j.common.extend.WriteTableable;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -46,20 +44,25 @@ public class PDFBuilder {
 
     private final Document document;
 
+    private PdfWriter pdfWriter;
+
     private final ByteArrayOutputStream out;
 
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
-    private PDFBuilder() {
+    private PDFBuilder(String watermark) {
         try {
             this.document = new Document(PageSize.A4);
             float padding = PageSize.A4.getWidth() * 0.1f;
             // 设置左右填充为页面宽度的 10%
             document.setMargins(padding, padding, 36, 36);
             this.out = new ByteArrayOutputStream();
-            PdfWriter.getInstance(this.document, this.out);
+            pdfWriter = PdfWriter.getInstance(this.document, this.out);
+            if (watermark != null && !watermark.trim().isEmpty()) {
+                pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermark));
+            }
             this.document.open();
         } catch (Exception e) {
             throw new RuntimeException("创建PdfBuilder异常", e);
@@ -67,13 +70,16 @@ public class PDFBuilder {
     }
 
 
-    private PDFBuilder(Rectangle pageSize, float margin) {
+    private PDFBuilder(Rectangle pageSize, float margin, String watermark) {
         try {
             this.document = new Document(pageSize);
             // 设置左右填充为页面宽度的 10%
             document.setMargins(margin, margin, margin, margin);
             this.out = new ByteArrayOutputStream();
-            PdfWriter.getInstance(this.document, this.out);
+            pdfWriter = PdfWriter.getInstance(this.document, this.out);
+            if (watermark != null && !watermark.trim().isEmpty()) {
+                pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermark));
+            }
             this.document.open();
         } catch (Exception e) {
             throw new RuntimeException("创建PdfBuilder异常", e);
@@ -81,13 +87,16 @@ public class PDFBuilder {
     }
 
 
-    private PDFBuilder(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom) {
+    private PDFBuilder(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom, String watermarkText) {
         try {
             this.document = new Document(pageSize);
             // 设置左右填充为页面宽度的 10%
             document.setMargins(marginLeft, marginRight, marginTop, marginBottom);
             this.out = new ByteArrayOutputStream();
             PdfWriter.getInstance(this.document, this.out);
+            if (watermarkText != null && !watermarkText.trim().isEmpty()) {
+                pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermarkText));
+            }
             this.document.open();
         } catch (Exception e) {
             throw new RuntimeException("创建PdfBuilder异常", e);
@@ -95,17 +104,29 @@ public class PDFBuilder {
     }
 
     public static PDFBuilder create() {
-        return new PDFBuilder();
+        return new PDFBuilder(null);
+    }
+
+    public static PDFBuilder create(String watermark) {
+        return new PDFBuilder(watermark);
     }
 
 
     public static PDFBuilder create(Rectangle pageSize, float margin) {
-        return new PDFBuilder(pageSize, margin);
+        return new PDFBuilder(pageSize, margin, null);
+    }
+
+    public static PDFBuilder create(Rectangle pageSize, float margin, String watermark) {
+        return new PDFBuilder(pageSize, margin, watermark);
     }
 
 
     public static PDFBuilder create(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom) {
-        return new PDFBuilder(pageSize, marginLeft, marginRight, marginTop, marginBottom);
+        return new PDFBuilder(pageSize, marginLeft, marginRight, marginTop, marginBottom, null);
+    }
+
+    public static PDFBuilder create(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom, String watermark) {
+        return new PDFBuilder(pageSize, marginLeft, marginRight, marginTop, marginBottom, watermark);
     }
 
 
@@ -224,6 +245,16 @@ public class PDFBuilder {
     }
 
 
+    public PDFBuilder addWatermark(String watermark) throws DocumentException {
+
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+
+        writer.setPageEvent(new WaterMarkEvent(createFont(), watermark));
+
+        return this;
+    }
+
+
     /**
      * 添加表格
      *
@@ -334,6 +365,7 @@ public class PDFBuilder {
             log.error("生成pdf文件发生异常", e);
             return new byte[0];
         } finally {
+            closePdfWriter(pdfWriter);
             //关闭输出流
             closeResource(this.out);
         }
@@ -630,6 +662,17 @@ public class PDFBuilder {
             } catch (Exception e) {
                 log.error("资源释放出出现异常", e);
             }
+        }
+    }
+
+    /**
+     * 关闭资源
+     *
+     * @param pdfWriter
+     */
+    private void closePdfWriter(PdfWriter pdfWriter) {
+        if (pdfWriter != null) {
+            pdfWriter.close();
         }
     }
 
