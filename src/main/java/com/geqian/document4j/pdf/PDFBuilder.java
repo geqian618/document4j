@@ -167,9 +167,6 @@ public class PDFBuilder {
     }
 
 
-    private boolean isNotBlank(String text) {
-        return text != null && !text.trim().isEmpty();
-    }
 
     /**
      * 换行
@@ -776,6 +773,9 @@ public class PDFBuilder {
         return cell;
     }
 
+    private boolean isNotBlank(String text) {
+        return text != null && !text.trim().isEmpty();
+    }
 
     public class NowrapBuilder {
 
