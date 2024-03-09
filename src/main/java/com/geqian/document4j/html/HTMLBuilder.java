@@ -440,8 +440,8 @@ public class HTMLBuilder {
 
 
     private String tableDefaultStyle() {
-        return "table {text-align: center;border-collapse: collapse;width: 100%;margin-left: auto;margin-right: auto;}table thead {text-align: left;}table th {height: 40px;}table td {height: 30px;}\n" +
-                "table, th, td {border: 1px solid #b4b3b3;}";
+        return "table {text-align: left;border-collapse: collapse;width: 100%;margin-left: auto;margin-right: auto;}table thead {text-align: left;}table th {height: 40px;}table td {height: 30px;}\n" +
+                "table, th, td {border: 1px solid #b4b3b3;padding-left: 10px;padding-right: 10px;}";
     }
 
 }
