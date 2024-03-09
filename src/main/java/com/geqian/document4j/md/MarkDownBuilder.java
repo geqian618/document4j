@@ -6,6 +6,7 @@ import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.extend.WriteTableable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,11 +36,10 @@ public class MarkDownBuilder {
 
     private MarkDownBuilder(boolean hasCatalogue) {
         this.stringBuffer = new StringBuffer();
-        if (hasCatalogue){
+        if (hasCatalogue) {
             this.stringBuffer.append("[TOC]\n");
         }
     }
-
 
 
     public static MarkDownBuilder create() {
@@ -54,12 +54,12 @@ public class MarkDownBuilder {
     /**
      * 标题
      *
+     * @param text
      * @param title
-     * @param level
      * @return
      */
-    public MarkDownBuilder title(String title, MarkDownStyle.Level level) {
-        stringBuffer.append(level.fillStyle(title));
+    public MarkDownBuilder title(String text, MarkDownStyle.Title title) {
+        stringBuffer.append(title.fillStyle(text));
         return this;
     }
 
@@ -289,7 +289,7 @@ public class MarkDownBuilder {
             List<String> tableHeaders = getTableHeaders(fields);
 
             if (writeTableable instanceof MarkdownTableInterceptor) {
-                ((MarkdownTableInterceptor) writeTableable).interceptMdHeaders(writeTableable.getClass(), tableHeaders);
+                ((MarkdownTableInterceptor) writeTableable).interceptMdHeaders(tableHeaders, writeTableable.getClass());
             }
 
             StringBuilder tableBuilder = new StringBuilder();

@@ -29,18 +29,17 @@ public interface MarkdownTableInterceptor {
      * @param headers 表头名称
      * @return
      */
-    default void interceptMdHeaders(Class<?> type, List<String> headers) {
+    default void interceptMdHeaders(List<String> headers, Class<?> type) {
 
     }
-
 
 
     /**
      * 拦截表格单元格
      *
-     * @param cellValue  单元格值
-     * @param obj   当前写入单元格对象
-     * @param field 当前写入单元格属性
+     * @param cellValue 单元格值
+     * @param obj       当前写入单元格对象
+     * @param field     当前写入单元格属性
      */
     default String interceptMdCellValue(String cellValue, Object obj, Field field) {
         return cellValue;
