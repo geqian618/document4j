@@ -29,11 +29,11 @@ public class MarkDownBuilder {
 
     private Map<String, Converter> converters;
 
-    public MarkDownBuilder() {
+    private MarkDownBuilder() {
         this.stringBuffer = new StringBuffer();
     }
 
-    public MarkDownBuilder(boolean hasCatalogue) {
+    private MarkDownBuilder(boolean hasCatalogue) {
         this.stringBuffer = new StringBuffer();
         if (hasCatalogue){
             this.stringBuffer.append("[TOC]\n");
