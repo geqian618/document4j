@@ -715,7 +715,7 @@ public class PDFBuilder {
         Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
         for (PdfStyle pdfStyle : pdfStyles) {
             if (PdfStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.wrapperStyle(paragraph);
+                pdfStyle.fillStyle(paragraph);
             }
         }
         return paragraph;
@@ -746,7 +746,7 @@ public class PDFBuilder {
         font.setSize(Font.DEFAULTSIZE);
         for (PdfStyle pdfStyle : pdfStyles) {
             if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.wrapperStyle(font);
+                pdfStyle.fillStyle(font);
             }
         }
         return font;
@@ -790,7 +790,7 @@ public class PDFBuilder {
             paragraph.add(chunk);
             for (PdfStyle pdfStyle : pdfStyles) {
                 if (PdfStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
-                    pdfStyle.wrapperStyle(paragraph);
+                    pdfStyle.fillStyle(paragraph);
                 }
             }
             return this;

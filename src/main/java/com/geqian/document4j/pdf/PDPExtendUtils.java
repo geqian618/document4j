@@ -225,7 +225,7 @@ public class PDPExtendUtils {
         font.setSize(Font.DEFAULTSIZE);
         for (PdfStyle pdfStyle : pdfStyles) {
             if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.wrapperStyle(font);
+                pdfStyle.fillStyle(font);
             }
         }
         return font;

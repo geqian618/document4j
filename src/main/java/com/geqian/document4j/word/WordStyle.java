@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  */
 public interface WordStyle {
 
-    void wrapperStyle(Object obj);
+    void fillStyle(Object obj);
 
     class Font implements WordStyle {
         /**
@@ -60,8 +60,10 @@ public interface WordStyle {
         }
 
         @Override
-        public void wrapperStyle(Object run) {
-            this.wrapper.accept((XWPFRun) run);
+        public void fillStyle(Object run) {
+            if (run instanceof XWPFRun){
+                this.wrapper.accept((XWPFRun) run);
+            }
         }
 
 
@@ -138,8 +140,10 @@ public interface WordStyle {
         }
 
         @Override
-        public void wrapperStyle(Object paragraph) {
-            this.wrapper.accept((XWPFParagraph) paragraph);
+        public void fillStyle(Object paragraph) {
+           if (paragraph instanceof XWPFParagraph){
+               this.wrapper.accept((XWPFParagraph) paragraph);
+           }
         }
     }
 
