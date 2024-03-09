@@ -131,6 +131,28 @@ public class PDFBuilder {
 
 
     /**
+     * 设置文档说明（描述）信息
+     *
+     * @param des
+     * @return
+     */
+    public PDFBuilder setDescription(Description des) {
+        this.document.addTitle(des.getTitle());
+        this.document.addAuthor(des.getAuthor());
+        this.document.addSubject(des.getSubject());
+        this.document.addKeywords(des.getKeywords());
+        this.document.addCreator(des.getCreator());
+        if (des.isCreateTime()) {
+            this.document.addCreationDate();
+        }
+        if (des.isProducer()) {
+            this.document.addProducer();
+        }
+        return this;
+    }
+
+
+    /**
      * 换行
      *
      * @return
