@@ -118,7 +118,7 @@ public interface PdfStyle {
 
 
         /**
-         * 段落首行缩进
+         * 段落首行缩进（文本个数）
          *
          * @param firstLineIndent
          * @return
