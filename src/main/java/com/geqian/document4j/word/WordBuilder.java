@@ -23,6 +23,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author geqian
+ * @date 15:18 2024/3/9
+ */
 public class WordBuilder {
 
     private final Logger log = LoggerFactory.getLogger(WordBuilder.class);
