@@ -137,11 +137,26 @@ public class PDFBuilder {
      * @return
      */
     public PDFBuilder setDescription(Description des) {
-        this.document.addTitle(des.getTitle());
-        this.document.addAuthor(des.getAuthor());
-        this.document.addSubject(des.getSubject());
-        this.document.addKeywords(des.getKeywords());
-        this.document.addCreator(des.getCreator());
+        String title = des.getTitle();
+        String author = des.getAuthor();
+        String subject = des.getSubject();
+        String keywords = des.getKeywords();
+        String creator = des.getCreator();
+        if (isNotBlank(title)) {
+            this.document.addTitle(title);
+        }
+        if (isNotBlank(author)) {
+            this.document.addAuthor(author);
+        }
+        if (isNotBlank(subject)) {
+            this.document.addSubject(subject);
+        }
+        if (isNotBlank(keywords)) {
+            this.document.addKeywords(keywords);
+        }
+        if (isNotBlank(creator)) {
+            this.document.addCreator(creator);
+        }
         if (des.isCreateTime()) {
             this.document.addCreationDate();
         }
@@ -151,6 +166,10 @@ public class PDFBuilder {
         return this;
     }
 
+
+    private boolean isNotBlank(String text) {
+        return text != null && !text.trim().isEmpty();
+    }
 
     /**
      * 换行

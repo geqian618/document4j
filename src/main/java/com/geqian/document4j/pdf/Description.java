@@ -21,7 +21,7 @@ public class Description {
     // 关键词
     private String keywords;
 
-    // 创建者
+    // 编写者
     private String creator;
 
     private boolean producer;
