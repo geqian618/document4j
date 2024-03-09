@@ -41,7 +41,7 @@ public class PDPExtendUtils {
             stamper.setEncryption(userPassword.getBytes(StandardCharsets.UTF_8), ownerPassword.getBytes(StandardCharsets.UTF_8), PdfWriter.ALLOW_PRINTING | PdfWriter.ALLOW_COPY, PdfWriter.ENCRYPTION_AES_128);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("PDF文档设置密码时发生异常", e);
         } finally {
             closeResource(stamper, reader);
         }
