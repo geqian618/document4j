@@ -44,7 +44,7 @@ public class PDFBuilder {
 
     private final Document document;
 
-    private PdfWriter pdfWriter;
+    private final PdfWriter pdfWriter;
 
     private final ByteArrayOutputStream out;
 
@@ -93,7 +93,7 @@ public class PDFBuilder {
             // 设置左右填充为页面宽度的 10%
             document.setMargins(marginLeft, marginRight, marginTop, marginBottom);
             this.out = new ByteArrayOutputStream();
-            PdfWriter.getInstance(this.document, this.out);
+            pdfWriter = PdfWriter.getInstance(this.document, this.out);
             if (watermarkText != null && !watermarkText.trim().isEmpty()) {
                 pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermarkText));
             }
