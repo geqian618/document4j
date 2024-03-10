@@ -141,4 +141,123 @@ public interface HTMLStyle {
         }
     }
 
+
+    class Common implements HTMLStyle {
+
+        private final String style;
+
+        public Common(String style) {
+            this.style = style;
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+
+        /**
+         * 上填充
+         *
+         * @param paddingTop
+         * @return
+         */
+        public static Common paddingTop(int paddingTop) {
+            return new Common(String.format("padding-top:%dpx;", paddingTop));
+        }
+
+
+        /**
+         * 下填充
+         *
+         * @param paddingBottom
+         * @return
+         */
+        public static Common paddingBottom(int paddingBottom) {
+            return new Common(String.format("padding-bottom:%dpx;", paddingBottom));
+        }
+
+        /**
+         * 左填充
+         *
+         * @param paddingBottom
+         * @return
+         */
+        public static Common paddingLeft(int paddingBottom) {
+            return new Common(String.format("padding-left:%dpx;", paddingBottom));
+        }
+
+
+        /**
+         * 右填充
+         *
+         * @param paddingBottom
+         * @return
+         */
+        public static Common paddingRight(int paddingBottom) {
+            return new Common(String.format("padding-right:%dpx;", paddingBottom));
+        }
+
+        /**
+         * 填充
+         *
+         * @param padding
+         * @return
+         */
+        public static Common padding(int padding) {
+            return new Common(String.format("padding:%dpx;", padding));
+        }
+
+        /**
+         * 上边距
+         *
+         * @param marginTop
+         * @return
+         */
+        public static Common marginTop(int marginTop) {
+            return new Common(String.format("margin-top:%dpx;", marginTop));
+        }
+
+        /**
+         * 下边距
+         *
+         * @param marginBottom
+         * @return
+         */
+        public static Common marginBottom(int marginBottom) {
+            return new Common(String.format("margin-bottom:%dpx;", marginBottom));
+        }
+
+        /**
+         * 左边距
+         *
+         * @param marginLeft
+         * @return
+         */
+        public static Common marginLeft(int marginLeft) {
+            return new Common(String.format("margin-left:%dpx;", marginLeft));
+        }
+
+
+        /**
+         * 右边距
+         *
+         * @param marginRight
+         * @return
+         */
+        public static Common marginRight(int marginRight) {
+            return new Common(String.format("margin-right:%dpx;", marginRight));
+        }
+
+        /**
+         * 边距
+         *
+         * @param margin
+         * @return
+         */
+        public static Common margin(int margin) {
+            return new Common(String.format("margin:%dpx;", margin));
+        }
+    }
+
 }

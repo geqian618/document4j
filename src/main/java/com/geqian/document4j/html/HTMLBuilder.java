@@ -27,7 +27,7 @@ public class HTMLBuilder {
 
     private final StringBuffer bodyBuffer;
 
-    private StringBuffer styleBuffer;
+    private final StringBuffer styleBuffer;
 
     private Map<String, String> enumMappings;
 
