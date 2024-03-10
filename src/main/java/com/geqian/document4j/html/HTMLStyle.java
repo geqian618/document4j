@@ -66,8 +66,8 @@ public interface HTMLStyle {
             return this.style;
         }
 
-        public static Font fontsize(int fontsize) {
-            return new Font(String.format("font-size:%dpx;", fontsize));
+        public static Font fontsize(String fontsize) {
+            return new Font(String.format("font-size:%s;", fontsize));
         }
 
         public static Font fontFamily(String fontFamily) {
@@ -117,8 +117,8 @@ public interface HTMLStyle {
          * @param lineHeight
          * @return
          */
-        public static Paragraph lineHeight(int lineHeight) {
-            return new Paragraph(String.format("line-height:%dpx;", lineHeight));
+        public static Paragraph lineHeight(String lineHeight) {
+            return new Paragraph(String.format("line-height:%s;", lineHeight));
         }
 
     }
@@ -162,8 +162,8 @@ public interface HTMLStyle {
          * @param paddingTop
          * @return
          */
-        public static Common paddingTop(int paddingTop) {
-            return new Common(String.format("padding-top:%dpx;", paddingTop));
+        public static Common paddingTop(String paddingTop) {
+            return new Common(String.format("padding-top:%s;", paddingTop));
         }
 
 
@@ -173,8 +173,8 @@ public interface HTMLStyle {
          * @param paddingBottom
          * @return
          */
-        public static Common paddingBottom(int paddingBottom) {
-            return new Common(String.format("padding-bottom:%dpx;", paddingBottom));
+        public static Common paddingBottom(String paddingBottom) {
+            return new Common(String.format("padding-bottom:%s;", paddingBottom));
         }
 
         /**
@@ -183,8 +183,8 @@ public interface HTMLStyle {
          * @param paddingBottom
          * @return
          */
-        public static Common paddingLeft(int paddingBottom) {
-            return new Common(String.format("padding-left:%dpx;", paddingBottom));
+        public static Common paddingLeft(String paddingBottom) {
+            return new Common(String.format("padding-left:%s;", paddingBottom));
         }
 
 
@@ -194,8 +194,8 @@ public interface HTMLStyle {
          * @param paddingBottom
          * @return
          */
-        public static Common paddingRight(int paddingBottom) {
-            return new Common(String.format("padding-right:%dpx;", paddingBottom));
+        public static Common paddingRight(String paddingBottom) {
+            return new Common(String.format("padding-right:%s;", paddingBottom));
         }
 
         /**
@@ -204,8 +204,8 @@ public interface HTMLStyle {
          * @param padding
          * @return
          */
-        public static Common padding(int padding) {
-            return new Common(String.format("padding:%dpx;", padding));
+        public static Common padding(String padding) {
+            return new Common(String.format("padding:%s;", padding));
         }
 
         /**
@@ -214,8 +214,8 @@ public interface HTMLStyle {
          * @param marginTop
          * @return
          */
-        public static Common marginTop(int marginTop) {
-            return new Common(String.format("margin-top:%dpx;", marginTop));
+        public static Common marginTop(String marginTop) {
+            return new Common(String.format("margin-top:%s;", marginTop));
         }
 
         /**
@@ -224,8 +224,8 @@ public interface HTMLStyle {
          * @param marginBottom
          * @return
          */
-        public static Common marginBottom(int marginBottom) {
-            return new Common(String.format("margin-bottom:%dpx;", marginBottom));
+        public static Common marginBottom(String marginBottom) {
+            return new Common(String.format("margin-bottom:%s;", marginBottom));
         }
 
         /**
@@ -234,8 +234,8 @@ public interface HTMLStyle {
          * @param marginLeft
          * @return
          */
-        public static Common marginLeft(int marginLeft) {
-            return new Common(String.format("margin-left:%dpx;", marginLeft));
+        public static Common marginLeft(String marginLeft) {
+            return new Common(String.format("margin-left:%s;", marginLeft));
         }
 
 
@@ -245,8 +245,8 @@ public interface HTMLStyle {
          * @param marginRight
          * @return
          */
-        public static Common marginRight(int marginRight) {
-            return new Common(String.format("margin-right:%dpx;", marginRight));
+        public static Common marginRight(String marginRight) {
+            return new Common(String.format("margin-right:%s;", marginRight));
         }
 
         /**
@@ -255,8 +255,8 @@ public interface HTMLStyle {
          * @param margin
          * @return
          */
-        public static Common margin(int margin) {
-            return new Common(String.format("margin:%dpx;", margin));
+        public static Common margin(String margin) {
+            return new Common(String.format("margin:%s;", margin));
         }
     }
 
