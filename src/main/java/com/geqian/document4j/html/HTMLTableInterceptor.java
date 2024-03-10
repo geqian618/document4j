@@ -50,9 +50,9 @@ public interface HTMLTableInterceptor extends WriteTableable {
     /**
      * 拦截表格，用于设置如表格样式等
      *
-     * @param innerCssBuilder 表格样式
+     * @param tableStyleBuilder 表格样式
      */
-    default void interceptHtmlTable(StringBuilder innerCssBuilder) {
+    default void interceptHtmlTable(StringBuilder tableStyleBuilder) {
 
     }
 

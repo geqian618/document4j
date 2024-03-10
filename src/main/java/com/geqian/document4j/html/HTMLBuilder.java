@@ -143,13 +143,15 @@ public class HTMLBuilder {
             }
 
             StringBuilder tableBuilder = new StringBuilder();
-
+            StringBuilder tableStyleBuilder = new StringBuilder();
             if (writeTableable instanceof HTMLTableInterceptor) {
-                StringBuilder innerCssBuilder = new StringBuilder();
-                ((HTMLTableInterceptor) writeTableable).interceptHtmlTable(innerCssBuilder);
-                setInnerCssStyle(innerCssBuilder.toString());
+                ((HTMLTableInterceptor) writeTableable).interceptHtmlTable(tableStyleBuilder);
             }
-            tableBuilder.append("<table>");
+            if (tableStyleBuilder.length() > 0) {
+                tableBuilder.append(String.format("<table style=\"%s\">", tableStyleBuilder));
+            } else {
+                tableBuilder.append("<table>");
+            }
             //写入表头
             writeTableHeaders(writeTableable, tableBuilder, tableHeaders, htmlStyles);
             //写入表格主体数据
