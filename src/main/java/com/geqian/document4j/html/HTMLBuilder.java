@@ -37,7 +37,7 @@ public class HTMLBuilder {
     private HTMLBuilder(String padding) {
         this.bodyBuffer = new StringBuffer();
         this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("* {padding: 0; margin: 0;}p { overflow: auto; word-wrap: break-word;}body{padding:" + padding + "}");
+        setInnerCssStyle("* {padding: 0; margin: 0;box-sizing: border-box;}p { overflow: auto; word-wrap: break-word;}body{padding:" + padding + "}");
         setInnerCssStyle(tableDefaultStyle());
     }
 
