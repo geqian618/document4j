@@ -220,7 +220,7 @@ public class HTMLBuilder {
             if (obj instanceof HTMLTableInterceptor) {
                 cellValue = ((HTMLTableInterceptor) obj).interceptHtmlCell(cellStyleBuilder, cellValue, obj, field);
             }
-            Arrays.stream(htmlStyles).forEach(cellStyleBuilder::append);
+            Arrays.stream(htmlStyles).forEach(style -> cellStyleBuilder.append(style.getStyle()));
             if (cellStyleBuilder.length() > 0) {
                 cellStyleBuilder.insert(0, " style=\"");
                 cellStyleBuilder.append("\"");
@@ -325,7 +325,7 @@ public class HTMLBuilder {
                 if (writeTableable instanceof HTMLTableInterceptor) {
                     ((HTMLTableInterceptor) writeTableable).interceptHtmlHeaderCell(cellStyleBuilder, header, writeTableable.getClass());
                 }
-                Arrays.stream(htmlStyles).forEach(cellStyleBuilder::append);
+                Arrays.stream(htmlStyles).forEach(style -> cellStyleBuilder.append(style.getStyle()));
                 if (cellStyleBuilder.length() > 0) {
                     cellStyleBuilder.insert(0, " style=\"");
                     cellStyleBuilder.append("\"");
