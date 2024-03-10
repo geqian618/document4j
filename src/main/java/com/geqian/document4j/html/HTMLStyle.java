@@ -110,6 +110,17 @@ public interface HTMLStyle {
             return new Paragraph(String.format("text-indent:%dem;", index));
         }
 
+
+        /**
+         * 行高
+         *
+         * @param lineHeight
+         * @return
+         */
+        public static Paragraph lineHeight(int lineHeight) {
+            return new Paragraph(String.format("line-height:%dpx;", lineHeight));
+        }
+
     }
 
 

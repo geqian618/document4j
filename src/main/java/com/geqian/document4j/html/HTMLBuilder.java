@@ -37,21 +37,21 @@ public class HTMLBuilder {
     private HTMLBuilder(String padding) {
         this.bodyBuffer = new StringBuffer();
         this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("body{padding:" + padding + "}");
+        setInnerCssStyle("* {padding: 0; margin: 0;}p { overflow: auto; word-wrap: break-word;}body{padding:" + padding + "}");
         setInnerCssStyle(tableDefaultStyle());
     }
 
     private HTMLBuilder(String paddingLeft, String paddingRight) {
         this.bodyBuffer = new StringBuffer();
         this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("body{padding-left: " + paddingLeft + ";padding-right: " + paddingRight + ";}");
+        setInnerCssStyle("* {padding: 0; margin: 0;}p { overflow: auto; word-wrap: break-word;}body{padding-left: " + paddingLeft + ";padding-right: " + paddingRight + ";}");
         setInnerCssStyle(tableDefaultStyle());
     }
 
     private HTMLBuilder(String paddingTop, String paddingBottom, String paddingLeft, String paddingRight) {
         this.bodyBuffer = new StringBuffer();
         this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("body { padding-top: " + paddingTop + ";padding-bottom:" + paddingBottom + " ;padding-left: " + paddingLeft + ";padding-right: " + paddingRight + "; }");
+        setInnerCssStyle("* {padding: 0; margin: 0;}p { overflow: auto; word-wrap: break-word;}body { padding-top: " + paddingTop + ";padding-bottom:" + paddingBottom + " ;padding-left: " + paddingLeft + ";padding-right: " + paddingRight + "; }");
         setInnerCssStyle(tableDefaultStyle());
     }
 
