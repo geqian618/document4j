@@ -120,7 +120,7 @@ public class HTMLBuilder {
      * @param dataList
      * @return
      */
-    public <T extends WriteTableable> HTMLBuilder addTable(List<T> dataList) {
+    public <T extends WriteTableable> HTMLBuilder addTable(List<T> dataList, HTMLStyle... htmlStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
@@ -151,9 +151,9 @@ public class HTMLBuilder {
             }
             tableBuilder.append("<table>");
             //写入表头
-            writeTableHeaders(writeTableable, tableBuilder, tableHeaders);
+            writeTableHeaders(writeTableable, tableBuilder, tableHeaders, htmlStyles);
             //写入表格主体数据
-            writeTableRows(tableBuilder, dataList, fields);
+            writeTableRows(tableBuilder, dataList, fields, htmlStyles);
             tableBuilder.append("</table>");
 
             bodyBuffer.append(tableBuilder);
@@ -196,10 +196,10 @@ public class HTMLBuilder {
         return this;
     }
 
-    private <T extends WriteTableable> void writeTableRows(StringBuilder tableBuilder, List<T> dataList, List<Field> fields) {
+    private <T extends WriteTableable> void writeTableRows(StringBuilder tableBuilder, List<T> dataList, List<Field> fields, HTMLStyle... htmlStyles) {
         tableBuilder.append("<tbody>");
         for (WriteTableable writeTableable : dataList) {
-            writeTableRow(tableBuilder, writeTableable, fields);
+            writeTableRow(tableBuilder, writeTableable, fields, htmlStyles);
         }
         tableBuilder.append("</tbody>");
     }
@@ -211,7 +211,7 @@ public class HTMLBuilder {
      * @param obj
      * @param fieldList
      */
-    private void writeTableRow(StringBuilder tableBuilder, WriteTableable obj, List<Field> fieldList) {
+    private void writeTableRow(StringBuilder tableBuilder, WriteTableable obj, List<Field> fieldList, HTMLStyle... htmlStyles) {
         StringBuilder cellStyleBuilder = new StringBuilder();
         tableBuilder.append("<tr>");
         for (Field field : fieldList) {
@@ -220,6 +220,7 @@ public class HTMLBuilder {
             if (obj instanceof HTMLTableInterceptor) {
                 cellValue = ((HTMLTableInterceptor) obj).interceptHtmlCell(cellStyleBuilder, cellValue, obj, field);
             }
+            Arrays.stream(htmlStyles).forEach(cellStyleBuilder::append);
             if (cellStyleBuilder.length() > 0) {
                 cellStyleBuilder.insert(0, " style=\"");
                 cellStyleBuilder.append("\"");
@@ -316,7 +317,7 @@ public class HTMLBuilder {
      * @param tableBuilder
      * @param tableHeaders
      */
-    private void writeTableHeaders(WriteTableable writeTableable, StringBuilder tableBuilder, List<String> tableHeaders) {
+    private void writeTableHeaders(WriteTableable writeTableable, StringBuilder tableBuilder, List<String> tableHeaders, HTMLStyle... htmlStyles) {
         if (tableHeaders != null && !tableHeaders.isEmpty()) {
             StringBuilder cellStyleBuilder = new StringBuilder();
             tableBuilder.append("<thead>").append("<tr>");
@@ -324,6 +325,7 @@ public class HTMLBuilder {
                 if (writeTableable instanceof HTMLTableInterceptor) {
                     ((HTMLTableInterceptor) writeTableable).interceptHtmlHeaderCell(cellStyleBuilder, header, writeTableable.getClass());
                 }
+                Arrays.stream(htmlStyles).forEach(cellStyleBuilder::append);
                 if (cellStyleBuilder.length() > 0) {
                     cellStyleBuilder.insert(0, " style=\"");
                     cellStyleBuilder.append("\"");
