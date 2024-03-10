@@ -80,7 +80,7 @@ public interface HTMLStyle {
     }
 
 
-    public class Paragraph implements HTMLStyle {
+    class Paragraph implements HTMLStyle {
 
         private final String style;
 
@@ -124,7 +124,7 @@ public interface HTMLStyle {
     }
 
 
-    public enum Display implements HTMLStyle {
+    enum Display implements HTMLStyle {
         BLOCK("display:block;"),
         INLINE_BLOCK("display:inline-block;"),
         INLINE("display:inline;");
