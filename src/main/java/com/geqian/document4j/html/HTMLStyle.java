@@ -258,6 +258,26 @@ public interface HTMLStyle {
         public static Common margin(String margin) {
             return new Common(String.format("margin:%s;", margin));
         }
+
+        /**
+         * 设置宽度
+         *
+         * @param width
+         * @return
+         */
+        public static Common width(String width) {
+            return new Common(String.format("width:%s;", width));
+        }
+
+        /**
+         * 设置高度
+         *
+         * @param height
+         * @return
+         */
+        public static Common height(String height) {
+            return new Common(String.format("height:%s;", height));
+        }
     }
 
 }
