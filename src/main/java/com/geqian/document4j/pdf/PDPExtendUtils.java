@@ -73,7 +73,7 @@ public class PDPExtendUtils {
      * @param userPassword
      * @param ownerPassword
      */
-    public static byte[] addWaterMark(byte[] inputBytes, String userPassword, String ownerPassword) {
+    public static byte[] setPassword(byte[] inputBytes, String userPassword, String ownerPassword) {
         try (ByteArrayInputStream is = new ByteArrayInputStream(inputBytes);
              ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             setPassword(is, os, userPassword, ownerPassword);
