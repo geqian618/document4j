@@ -94,11 +94,11 @@ public interface HTMLStyle {
         }
 
         // 左对齐
-        public static Paragraph AlignLeft = new Paragraph("text-align:left;");
+        public static Paragraph ALIGN_LEFT = new Paragraph("text-align:left;");
         // 居中对齐
-        public static Paragraph AlignCenter = new Paragraph("text-align:center;");
+        public static Paragraph ALIGN_CENTER = new Paragraph("text-align:center;");
         // 右对齐
-        public static Paragraph AlignRight = new Paragraph("text-align:right;");
+        public static Paragraph ALIGN_RIGHT = new Paragraph("text-align:right;");
 
         /**
          * 首行缩进字符个数
