@@ -6,6 +6,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
+
 import java.math.BigInteger;
 import java.util.function.Consumer;
 
@@ -61,7 +62,7 @@ public interface WordStyle {
 
         @Override
         public void fillStyle(Object run) {
-            if (run instanceof XWPFRun){
+            if (run instanceof XWPFRun) {
                 this.wrapper.accept((XWPFRun) run);
             }
         }
@@ -141,9 +142,9 @@ public interface WordStyle {
 
         @Override
         public void fillStyle(Object paragraph) {
-           if (paragraph instanceof XWPFParagraph){
-               this.wrapper.accept((XWPFParagraph) paragraph);
-           }
+            if (paragraph instanceof XWPFParagraph) {
+                this.wrapper.accept((XWPFParagraph) paragraph);
+            }
         }
     }
 

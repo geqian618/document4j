@@ -9,7 +9,7 @@ public interface MarkDownStyle {
     /**
      * 对齐方式
      */
-    public enum CellAlignment {
+    enum CellAlignment {
         LEFT(":-"),
         RIGHT("-:"),
         CENTER(":-:");
@@ -28,7 +28,7 @@ public interface MarkDownStyle {
     /**
      * 标题级别
      */
-    public enum Title {
+    enum Title {
 
         FIRST("# %s\n"),
         SECOND("## %s\n"),
@@ -52,7 +52,7 @@ public interface MarkDownStyle {
     /**
      * 字体样式
      */
-    public enum Font {
+    enum Font {
 
         BOLD("**%s**"),
         ITALIC("*%s*"),

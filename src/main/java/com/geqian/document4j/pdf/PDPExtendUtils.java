@@ -206,12 +206,12 @@ public class PDPExtendUtils {
      *
      * @return
      */
-    private static com.itextpdf.text.Font createFont(PdfStyle... pdfStyles) {
+    private static com.itextpdf.text.Font createFont(PDFStyle... pdfStyles) {
         String fontFamily = null;
         com.itextpdf.text.Font font;
         try {
-            for (PdfStyle pdfStyle : pdfStyles) {
-                if (pdfStyle instanceof PdfStyle.Font && (fontFamily = ((PdfStyle.Font) pdfStyle).getFamilyStyle()) != null) {
+            for (PDFStyle pdfStyle : pdfStyles) {
+                if (pdfStyle instanceof PDFStyle.Font && (fontFamily = ((PDFStyle.Font) pdfStyle).getFamilyStyle()) != null) {
                     break;
                 }
             }
@@ -223,8 +223,8 @@ public class PDPExtendUtils {
         }
         font.setStyle(com.itextpdf.text.Font.NORMAL);
         font.setSize(Font.DEFAULTSIZE);
-        for (PdfStyle pdfStyle : pdfStyles) {
-            if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+        for (PDFStyle pdfStyle : pdfStyles) {
+            if (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.fillStyle(font);
             }
         }

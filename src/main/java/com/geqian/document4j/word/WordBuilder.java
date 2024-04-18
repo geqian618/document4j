@@ -1,6 +1,5 @@
 package com.geqian.document4j.word;
 
-import com.geqian.document4j.common.annotation.NoTableHeader;
 import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
@@ -70,7 +69,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addCarriageReturn() {
+    public WordBuilder carriageReturn() {
         //创建段落
         document.createParagraph();
         // 对齐方式 paragraph.setAlignment(ParagraphAlignment.CENTER);
@@ -83,7 +82,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addNewPage() {
+    public WordBuilder newPage() {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
         XWPFRun run = paragraph.createRun();
@@ -97,7 +96,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addTitle(String text, WordStyle... wordStyles) {
+    public WordBuilder title(String text, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
         if (wordStyles == null) {
@@ -106,7 +105,7 @@ public class WordBuilder {
             WordStyle.Paragraph center = WordStyle.Paragraph.ALIGN_CENTER;
             wordStyles = new WordStyle[]{bold, fontSize, center};
         }
-        addParagraph(paragraph, text, wordStyles);
+        paragraph(paragraph, text, wordStyles);
         return this;
     }
 
@@ -116,10 +115,10 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder addParagraph(String text, WordStyle... wordStyles) {
+    public WordBuilder paragraph(String text, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
-        addParagraph(paragraph, text, wordStyles);
+        paragraph(paragraph, text, wordStyles);
         return this;
     }
 
@@ -128,7 +127,7 @@ public class WordBuilder {
      *
      * @return
      */
-    private void addParagraph(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
+    private void paragraph(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
 
         //创建段落文本
         XWPFRun run = paragraph.createRun();
@@ -153,9 +152,9 @@ public class WordBuilder {
      * @return
      * @throws Exception
      */
-    public WordBuilder addPicture(byte[] bytes, String filename, int width, int height) {
+    public WordBuilder picture(byte[] bytes, String filename, int width, int height) {
         try (InputStream is = new ByteArrayInputStream(bytes)) {
-            return addPicture(is, filename, width, height);
+            return picture(is, filename, width, height);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -169,7 +168,7 @@ public class WordBuilder {
      * @return
      * @throws Exception
      */
-    public WordBuilder addPicture(InputStream is, String filename, int width, int height) {
+    public WordBuilder picture(InputStream is, String filename, int width, int height) {
         try {
             XWPFParagraph paragraph = document.createParagraph();
             XWPFRun run = paragraph.createRun();
@@ -186,18 +185,16 @@ public class WordBuilder {
      *
      * @param dataList 数据列表
      */
-    public WordBuilder addTable(List<? extends WriteTableable> dataList, WordStyle... wordStyles) {
+    public WordBuilder table(List<? extends WriteTableable> dataList, WordStyle... wordStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
             WriteTableable writeTableable = dataList.get(0);
 
-            NoTableHeader noTableHeader = writeTableable.getClass().getAnnotation(NoTableHeader.class);
-
             //获取需要输出字段
             List<Field> fields = getFieldList(writeTableable);
 
-            int rows = Objects.isNull(noTableHeader) ? dataList.size() + 1 : dataList.size();
+            int rows = dataList.size() + 1;
 
             int colums = fields.size();
 
@@ -213,22 +210,20 @@ public class WordBuilder {
             //加载全部属性值转换器
             loadConverters(fields);
 
-            //表格内容开始行数
-            int startRow = 0;
 
-            if (Objects.isNull(noTableHeader)) {
-                //获取表头
-                List<String> tableHeaders = getTableHeaders(fields);
+            //获取表头
+            List<String> tableHeaders = getTableHeaders(fields);
 
-                if (writeTableable instanceof WordTableInterceptor) {
-                    ((WordTableInterceptor) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
-                }
-
-                //写入表头
-                writeTableHeaders(table, tableHeaders, writeTableable, fields, wordStyles);
-
-                startRow = 1;
+            if (writeTableable instanceof WordTableInterceptor) {
+                ((WordTableInterceptor) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
             }
+
+            //写入表头
+            writeTableHeaders(table, tableHeaders, writeTableable, fields, wordStyles);
+
+            //表格内容开始行数
+            int startRow = 1;
+
             //写入表格主体数据
             writeTableRows(table, startRow, dataList, fields, wordStyles);
         }
@@ -241,7 +236,7 @@ public class WordBuilder {
      *
      * @param rows 数据列表
      */
-    public WordBuilder writeTableRows(Object[][] rows, WordStyle... wordStyles) {
+    public WordBuilder table(Object[][] rows, WordStyle... wordStyles) {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -256,7 +251,7 @@ public class WordBuilder {
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < rows[i].length; j++) {
                         XWPFParagraph paragraph = table.getRow(i).getCell(j).getParagraphs().get(0);
-                        addParagraph(paragraph, String.valueOf(rows[i][j]), wordStyles);
+                        paragraph(paragraph, String.valueOf(rows[i][j]), wordStyles);
                     }
                 }
             }
@@ -446,7 +441,7 @@ public class WordBuilder {
 
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
 
-            addParagraph(paragraph, tableHeaders.get(i), wordStyles);
+            paragraph(paragraph, tableHeaders.get(i), wordStyles);
 
             if (obj instanceof WordTableInterceptor) {
                 ((WordTableInterceptor) obj).interceptWordHeaderCell(cell, paragraph, obj.getClass());
@@ -483,7 +478,7 @@ public class WordBuilder {
             XWPFTableCell cell = table.getRow(rowIndex).getCell(i);
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
             String cellValue = getCellValue(obj, fieldList.get(i));
-            addParagraph(paragraph, cellValue, wordStyles);
+            paragraph(paragraph, cellValue, wordStyles);
             //拦截单元格
             if (obj instanceof WordTableInterceptor) {
                 ((WordTableInterceptor) obj).interceptWordContentCell(cell, paragraph, obj, fieldList.get(i));
@@ -619,13 +614,13 @@ public class WordBuilder {
         }
 
         public NowrapBuilder addText(String text, WordStyle... wordStyles) {
-            WordBuilder.this.addParagraph(paragraph, text, wordStyles);
+            WordBuilder.this.paragraph(paragraph, text, wordStyles);
             return this;
         }
 
 
         public NowrapBuilder addText(String text) {
-            WordBuilder.this.addParagraph(paragraph, text);
+            WordBuilder.this.paragraph(paragraph, text);
             return this;
         }
 

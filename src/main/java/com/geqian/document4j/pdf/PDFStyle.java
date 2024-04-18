@@ -9,44 +9,44 @@ import java.util.function.Consumer;
  * @author geqian
  * @date 23:33 2024/2/1
  */
-public interface PdfStyle {
+public interface PDFStyle {
 
     void fillStyle(Object obj);
 
 
-    class Font implements PdfStyle {
+    class Font implements PDFStyle {
 
         private String familyStyle;
 
         /**
          * 加粗
          */
-        public static final PdfStyle.Font BOLD = new PdfStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.BOLD));
+        public static final PDFStyle.Font BOLD = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.BOLD));
 
         /**
          * 斜体
          */
-        public static final PdfStyle.Font ITALIC = new PdfStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.ITALIC));
+        public static final PDFStyle.Font ITALIC = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.ITALIC));
         /**
          * 斜体加粗
          */
-        public static final PdfStyle.Font BOLD_ITALIC = new PdfStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.BOLDITALIC));
+        public static final PDFStyle.Font BOLD_ITALIC = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.BOLDITALIC));
 
         /**
          * 下划线
          */
-        public static final PdfStyle.Font UNDER_LINE = new PdfStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.UNDERLINE));
+        public static final PDFStyle.Font UNDER_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.UNDERLINE));
 
 
         /**
          * 删除线
          */
-        public static final PdfStyle.Font DELETE_LINE = new PdfStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.DEFAULTSIZE));
+        public static final PDFStyle.Font DELETE_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.DEFAULTSIZE));
 
         /**
          * 正常
          */
-        public static final PdfStyle.Font NORMAL = new PdfStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.NORMAL));
+        public static final PDFStyle.Font NORMAL = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.NORMAL));
 
 
         private final Consumer<com.itextpdf.text.Font> wrapper;
@@ -61,18 +61,18 @@ public interface PdfStyle {
             this.wrapper = wrapper;
         }
 
-        public static PdfStyle.Font fontSize(float fontSize) {
-            return new PdfStyle.Font(font -> font.setSize(fontSize));
+        public static PDFStyle.Font fontSize(float fontSize) {
+            return new PDFStyle.Font(font -> font.setSize(fontSize));
         }
 
 
-        public static PdfStyle.Font fontFamily(String fontFamilyPath) {
-            return new PdfStyle.Font(fontFamilyPath, font -> font.setFamily(fontFamilyPath));
+        public static PDFStyle.Font fontFamily(String fontFamilyPath) {
+            return new PDFStyle.Font(fontFamilyPath, font -> font.setFamily(fontFamilyPath));
         }
 
 
-        public static PdfStyle.Font fontColor(BaseColor baseColor) {
-            return new PdfStyle.Font(font -> font.setColor(baseColor));
+        public static PDFStyle.Font fontColor(BaseColor baseColor) {
+            return new PDFStyle.Font(font -> font.setColor(baseColor));
         }
 
         @Override
@@ -87,7 +87,7 @@ public interface PdfStyle {
     }
 
 
-    class Paragraph implements PdfStyle {
+    class Paragraph implements PDFStyle {
 
 
         private final Consumer<com.itextpdf.text.Paragraph> wrapper;
@@ -95,17 +95,17 @@ public interface PdfStyle {
         /**
          * 左对齐
          */
-        public static final PdfStyle.Paragraph ALIGN_LEFT = new PdfStyle.Paragraph(paragraph -> paragraph.setAlignment(Element.ALIGN_LEFT));
+        public static final PDFStyle.Paragraph ALIGN_LEFT = new PDFStyle.Paragraph(paragraph -> paragraph.setAlignment(Element.ALIGN_LEFT));
 
         /**
          * 右对齐
          */
-        public static final PdfStyle.Paragraph ALIGN_RIGHT = new PdfStyle.Paragraph(paragraph -> paragraph.setAlignment(Element.ALIGN_RIGHT));
+        public static final PDFStyle.Paragraph ALIGN_RIGHT = new PDFStyle.Paragraph(paragraph -> paragraph.setAlignment(Element.ALIGN_RIGHT));
 
         /**
          * 居中对齐
          */
-        public static final PdfStyle.Paragraph ALIGN_CENTER = new PdfStyle.Paragraph(paragraph -> paragraph.setAlignment(Element.ALIGN_CENTER));
+        public static final PDFStyle.Paragraph ALIGN_CENTER = new PDFStyle.Paragraph(paragraph -> paragraph.setAlignment(Element.ALIGN_CENTER));
 
         public Paragraph(Consumer<com.itextpdf.text.Paragraph> wrapper) {
             this.wrapper = wrapper;

@@ -1,6 +1,5 @@
 package com.geqian.document4j.pdf;
 
-import com.geqian.document4j.common.annotation.NoTableHeader;
 import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
@@ -136,7 +135,7 @@ public class PDFBuilder {
      * @param des
      * @return
      */
-    public PDFBuilder setDescription(Description des) {
+    public PDFBuilder description(Description des) {
         String title = des.getTitle();
         String author = des.getAuthor();
         String subject = des.getSubject();
@@ -167,13 +166,12 @@ public class PDFBuilder {
     }
 
 
-
     /**
      * 换行
      *
      * @return
      */
-    public PDFBuilder addCarriageReturn() {
+    public PDFBuilder carriageReturn() {
         try {
             Paragraph paragraph = new Paragraph();
             paragraph.add(Chunk.NEWLINE);
@@ -190,7 +188,7 @@ public class PDFBuilder {
      *
      * @return
      */
-    public PDFBuilder addNewPage() {
+    public PDFBuilder newPage() {
         this.document.newPage();
         return this;
     }
@@ -201,8 +199,8 @@ public class PDFBuilder {
      *
      * @return
      */
-    public PDFBuilder addTitle(String text) {
-        addTitle(text, null);
+    public PDFBuilder title(String text) {
+        title(text, null);
         return this;
     }
 
@@ -212,13 +210,13 @@ public class PDFBuilder {
      *
      * @return
      */
-    public PDFBuilder addTitle(String text, PdfStyle... pdfStyles) {
+    public PDFBuilder title(String text, PDFStyle... pdfStyles) {
         if (pdfStyles == null) {
-            PdfStyle.Paragraph alignCenter = PdfStyle.Paragraph.ALIGN_CENTER;
-            PdfStyle.Font fontSize = PdfStyle.Font.fontSize(25);
-            pdfStyles = new PdfStyle[]{alignCenter, fontSize};
+            PDFStyle.Paragraph alignCenter = PDFStyle.Paragraph.ALIGN_CENTER;
+            PDFStyle.Font fontSize = PDFStyle.Font.fontSize(25);
+            pdfStyles = new PDFStyle[]{alignCenter, fontSize};
         }
-        addParagraph(text, pdfStyles);
+        paragraph(text, pdfStyles);
         return this;
     }
 
@@ -230,7 +228,7 @@ public class PDFBuilder {
      * @param pdfStyles
      * @return
      */
-    public PDFBuilder addList(List<String> elements, PdfStyle... pdfStyles) {
+    public PDFBuilder list(List<String> elements, PDFStyle... pdfStyles) {
         try {
             com.itextpdf.text.List list = new com.itextpdf.text.List();
             for (String element : elements) {
@@ -251,7 +249,7 @@ public class PDFBuilder {
      * @param pdfStyles
      * @return
      */
-    public PDFBuilder addParagraph(String text, PdfStyle... pdfStyles) {
+    public PDFBuilder paragraph(String text, PDFStyle... pdfStyles) {
         try {
             Paragraph paragraph = createParagraph(text, pdfStyles);
             this.document.add(paragraph);
@@ -268,7 +266,7 @@ public class PDFBuilder {
      * @param bytes
      * @return
      */
-    public PDFBuilder addPicture(byte[] bytes, int width, int height) {
+    public PDFBuilder picture(byte[] bytes, int width, int height) {
         try {
             // 读取图片文件
             Image image = Image.getInstance(bytes);
@@ -288,13 +286,11 @@ public class PDFBuilder {
      *
      * @param dataList 数据列表
      */
-    public PDFBuilder addTable(List<? extends WriteTableable> dataList, PdfStyle... pdfStyles) {
+    public PDFBuilder table(List<? extends WriteTableable> dataList, PDFStyle... pdfStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
             WriteTableable writeTableable = dataList.get(0);
-
-            NoTableHeader noTableHeader = writeTableable.getClass().getAnnotation(NoTableHeader.class);
 
             //获取需要输出字段
             List<Field> fields = getFieldList(writeTableable);
@@ -302,7 +298,6 @@ public class PDFBuilder {
             int colums = fields.size();
 
             PdfPTable table = createTable(colums);
-
 
             if (writeTableable instanceof PDFTableInterceptor) {
                 ((PDFTableInterceptor) writeTableable).interceptPdfTable(table);
@@ -314,18 +309,18 @@ public class PDFBuilder {
             //加载全部属性值转换器
             loadConverters(fields);
 
-            if (Objects.isNull(noTableHeader)) {
-                //获取表头
-                List<String> tableHeaders = getTableHeaders(fields);
+            //获取表头
+            List<String> tableHeaders = getTableHeaders(fields);
 
-                if (writeTableable instanceof PDFTableInterceptor) {
-                    ((PDFTableInterceptor) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
-                }
-                //写入表头
-                writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
+            if (writeTableable instanceof PDFTableInterceptor) {
+                ((PDFTableInterceptor) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
             }
+            //写入表头
+            writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
+
             //写入表格主体数据
             writeTableRows(table, dataList, fields, pdfStyles);
+
             try {
                 this.document.add(table);
             } catch (DocumentException e) {
@@ -342,7 +337,7 @@ public class PDFBuilder {
      *
      * @param rows 数据列表
      */
-    public PDFBuilder writeTableRows(Object[][] rows, PdfStyle... pdfStyles) throws Exception {
+    public PDFBuilder table(Object[][] rows, PDFStyle... pdfStyles) throws Exception {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -512,7 +507,7 @@ public class PDFBuilder {
      * @param tableHeaders
      * @param pdfStyles
      */
-    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, PdfStyle... pdfStyles) {
+    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, PDFStyle... pdfStyles) {
 
         for (String header : tableHeaders) {
             PdfPCell cell = createCell(header, pdfStyles);
@@ -531,7 +526,7 @@ public class PDFBuilder {
      * @param fields
      * @param pdfStyles
      */
-    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, PdfStyle... pdfStyles) {
+    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, PDFStyle... pdfStyles) {
         for (WriteTableable writeTableable : dataList) {
             writeTableRow(table, writeTableable, fields, pdfStyles);
         }
@@ -546,7 +541,7 @@ public class PDFBuilder {
      * @param fieldList
      * @param pdfStyles
      */
-    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, PdfStyle... pdfStyles) {
+    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, PDFStyle... pdfStyles) {
         for (Field field : fieldList) {
             String cellValue = getCellValue(obj, field);
             PdfPCell cell = createCell(cellValue, pdfStyles);
@@ -711,10 +706,10 @@ public class PDFBuilder {
      * @param text
      * @return
      */
-    private Paragraph createParagraph(String text, PdfStyle... pdfStyles) {
+    private Paragraph createParagraph(String text, PDFStyle... pdfStyles) {
         Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
-        for (PdfStyle pdfStyle : pdfStyles) {
-            if (PdfStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+        for (PDFStyle pdfStyle : pdfStyles) {
+            if (PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.fillStyle(paragraph);
             }
         }
@@ -727,12 +722,12 @@ public class PDFBuilder {
      *
      * @return
      */
-    private Font createFont(PdfStyle... pdfStyles) {
+    private Font createFont(PDFStyle... pdfStyles) {
         String fontFamily = null;
         Font font;
         try {
-            for (PdfStyle pdfStyle : pdfStyles) {
-                if (pdfStyle instanceof PdfStyle.Font && (fontFamily = ((PdfStyle.Font) pdfStyle).getFamilyStyle()) != null) {
+            for (PDFStyle pdfStyle : pdfStyles) {
+                if (pdfStyle instanceof PDFStyle.Font && (fontFamily = ((PDFStyle.Font) pdfStyle).getFamilyStyle()) != null) {
                     break;
                 }
             }
@@ -744,8 +739,8 @@ public class PDFBuilder {
         }
         font.setStyle(Font.NORMAL);
         font.setSize(Font.DEFAULTSIZE);
-        for (PdfStyle pdfStyle : pdfStyles) {
-            if (PdfStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+        for (PDFStyle pdfStyle : pdfStyles) {
+            if (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.fillStyle(font);
             }
         }
@@ -760,7 +755,7 @@ public class PDFBuilder {
      * @param pdfStyles
      * @return
      */
-    private PdfPCell createCell(String text, PdfStyle... pdfStyles) {
+    private PdfPCell createCell(String text, PDFStyle... pdfStyles) {
         PdfPCell cell = new PdfPCell(new Phrase(text, createFont(pdfStyles)));
         // 设置单元格的水平和垂直对齐方式
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -785,11 +780,11 @@ public class PDFBuilder {
             paragraph = new Paragraph();
         }
 
-        public NowrapBuilder addText(String text, PdfStyle... pdfStyles) {
+        public NowrapBuilder addText(String text, PDFStyle... pdfStyles) {
             Chunk chunk = new Chunk(text, createFont(pdfStyles));
             paragraph.add(chunk);
-            for (PdfStyle pdfStyle : pdfStyles) {
-                if (PdfStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+            for (PDFStyle pdfStyle : pdfStyles) {
+                if (PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
                     pdfStyle.fillStyle(paragraph);
                 }
             }
