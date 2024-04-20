@@ -142,11 +142,11 @@ public interface HTMLStyle {
     }
 
 
-    class Common implements HTMLStyle {
+    class Padding implements HTMLStyle {
 
         private final String style;
 
-        public Common(String style) {
+        public Padding(String style) {
             this.style = style;
         }
 
@@ -162,8 +162,8 @@ public interface HTMLStyle {
          * @param paddingTop
          * @return
          */
-        public static Common paddingTop(String paddingTop) {
-            return new Common(String.format("padding-top:%s;", paddingTop));
+        public static Padding top(String paddingTop) {
+            return new Padding(String.format("padding-top:%s;", paddingTop));
         }
 
 
@@ -173,29 +173,40 @@ public interface HTMLStyle {
          * @param paddingBottom
          * @return
          */
-        public static Common paddingBottom(String paddingBottom) {
-            return new Common(String.format("padding-bottom:%s;", paddingBottom));
+        public static Padding bottom(String paddingBottom) {
+            return new Padding(String.format("padding-bottom:%s;", paddingBottom));
         }
 
         /**
          * 左填充
          *
-         * @param paddingBottom
+         * @param paddingLeft
          * @return
          */
-        public static Common paddingLeft(String paddingBottom) {
-            return new Common(String.format("padding-left:%s;", paddingBottom));
+        public static Padding left(String paddingLeft) {
+            return new Padding(String.format("padding-left:%s;", paddingLeft));
         }
 
 
         /**
          * 右填充
          *
-         * @param paddingBottom
+         * @param paddingRight
          * @return
          */
-        public static Common paddingRight(String paddingBottom) {
-            return new Common(String.format("padding-right:%s;", paddingBottom));
+        public static Padding right(String paddingRight) {
+            return new Padding(String.format("padding-right:%s;", paddingRight));
+        }
+
+        /**
+         * 填充
+         *
+         * @param vertical
+         * @param horizontal
+         * @return
+         */
+        public static Margin padding(String vertical, String horizontal) {
+            return new Margin(String.format("padding:%s %s;", vertical, horizontal));
         }
 
         /**
@@ -204,8 +215,23 @@ public interface HTMLStyle {
          * @param padding
          * @return
          */
-        public static Common padding(String padding) {
-            return new Common(String.format("padding:%s;", padding));
+        public static Margin padding(String padding) {
+            return new Margin(String.format("padding:%s;", padding));
+        }
+
+    }
+
+    class Margin implements HTMLStyle {
+
+        private final String style;
+
+        public Margin(String style) {
+            this.style = style;
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
         }
 
         /**
@@ -214,8 +240,8 @@ public interface HTMLStyle {
          * @param marginTop
          * @return
          */
-        public static Common marginTop(String marginTop) {
-            return new Common(String.format("margin-top:%s;", marginTop));
+        public static Margin top(String marginTop) {
+            return new Margin(String.format("margin-top:%s;", marginTop));
         }
 
         /**
@@ -224,8 +250,8 @@ public interface HTMLStyle {
          * @param marginBottom
          * @return
          */
-        public static Common marginBottom(String marginBottom) {
-            return new Common(String.format("margin-bottom:%s;", marginBottom));
+        public static Margin bottom(String marginBottom) {
+            return new Margin(String.format("margin-bottom:%s;", marginBottom));
         }
 
         /**
@@ -234,8 +260,8 @@ public interface HTMLStyle {
          * @param marginLeft
          * @return
          */
-        public static Common marginLeft(String marginLeft) {
-            return new Common(String.format("margin-left:%s;", marginLeft));
+        public static Margin left(String marginLeft) {
+            return new Margin(String.format("margin-left:%s;", marginLeft));
         }
 
 
@@ -245,8 +271,19 @@ public interface HTMLStyle {
          * @param marginRight
          * @return
          */
-        public static Common marginRight(String marginRight) {
-            return new Common(String.format("margin-right:%s;", marginRight));
+        public static Margin right(String marginRight) {
+            return new Margin(String.format("margin-right:%s;", marginRight));
+        }
+
+        /**
+         * 边距
+         *
+         * @param vertical
+         * @param horizontal
+         * @return
+         */
+        public static Margin margin(String vertical, String horizontal) {
+            return new Margin(String.format("margin:%s %s;", vertical, horizontal));
         }
 
         /**
@@ -255,8 +292,23 @@ public interface HTMLStyle {
          * @param margin
          * @return
          */
-        public static Common margin(String margin) {
-            return new Common(String.format("margin:%s;", margin));
+        public static Margin margin(String margin) {
+            return new Margin(String.format("margin:%s;", margin));
+        }
+
+    }
+
+    class Dimension implements HTMLStyle {
+
+        private final String style;
+
+        public Dimension(String style) {
+            this.style = style;
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
         }
 
         /**
@@ -265,8 +317,8 @@ public interface HTMLStyle {
          * @param width
          * @return
          */
-        public static Common width(String width) {
-            return new Common(String.format("width:%s;", width));
+        public static Dimension width(String width) {
+            return new Dimension(String.format("width:%s;", width));
         }
 
         /**
@@ -275,9 +327,8 @@ public interface HTMLStyle {
          * @param height
          * @return
          */
-        public static Common height(String height) {
-            return new Common(String.format("height:%s;", height));
+        public static Dimension height(String height) {
+            return new Dimension(String.format("height:%s;", height));
         }
     }
-
 }

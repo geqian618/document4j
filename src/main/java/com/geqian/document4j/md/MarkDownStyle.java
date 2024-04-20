@@ -52,13 +52,25 @@ public interface MarkDownStyle {
     /**
      * 字体样式
      */
-    enum Font {
+    public class Font {
 
-        BOLD("**%s**"),
-        ITALIC("*%s*"),
-        DELETE_LINE("~~%s~~"),
-        CODE("`%s`"),
-        UNDER_LINE("<u>%s</u>");
+        public static final Font BOLD = new Font("**%s**");
+
+        public static final Font ITALIC = new Font("*%s*");
+
+        public static final Font DELETE_LINE = new Font("~~%s~~");
+
+        public static final Font CODE = new Font("`%s`");
+
+        public static final Font UNDER_LINE = new Font("<u>%s</u>");
+
+        public static Font fontColor(String color) {
+            return new Font("<font color=\"" + color + "\">%s</font>");
+        }
+
+        public static Font fontSize(int size) {
+            return new Font("<font size=\"" + size + "\">%s</font>");
+        }
 
         private final String template;
 
@@ -69,5 +81,7 @@ public interface MarkDownStyle {
         public String fillStyle(String text) {
             return String.format(template, text);
         }
+
+
     }
 }
