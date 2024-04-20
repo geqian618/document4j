@@ -82,64 +82,11 @@ public class MarkDownBuilder {
      * @param styles
      * @return
      */
-    public MarkDownBuilder text(String text, MarkDownStyle.Font... styles) {
+    public MarkDownBuilder paragraph(String text, MarkDownStyle.Font... styles) {
         for (MarkDownStyle.Font style : styles) {
             text = style.fillStyle(text);
         }
         stringBuffer.append(text).append("\n");
-        return this;
-    }
-
-
-    /**
-     * 文本
-     *
-     * @param text
-     * @param styles
-     * @return
-     */
-    public MarkDownBuilder text(String text, int size, MarkDownStyle.Font... styles) {
-        for (MarkDownStyle.Font style : styles) {
-            text = style.fillStyle(text);
-        }
-        text = String.format("<font size=\"%s\">%s</font>\n", size, text);
-        stringBuffer.append(text);
-        return this;
-    }
-
-    /**
-     * 文本
-     *
-     * @param text
-     * @param color
-     * @param styles
-     * @return
-     */
-    public MarkDownBuilder text(String text, String color, MarkDownStyle.Font... styles) {
-        for (MarkDownStyle.Font style : styles) {
-            text = style.fillStyle(text);
-        }
-        text = String.format("<font color=\"%s\">%s</font>\n", color, text);
-        stringBuffer.append(text);
-        return this;
-    }
-
-
-    /**
-     * 文本
-     *
-     * @param text
-     * @param fontSize
-     * @param color
-     * @param styles
-     * @return
-     */
-    public MarkDownBuilder text(String text, int fontSize, String color, MarkDownStyle.Font... styles) {
-        for (MarkDownStyle.Font style : styles) {
-            text = style.fillStyle(text);
-        }
-        text = String.format("<font size=\"%d\" color=\"%s\">%s</font>\n", fontSize, color, text);
-        stringBuffer.append(text);
         return this;
     }
 
@@ -596,7 +543,7 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder text(String text, MarkDownStyle.Font... styles) {
+        public NowrapBuilder paragraph(String text, MarkDownStyle.Font... styles) {
             for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
@@ -604,58 +551,6 @@ public class MarkDownBuilder {
             return this;
         }
 
-
-        /**
-         * 文本
-         *
-         * @param text
-         * @param styles
-         * @return
-         */
-        public NowrapBuilder text(String text, int size, MarkDownStyle.Font... styles) {
-            for (MarkDownStyle.Font style : styles) {
-                text = style.fillStyle(text);
-            }
-            text = String.format("<font size=\"%s\">%s</font>", size, text);
-            subStringBuffer.append(text);
-            return this;
-        }
-
-        /**
-         * 文本
-         *
-         * @param text
-         * @param color
-         * @param styles
-         * @return
-         */
-        public NowrapBuilder text(String text, String color, MarkDownStyle.Font... styles) {
-            for (MarkDownStyle.Font style : styles) {
-                text = style.fillStyle(text);
-            }
-            text = String.format("<font color=\"%s\">%s</font>", color, text);
-            subStringBuffer.append(text);
-            return this;
-        }
-
-
-        /**
-         * 文本
-         *
-         * @param text
-         * @param fontSize
-         * @param color
-         * @param styles
-         * @return
-         */
-        public NowrapBuilder text(String text, int fontSize, String color, MarkDownStyle.Font... styles) {
-            for (MarkDownStyle.Font style : styles) {
-                text = style.fillStyle(text);
-            }
-            text = String.format("<font size=\"%d\" color=\"%s\">%s</font>", fontSize, color, text);
-            subStringBuffer.append(text);
-            return this;
-        }
 
         /**
          * 链接

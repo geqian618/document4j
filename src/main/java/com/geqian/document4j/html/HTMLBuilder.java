@@ -79,7 +79,7 @@ public class HTMLBuilder {
         return this;
     }
 
-    public HTMLBuilder addParagraph(String text, HTMLStyle... htmlStyles) {
+    public HTMLBuilder paragraph(String text, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
         for (HTMLStyle htmlStyle : htmlStyles) {
             styleBuilder.append(htmlStyle.getStyle());
@@ -89,7 +89,7 @@ public class HTMLBuilder {
     }
 
 
-    public HTMLBuilder addLink(String link, String desc, HTMLStyle... htmlStyles) {
+    public HTMLBuilder link(String link, String desc, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
         for (HTMLStyle htmlStyle : htmlStyles) {
             styleBuilder.append(htmlStyle.getStyle());
@@ -120,7 +120,7 @@ public class HTMLBuilder {
      * @param dataList
      * @return
      */
-    public <T extends WriteTableable> HTMLBuilder addTable(List<T> dataList, HTMLStyle... htmlStyles) {
+    public <T extends WriteTableable> HTMLBuilder table(List<T> dataList, HTMLStyle... htmlStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
@@ -170,7 +170,7 @@ public class HTMLBuilder {
      * @param data
      * @return
      */
-    public HTMLBuilder addTable(Object[][] data, StringBuilder... innerCssBuilders) {
+    public HTMLBuilder table(Object[][] data, StringBuilder... innerCssBuilders) {
         if (data != null && data.length > 0) {
             for (StringBuilder innerCssBuilder : innerCssBuilders) {
                 setInnerCssStyle(innerCssBuilder.toString());

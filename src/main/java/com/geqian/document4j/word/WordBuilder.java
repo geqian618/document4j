@@ -613,17 +613,10 @@ public class WordBuilder {
             paragraph = WordBuilder.this.document.createParagraph();
         }
 
-        public NowrapBuilder addText(String text, WordStyle... wordStyles) {
+        public NowrapBuilder paragraph(String text, WordStyle... wordStyles) {
             WordBuilder.this.paragraph(paragraph, text, wordStyles);
             return this;
         }
-
-
-        public NowrapBuilder addText(String text) {
-            WordBuilder.this.paragraph(paragraph, text);
-            return this;
-        }
-
 
         public WordBuilder endRow() {
             return WordBuilder.this;

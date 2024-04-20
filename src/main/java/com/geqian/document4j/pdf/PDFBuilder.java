@@ -780,7 +780,7 @@ public class PDFBuilder {
             paragraph = new Paragraph();
         }
 
-        public NowrapBuilder addText(String text, PDFStyle... pdfStyles) {
+        public NowrapBuilder paragraph(String text, PDFStyle... pdfStyles) {
             Chunk chunk = new Chunk(text, createFont(pdfStyles));
             paragraph.add(chunk);
             for (PDFStyle pdfStyle : pdfStyles) {
