@@ -65,11 +65,11 @@ public interface MarkDownStyle {
         public static final Font UNDER_LINE = new Font("<u>%s</u>");
 
         public static Font fontColor(String color) {
-            return new Font("<font color=\"" + color + "\">%s</font>");
+            return new Font("<span style=\"color:" + color + ";\">%s</span>");
         }
 
         public static Font fontSize(int size) {
-            return new Font("<font size=\"" + size + "\">%s</font>");
+            return new Font("<span style=\"font-size:" + size + "px;\">%s</span>");
         }
 
         private final String template;
