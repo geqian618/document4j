@@ -37,7 +37,7 @@ public interface HTMLStyle {
         // 细字体
         public static Font LIGHTER = new Font("font-weight:lighter;");
         // 斜体
-        public static Font ITALIC = new Font("font-styleitalic;");
+        public static Font ITALIC = new Font("font-style:italic;");
         // 无修饰线条
         public static Font NONE_LINE = new Font("text-decoration-line:none;");
         // 上划线
