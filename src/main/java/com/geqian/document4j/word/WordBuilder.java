@@ -65,11 +65,11 @@ public class WordBuilder {
 
 
     /**
-     * 换行
+     * 空白行
      *
      * @return
      */
-    public WordBuilder carriageReturn() {
+    public WordBuilder blankRow() {
         //创建段落
         document.createParagraph();
         // 对齐方式 paragraph.setAlignment(ParagraphAlignment.CENTER);

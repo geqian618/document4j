@@ -167,17 +167,17 @@ public class PDFBuilder {
 
 
     /**
-     * 换行
+     * 空白行
      *
      * @return
      */
-    public PDFBuilder carriageReturn() {
+    public PDFBuilder blankRow() {
         try {
             Paragraph paragraph = new Paragraph();
             paragraph.add(Chunk.NEWLINE);
             this.document.add(paragraph);
         } catch (DocumentException e) {
-            log.error("添加换行异常", e);
+            log.error("添加空白行发生异常", e);
         }
         return this;
     }

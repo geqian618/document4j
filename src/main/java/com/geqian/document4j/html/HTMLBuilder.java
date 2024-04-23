@@ -7,7 +7,6 @@ import com.geqian.document4j.common.extend.WriteTableable;
 import com.geqian.document4j.md.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,36 +24,37 @@ public class HTMLBuilder {
 
     private final Logger log = LoggerFactory.getLogger(MarkDownBuilder.class);
 
-    private final StringBuffer bodyBuffer;
+    private final StringBuffer bodyBuffer = new StringBuffer();
 
-    private final StringBuffer styleBuffer;
+    private final StringBuffer styleBuffer = new StringBuffer();
 
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
+    {
+        setInnerCssStyle("*{padding:0;margin:0;}p{overflow:auto;word-wrap:break-word;}");
+    }
 
     private HTMLBuilder(String padding) {
-        this.bodyBuffer = new StringBuffer();
-        this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("* {padding: 0; margin: 0;box-sizing: border-box;}p { overflow: auto; word-wrap: break-word;}body{padding:" + padding + "}");
+        setInnerCssStyle("body{padding:" + padding + "}");
         setInnerCssStyle(tableDefaultStyle());
     }
 
     private HTMLBuilder(String paddingLeft, String paddingRight) {
-        this.bodyBuffer = new StringBuffer();
-        this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("* {padding: 0; margin: 0;}p { overflow: auto; word-wrap: break-word;}body{padding-left: " + paddingLeft + ";padding-right: " + paddingRight + ";}");
+        setInnerCssStyle("body{padding-left:" + paddingLeft + ";padding-right:" + paddingRight + ";}");
         setInnerCssStyle(tableDefaultStyle());
     }
 
     private HTMLBuilder(String paddingTop, String paddingBottom, String paddingLeft, String paddingRight) {
-        this.bodyBuffer = new StringBuffer();
-        this.styleBuffer = new StringBuffer();
-        setInnerCssStyle("* {padding: 0; margin: 0;}p { overflow: auto; word-wrap: break-word;}body { padding-top: " + paddingTop + ";padding-bottom:" + paddingBottom + " ;padding-left: " + paddingLeft + ";padding-right: " + paddingRight + "; }");
+        setInnerCssStyle("body{padding-left:" + paddingLeft + ";padding-right:" + paddingRight + ";padding-top:" + paddingTop + ";padding-bottom:" + paddingBottom + ";}");
         setInnerCssStyle(tableDefaultStyle());
     }
 
+    public HTMLBuilder setInnerCssStyle(String style) {
+        this.styleBuffer.append(style);
+        return this;
+    }
 
     public static HTMLBuilder create(String padding) {
         return new HTMLBuilder(padding);
@@ -68,16 +68,11 @@ public class HTMLBuilder {
         return new HTMLBuilder(paddingTop, paddingBottom, paddingLeft, paddingRight);
     }
 
-    public HTMLBuilder addTitle(String text, HTMLStyle.Title title) {
+    public HTMLBuilder title(String text, HTMLStyle.Title title) {
         this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", title.getStyle(), text));
         return this;
     }
 
-
-    public HTMLBuilder setInnerCssStyle(String style) {
-        this.styleBuffer.append(style);
-        return this;
-    }
 
     public HTMLBuilder paragraph(String text, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
@@ -416,7 +411,7 @@ public class HTMLBuilder {
                 "<meta charset=\"UTF-8\">" +
                 "<head>" +
                 "<title>HTML文档</title>" +
-                "<style>" + (styleBuffer == null ? "" : styleBuffer) + "</style>" +
+                "<style>" + styleBuffer + "</style>" +
                 "</head>" +
                 "<body>" +
                 bodyBuffer +
@@ -444,8 +439,8 @@ public class HTMLBuilder {
 
 
     private String tableDefaultStyle() {
-        return "table {text-align: left;border-collapse: collapse;width: 100%;margin-left: auto;margin-right: auto;}table thead {text-align: left;}table th {height: 40px;}table td {height: 30px;}\n" +
-                "table, th, td {border: 1px solid #b4b3b3;padding-left: 10px;padding-right: 10px;}";
+        return "table{text-align:left;border-collapse:collapse;width:100%;margin-left:auto;margin-right:auto;} table thead {text-align:left;} table th {height:40px;} table td {height:30px;}\n" +
+                "table,th,td{border:1px solid #b4b3b3;padding-left:10px;padding-right:10px;}";
     }
 
 }
