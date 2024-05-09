@@ -210,7 +210,6 @@ public class WordBuilder {
             //加载全部属性值转换器
             loadConverters(fields);
 
-
             //获取表头
             List<String> tableHeaders = getTableHeaders(fields);
 
@@ -573,11 +572,22 @@ public class WordBuilder {
             classType = classType.getSuperclass();
         }
 
+        // 获取子类及父类全部属性
         List<Field> fields = classes.stream()
                 .map(pojoClass -> Stream.of(pojoClass.getDeclaredFields()).collect(Collectors.toList()))
                 .flatMap(Collection::stream)
-                .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                 .collect(Collectors.toList());
+
+        // 属性中是否匹配到任意一个包含 TableField 注解
+        boolean anyMatch = fields.stream()
+                .anyMatch(field -> field.isAnnotationPresent(TableField.class));
+
+        // 如果使用了 TableField 注解，只获取包含 TableField 注解的属性，反之获取全部属性
+        if (anyMatch) {
+            fields = fields.stream()
+                    .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
+                    .collect(Collectors.toList());
+        }
 
         if (obj instanceof WordTableInterceptor) {
             fields = ((WordTableInterceptor) obj).interceptWordFields(obj.getClass(), fields);

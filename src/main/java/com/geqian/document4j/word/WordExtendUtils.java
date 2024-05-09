@@ -19,7 +19,7 @@ public class WordExtendUtils {
     private static final Logger log = LoggerFactory.getLogger(WordExtendUtils.class);
 
     /**
-     * 模版填充
+     * 模板填充
      *
      * @param placeholderMap 占位符映射
      * @param templatePath   输入路径
