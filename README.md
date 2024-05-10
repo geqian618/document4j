@@ -82,7 +82,7 @@ wordBuilder.asStream(OutputStream out);
 
 
 
-##### 写入段落（自动换行）
+##### 写入段落（简单段落）
 
 ```java
 // 加粗
@@ -109,10 +109,17 @@ wordBuilder.paragraph("字体加粗的段落文本...", bold);
 // 设置字体颜色的段落文本
 wordBuilder.paragraph("设置字体颜色的段落文本...", fontColor);
 ```
+> wordBuilder.paragraph 方法每调用一次就是一个段落
 
-##### 写入段落（不自动换行）
-
-
+##### 写入段落（复杂段落）
+```java
+WordBuilder.create()
+        .startParagraph()
+            .paragraph("hello")
+            .paragraph("word", WordStyle.Font.BOLD)
+        .endParagraph();
+```
+> startParagraph 和 endParagraph 方法之间的整体构成一个段落
 
 ##### 换页
 
