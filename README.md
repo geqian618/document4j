@@ -2,7 +2,7 @@
 
 ## 简介
 
-一个简易的符合文档编写习惯的 Java 文档库封装，用于操作 Word、PDF、Markdown、HTML 文档
+一个简易的符合文档编写习惯的 Java 文档库，用于操作 Word、PDF、Markdown、HTML 文档
 <br>
 <br>
 
