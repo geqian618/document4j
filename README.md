@@ -218,19 +218,19 @@ public static void main(String[] args) {
 @Target(ElementType.FIELD)
 public @interface TableField {
 
-    //标题名称
+    // 标题名称
     String value() default "";
 
-    //排序（升序）
+    // 排序（升序）
     int order() default Integer.MAX_VALUE;
 
-    //是否排除该字段
+    // 是否排除该字段
     boolean exclude() default false;
 
-    //格式：旧值->新值
+    // 格式：旧值->新值
     String[] enums() default {};
 
-    //属性值转换器
+    // 属性值转换器
     Class<? extends Converter> converter() default NoConverter.class;
 
 }
