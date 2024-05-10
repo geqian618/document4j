@@ -115,8 +115,8 @@ wordBuilder.paragraph("设置字体颜色的段落文本...", fontColor);
 ```java
 WordBuilder.create()
         .startParagraph()
-            .paragraph("hello")
-            .paragraph("word", WordStyle.Font.BOLD)
+            .text("hello")
+            .text("word", WordStyle.Font.BOLD)
         .endParagraph();
 ```
 > startParagraph 和 endParagraph 方法之间的整体构成一个段落

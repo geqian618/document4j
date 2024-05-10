@@ -623,7 +623,7 @@ public class WordBuilder {
             paragraph = WordBuilder.this.document.createParagraph();
         }
 
-        public NowrapBuilder paragraph(String text, WordStyle... wordStyles) {
+        public NowrapBuilder text(String text, WordStyle... wordStyles) {
             WordBuilder.this.paragraph(paragraph, text, wordStyles);
             return this;
         }

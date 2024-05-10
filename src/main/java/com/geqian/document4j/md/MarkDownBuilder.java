@@ -554,7 +554,7 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder paragraph(String text, MarkDownStyle.Font... styles) {
+        public NowrapBuilder text(String text, MarkDownStyle.Font... styles) {
             for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
