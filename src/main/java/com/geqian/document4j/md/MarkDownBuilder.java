@@ -188,12 +188,12 @@ public class MarkDownBuilder {
 
 
     /**
-     * 行内模式
+     * 段落模式
      *
      * @return
      */
-    public NowrapBuilder startParagraph() {
-        return new NowrapBuilder().startRow();
+    public ParagraphBuilder startParagraph() {
+        return new ParagraphBuilder();
     }
 
 
@@ -517,17 +517,14 @@ public class MarkDownBuilder {
     }
 
 
-    public class NowrapBuilder {
+    public class ParagraphBuilder {
 
         private final StringBuffer subStringBuffer;
 
-        public NowrapBuilder() {
+        public ParagraphBuilder() {
             this.subStringBuffer = new StringBuffer();
         }
 
-        public NowrapBuilder startRow() {
-            return this;
-        }
 
         public MarkDownBuilder endParagraph() {
             MarkDownBuilder.this.stringBuffer.append(subStringBuffer).append("\n");
@@ -541,7 +538,7 @@ public class MarkDownBuilder {
          * @param raw
          * @return
          */
-        public NowrapBuilder raw(String raw) {
+        public ParagraphBuilder raw(String raw) {
             stringBuffer.append(raw);
             return this;
         }
@@ -554,7 +551,7 @@ public class MarkDownBuilder {
          * @param styles
          * @return
          */
-        public NowrapBuilder text(String text, MarkDownStyle.Font... styles) {
+        public ParagraphBuilder text(String text, MarkDownStyle.Font... styles) {
             for (MarkDownStyle.Font style : styles) {
                 text = style.fillStyle(text);
             }
@@ -570,7 +567,7 @@ public class MarkDownBuilder {
          * @param link
          * @return
          */
-        public NowrapBuilder link(String linkName, String link) {
+        public ParagraphBuilder link(String linkName, String link) {
             subStringBuffer.append(String.format("[%s](%s)", linkName, link));
             return this;
         }
@@ -582,7 +579,7 @@ public class MarkDownBuilder {
          * @param link
          * @return
          */
-        public NowrapBuilder link(String link) {
+        public ParagraphBuilder link(String link) {
             subStringBuffer.append(String.format("<%s>", link));
             return this;
         }

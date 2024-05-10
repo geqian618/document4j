@@ -7,6 +7,7 @@ import com.geqian.document4j.common.extend.WriteTableable;
 import com.geqian.document4j.md.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -81,6 +82,15 @@ public class HTMLBuilder {
         }
         this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
         return this;
+    }
+
+    /**
+     * 段落模式
+     *
+     * @return
+     */
+    public HTMLBuilder.ParagraphBuilder startParagraph() {
+        return new HTMLBuilder.ParagraphBuilder();
     }
 
 
@@ -454,4 +464,28 @@ public class HTMLBuilder {
                 "table,th,td{border:1px solid #b4b3b3;padding-left:10px;padding-right:10px;}";
     }
 
+
+    public class ParagraphBuilder {
+
+        private final StringBuilder paragraphBuilder;
+
+        public ParagraphBuilder() {
+            paragraphBuilder = new StringBuilder();
+        }
+
+        public HTMLBuilder.ParagraphBuilder text(String text, HTMLStyle... htmlStyles) {
+            StringBuilder styleBuilder = new StringBuilder();
+            for (HTMLStyle htmlStyle : htmlStyles) {
+                styleBuilder.append(htmlStyle.getStyle());
+            }
+            paragraphBuilder.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
+            return this;
+        }
+
+        public HTMLBuilder endParagraph() {
+            HTMLBuilder.this.bodyBuffer.append(paragraphBuilder);
+            return HTMLBuilder.this;
+        }
+
+    }
 }

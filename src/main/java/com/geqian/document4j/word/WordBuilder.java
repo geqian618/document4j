@@ -260,12 +260,12 @@ public class WordBuilder {
 
 
     /**
-     * 行内模式
+     * 段落模式
      *
      * @return
      */
-    public NowrapBuilder startParagraph() {
-        return new NowrapBuilder();
+    public ParagraphBuilder startParagraph() {
+        return new ParagraphBuilder();
     }
 
     /**
@@ -615,15 +615,15 @@ public class WordBuilder {
     }
 
 
-    public class NowrapBuilder {
+    public class ParagraphBuilder {
 
         private final XWPFParagraph paragraph;
 
-        public NowrapBuilder() {
+        public ParagraphBuilder() {
             paragraph = WordBuilder.this.document.createParagraph();
         }
 
-        public NowrapBuilder text(String text, WordStyle... wordStyles) {
+        public ParagraphBuilder text(String text, WordStyle... wordStyles) {
             WordBuilder.this.paragraph(paragraph, text, wordStyles);
             return this;
         }

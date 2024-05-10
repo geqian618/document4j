@@ -364,12 +364,12 @@ public class PDFBuilder {
 
 
     /**
-     * 行内模式
+     * 段落模式
      *
      * @return
      */
-    public NowrapBuilder startParagraph() {
-        return new NowrapBuilder();
+    public ParagraphBuilder startParagraph() {
+        return new ParagraphBuilder();
     }
 
 
@@ -783,15 +783,15 @@ public class PDFBuilder {
         return text != null && !text.trim().isEmpty();
     }
 
-    public class NowrapBuilder {
+    public class ParagraphBuilder {
 
         private final Paragraph paragraph;
 
-        public NowrapBuilder() {
+        public ParagraphBuilder() {
             paragraph = new Paragraph();
         }
 
-        public NowrapBuilder text(String text, PDFStyle... pdfStyles) {
+        public ParagraphBuilder text(String text, PDFStyle... pdfStyles) {
             Chunk chunk = new Chunk(text, createFont(pdfStyles));
             paragraph.add(chunk);
             for (PDFStyle pdfStyle : pdfStyles) {
