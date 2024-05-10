@@ -82,7 +82,7 @@ wordBuilder.asStream(OutputStream out);
 
 
 
-##### 写入段落
+##### 写入段落（自动换行）
 
 ```java
 // 加粗
@@ -109,6 +109,8 @@ wordBuilder.paragraph("字体加粗的段落文本...", bold);
 // 设置字体颜色的段落文本
 wordBuilder.paragraph("设置字体颜色的段落文本...", fontColor);
 ```
+
+##### 写入段落（不自动换行）
 
 
 

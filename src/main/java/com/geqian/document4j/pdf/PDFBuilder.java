@@ -368,7 +368,7 @@ public class PDFBuilder {
      *
      * @return
      */
-    public NowrapBuilder startRow() {
+    public NowrapBuilder startParagraph() {
         return new NowrapBuilder();
     }
 
@@ -803,7 +803,7 @@ public class PDFBuilder {
         }
 
 
-        public PDFBuilder endRow() {
+        public PDFBuilder endParagraph() {
             try {
                 PDFBuilder.this.document.add(paragraph);
                 return PDFBuilder.this;

@@ -264,7 +264,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public NowrapBuilder startRow() {
+    public NowrapBuilder startParagraph() {
         return new NowrapBuilder();
     }
 
@@ -628,7 +628,7 @@ public class WordBuilder {
             return this;
         }
 
-        public WordBuilder endRow() {
+        public WordBuilder endParagraph() {
             return WordBuilder.this;
         }
 

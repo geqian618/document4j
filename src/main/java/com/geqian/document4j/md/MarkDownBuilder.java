@@ -192,7 +192,7 @@ public class MarkDownBuilder {
      *
      * @return
      */
-    public NowrapBuilder startRow() {
+    public NowrapBuilder startParagraph() {
         return new NowrapBuilder().startRow();
     }
 
@@ -529,7 +529,7 @@ public class MarkDownBuilder {
             return this;
         }
 
-        public MarkDownBuilder endRow() {
+        public MarkDownBuilder endParagraph() {
             MarkDownBuilder.this.stringBuffer.append(subStringBuffer).append("\n");
             return MarkDownBuilder.this;
         }
