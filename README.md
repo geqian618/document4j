@@ -138,8 +138,6 @@ public WordBuilder picture(InputStream is, String filename, int width, int heigh
 
 ##### 写入表格
 
-###### 写入数据类型
-
 **二维数组类型数据**
 
 ```java
@@ -171,10 +169,13 @@ public static void main(String[] args) {
 @Data
 public class User implements WriteTableable {
 
+    @TableField("用户ID")
     private Long userId;
 
+    @TableField("用户名")
     private String username;
 
+    @TableField("性别")
     private Integer gender;
 
 }
@@ -211,7 +212,7 @@ public static void main(String[] args) {
 
 ###### @TableField
 
-用于设置表格表头名称，枚举值映射、值转换、是否排除属性写入表格、属性写入表格顺序
+用于设置表格表头名称，枚举值映射、值转换、是否排除属性写入表格、属性值写入表格顺序
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -302,95 +303,6 @@ public interface WordTableInterceptor extends WriteTableable {
     }
 }
 ```
-
-
-
-
-
-##### 扩展工具类
-
-```java
-public class WordExtendUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(WordExtendUtils.class);
-
-    /**
-     * 模版填充
-     *
-     * @param placeholderMap 占位符映射
-     * @param templatePath   输入路径
-     * @param outPutPath     输出路径
-     */
-    public static void fillTemplate(Map<String, String> placeholderMap, String templatePath, String outPutPath) {
-        try (FileOutputStream outputStream = new FileOutputStream(outPutPath);
-             XWPFDocument document = new XWPFDocument(Files.newInputStream(Paths.get(templatePath)))
-        ) {
-            // 遍历word模板中的所有段落
-            for (XWPFParagraph paragraph : document.getParagraphs()) {
-                // 替换段落中的占位符
-                for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
-                    String placeholder = entry.getKey();
-                    String value = entry.getValue();
-                    if (paragraph.getText().contains(placeholder)) {
-                        replacePlaceholder(paragraph, placeholder, value);
-                    }
-                }
-            }
-            // 遍历word模板中的所有表格
-            for (XWPFTable table : document.getTables()) {
-                // 替换表格中的占位符
-                for (XWPFTableRow row : table.getRows()) {
-                    for (XWPFTableCell cell : row.getTableCells()) {
-                        for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
-                            String placeholder = entry.getKey();
-                            String value = entry.getValue();
-                            if (cell.getText().contains(placeholder)) {
-                                replacePlaceholder(cell, placeholder, value);
-                            }
-                        }
-                    }
-                }
-            }
-            document.write(outputStream);
-            log.info("模板填充完成!!!");
-        } catch (IOException e) {
-            log.error("填充word模板发生异常", e);
-        }
-    }
-
-    /**
-     * 段落占位符替换
-     *
-     * @param paragraph   段落
-     * @param placeholder 占位符
-     * @param value       值
-     */
-    private static void replacePlaceholder(XWPFParagraph paragraph, String placeholder, String value) {
-        for (XWPFRun run : paragraph.getRuns()) {
-            String text = run.getText(0);
-            if (text != null && text.contains(placeholder)) {
-                text = text.replace(placeholder, value);
-                run.setText(text, 0);
-                log.info("填充占位符 " + placeholder + " ==> " + value);
-            }
-        }
-    }
-
-    /**
-     * 表格占位符替换
-     *
-     * @param cell        单元格
-     * @param placeholder 占位符
-     * @param value       值
-     */
-    private static void replacePlaceholder(XWPFTableCell cell, String placeholder, String value) {
-        for (XWPFParagraph paragraph : cell.getParagraphs()) {
-            replacePlaceholder(paragraph, placeholder, value);
-        }
-    }
-}
-```
-
 
 
 <br>
