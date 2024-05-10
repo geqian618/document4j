@@ -478,7 +478,7 @@ public class HTMLBuilder {
             for (HTMLStyle htmlStyle : htmlStyles) {
                 styleBuilder.append(htmlStyle.getStyle());
             }
-            paragraphBuilder.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
+            paragraphBuilder.append(String.format("<span style=\"%s\">%s</span>", styleBuilder, text));
             return this;
         }
 
