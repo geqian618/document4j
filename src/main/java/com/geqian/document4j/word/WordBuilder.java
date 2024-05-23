@@ -525,7 +525,7 @@ public class WordBuilder {
         table.setTableAlignment(TableRowAlign.LEFT);
 
         // 设置表格样式，表格宽度
-        table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8250));
+        table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8270));
         table.getCTTbl().getTblPr().unsetTblBorders();
 
         // 设置表格向右移动大小
@@ -639,4 +639,5 @@ public class WordBuilder {
         }
 
     }
+
 }
