@@ -523,9 +523,15 @@ public class WordBuilder {
         // 设置表格对齐方式
         table.setCellMargins(70, 0, 70, 0);
         table.setTableAlignment(TableRowAlign.LEFT);
-        // 设置表格样式
-        table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8000));
+
+        // 设置表格样式，表格宽度
+        table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8250));
         table.getCTTbl().getTblPr().unsetTblBorders();
+
+        // 设置表格 x 轴移动大小
+        table.getCTTbl().getTblPr().addNewTblpPr().setTblpX(BigInteger.valueOf(125));
+        // 设置表格 y 轴移动大小
+        //table.getCTTbl().getTblPr().getTblpPr().setTblpY(BigInteger.valueOf(500));
 
         // 设置表格边框线条类型
         CTTblBorders borders = table.getCTTbl().addNewTblPr().addNewTblBorders();
