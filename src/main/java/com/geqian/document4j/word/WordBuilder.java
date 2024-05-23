@@ -528,9 +528,9 @@ public class WordBuilder {
         table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8250));
         table.getCTTbl().getTblPr().unsetTblBorders();
 
-        // 设置表格 x 轴移动大小
+        // 设置表格向右移动大小
         table.getCTTbl().getTblPr().addNewTblpPr().setTblpX(BigInteger.valueOf(125));
-        // 设置表格 y 轴移动大小
+        // 设置表格向下移动大小
         //table.getCTTbl().getTblPr().getTblpPr().setTblpY(BigInteger.valueOf(500));
 
         // 设置表格边框线条类型
