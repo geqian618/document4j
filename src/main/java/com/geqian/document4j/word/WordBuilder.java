@@ -522,14 +522,14 @@ public class WordBuilder {
     private void setTableStyle(XWPFTable table) {
         // 设置表格对齐方式
         table.setCellMargins(70, 0, 70, 0);
-        table.setTableAlignment(TableRowAlign.LEFT);
+        table.setTableAlignment(TableRowAlign.CENTER);
 
         // 设置表格样式，表格宽度
         table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8270));
         table.getCTTbl().getTblPr().unsetTblBorders();
 
         // 设置表格向右移动大小
-        table.getCTTbl().getTblPr().addNewTblpPr().setTblpX(BigInteger.valueOf(125));
+        //table.getCTTbl().getTblPr().addNewTblpPr().setTblpX(BigInteger.valueOf(125));
         // 设置表格向下移动大小
         //table.getCTTbl().getTblPr().getTblpPr().setTblpY(BigInteger.valueOf(500));
 
@@ -639,5 +639,15 @@ public class WordBuilder {
         }
 
     }
+
+
+    public static void main(String[] args) {
+                WordBuilder.create()
+                        .table(new String[][]{{"3","3","3"}, {"3","3","3"},{"3","3","3"}})
+                        .paragraph("haha")
+                        .table(new String[][]{{"1","3","3"}, {"3","3","3"},{"3","3","3"}})
+                        .asFile("d://desktop/haha.docx");
+            }
+
 
 }
