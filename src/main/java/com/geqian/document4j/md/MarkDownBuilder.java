@@ -58,7 +58,12 @@ public class MarkDownBuilder {
      * @param title
      * @return
      */
-    public MarkDownBuilder title(String text, MarkDownStyle.Title title) {
+    public MarkDownBuilder title(String text, MarkDownStyle.Title title, MarkDownStyle.Font... styles) {
+        for (MarkDownStyle.Font style : styles) {
+            if (style != null) {
+                text = style.fillStyle(text);
+            }
+        }
         stringBuffer.append(title != null ? title.fillStyle(text) : text);
         return this;
     }
