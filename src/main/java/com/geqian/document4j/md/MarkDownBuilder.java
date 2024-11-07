@@ -59,7 +59,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder title(String text, MarkDownStyle.Title title) {
-        stringBuffer.append(title.fillStyle(text));
+        stringBuffer.append(title != null ? title.fillStyle(text) : text);
         return this;
     }
 
@@ -84,7 +84,9 @@ public class MarkDownBuilder {
      */
     public MarkDownBuilder paragraph(String text, MarkDownStyle.Font... styles) {
         for (MarkDownStyle.Font style : styles) {
-            text = style.fillStyle(text);
+            if (style != null) {
+                text = style.fillStyle(text);
+            }
         }
         stringBuffer.append(text).append("\n");
         return this;
@@ -272,7 +274,7 @@ public class MarkDownBuilder {
                 tableBuilder.append("|\n");
                 if (i == 0) {
                     for (int j = 0; j < rows.length; j++) {
-                        tableBuilder.append("|").append(alignment.getMark());
+                        tableBuilder.append("|").append(alignment != null ? alignment.getMark() : "");
                     }
                     tableBuilder.append("|\n");
                 }
@@ -440,7 +442,7 @@ public class MarkDownBuilder {
             }
             tableBuilder.append("|\n");
             for (int i = 0; i < tableHeaders.size(); i++) {
-                tableBuilder.append("|").append(alignment.getMark());
+                tableBuilder.append("|").append(alignment != null ? alignment.getMark() : "");
             }
             tableBuilder.append("|\n");
         }
@@ -553,7 +555,9 @@ public class MarkDownBuilder {
          */
         public ParagraphBuilder text(String text, MarkDownStyle.Font... styles) {
             for (MarkDownStyle.Font style : styles) {
-                text = style.fillStyle(text);
+                if (style != null) {
+                    text = style.fillStyle(text);
+                }
             }
             subStringBuffer.append(text);
             return this;

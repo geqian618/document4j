@@ -232,7 +232,7 @@ public class PDFBuilder {
         try {
             com.itextpdf.text.List list = new com.itextpdf.text.List();
             for (String element : elements) {
-                list.add(element);
+                list.add(createParagraph(element, pdfStyles));
             }
             this.document.add(list);
         } catch (DocumentException e) {
@@ -720,13 +720,12 @@ public class PDFBuilder {
     private Paragraph createParagraph(String text, PDFStyle... pdfStyles) {
         Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
         for (PDFStyle pdfStyle : pdfStyles) {
-            if (PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+            if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.fillStyle(paragraph);
             }
         }
         return paragraph;
     }
-
 
     /**
      * 创建字体
@@ -751,7 +750,7 @@ public class PDFBuilder {
         font.setStyle(Font.NORMAL);
         font.setSize(Font.DEFAULTSIZE);
         for (PDFStyle pdfStyle : pdfStyles) {
-            if (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+            if (pdfStyle != null && PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.fillStyle(font);
             }
         }
@@ -795,7 +794,7 @@ public class PDFBuilder {
             Chunk chunk = new Chunk(text, createFont(pdfStyles));
             paragraph.add(chunk);
             for (PDFStyle pdfStyle : pdfStyles) {
-                if (PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+                if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
                     pdfStyle.fillStyle(paragraph);
                 }
             }

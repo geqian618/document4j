@@ -70,7 +70,7 @@ public class HTMLBuilder {
     }
 
     public HTMLBuilder title(String text, HTMLStyle.Title title) {
-        this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", title.getStyle(), text));
+        this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", title != null ? title.getStyle() : "", text));
         return this;
     }
 
@@ -78,7 +78,9 @@ public class HTMLBuilder {
     public HTMLBuilder paragraph(String text, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
         for (HTMLStyle htmlStyle : htmlStyles) {
-            styleBuilder.append(htmlStyle.getStyle());
+            if (htmlStyle != null) {
+                styleBuilder.append(htmlStyle.getStyle());
+            }
         }
         this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
         return this;
@@ -97,7 +99,9 @@ public class HTMLBuilder {
     public HTMLBuilder link(String link, String desc, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
         for (HTMLStyle htmlStyle : htmlStyles) {
-            styleBuilder.append(htmlStyle.getStyle());
+            if (htmlStyle != null) {
+                styleBuilder.append(htmlStyle.getStyle());
+            }
         }
         this.bodyBuffer.append(String.format("<a style=\"%s\" href=\"%s\">%s</a>", styleBuilder, link, desc));
         return this;
@@ -227,7 +231,7 @@ public class HTMLBuilder {
             if (obj instanceof HTMLTableInterceptor) {
                 cellValue = ((HTMLTableInterceptor) obj).interceptHtmlCell(cellStyleBuilder, cellValue, obj, field);
             }
-            Arrays.stream(htmlStyles).forEach(style -> cellStyleBuilder.append(style.getStyle()));
+            Arrays.stream(htmlStyles).forEach(style -> cellStyleBuilder.append(style != null ? style.getStyle() : ""));
             if (cellStyleBuilder.length() > 0) {
                 cellStyleBuilder.insert(0, " style=\"");
                 cellStyleBuilder.append("\"");
@@ -343,7 +347,7 @@ public class HTMLBuilder {
                 if (writeTableable instanceof HTMLTableInterceptor) {
                     ((HTMLTableInterceptor) writeTableable).interceptHtmlHeaderCell(cellStyleBuilder, header, writeTableable.getClass());
                 }
-                Arrays.stream(htmlStyles).forEach(style -> cellStyleBuilder.append(style.getStyle()));
+                Arrays.stream(htmlStyles).forEach(style -> cellStyleBuilder.append(style != null ? style.getStyle() : ""));
                 if (cellStyleBuilder.length() > 0) {
                     cellStyleBuilder.insert(0, " style=\"");
                     cellStyleBuilder.append("\"");
@@ -476,7 +480,9 @@ public class HTMLBuilder {
         public HTMLBuilder.ParagraphBuilder text(String text, HTMLStyle... htmlStyles) {
             StringBuilder styleBuilder = new StringBuilder();
             for (HTMLStyle htmlStyle : htmlStyles) {
-                styleBuilder.append(htmlStyle.getStyle());
+                if (htmlStyle != null) {
+                    styleBuilder.append(htmlStyle.getStyle());
+                }
             }
             paragraphBuilder.append(String.format("<span style=\"%s\">%s</span>", styleBuilder, text));
             return this;

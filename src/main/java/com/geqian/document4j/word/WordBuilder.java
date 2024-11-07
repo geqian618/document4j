@@ -135,13 +135,11 @@ public class WordBuilder {
         run.setText(text);
 
         for (WordStyle wordStyle : wordStyles) {
-            if (WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass())) {
-                wordStyle.fillStyle(paragraph);
-            } else {
-                wordStyle.fillStyle(run);
+            if (wordStyle != null) {
+                boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass());
+                wordStyle.fillStyle(isParagraph ? paragraph : run);
             }
         }
-
     }
 
 
@@ -642,12 +640,12 @@ public class WordBuilder {
 
 
     public static void main(String[] args) {
-                WordBuilder.create()
-                        .table(new String[][]{{"3","3","3"}, {"3","3","3"},{"3","3","3"}})
-                        .paragraph("haha")
-                        .table(new String[][]{{"1","3","3"}, {"3","3","3"},{"3","3","3"}})
-                        .asFile("d://desktop/haha.docx");
-            }
+        WordBuilder.create()
+                .table(new String[][]{{"3", "3", "3"}, {"3", "3", "3"}, {"3", "3", "3"}})
+                .paragraph("haha")
+                .table(new String[][]{{"1", "3", "3"}, {"3", "3", "3"}, {"3", "3", "3"}})
+                .asFile("d://desktop/haha.docx");
+    }
 
 
 }
