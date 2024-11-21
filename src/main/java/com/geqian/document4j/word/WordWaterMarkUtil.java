@@ -100,7 +100,7 @@ public class WordWaterMarkUtil {
         int pageHeight = ((BigInteger) pageSize.getH()).intValue() / 20;
         // 水印宽度
         int waterMarkWidth = pageWidth / cols / WIDTH_PER_WORD;
-        // 水印间上下间隔高度
+        // 水印上下间隔高度
         int spacing = 3 * (pageHeight / rows);
         // 遍历所有的header，这里包含所有的分页
         for (XWPFHeader header : headerList) {
