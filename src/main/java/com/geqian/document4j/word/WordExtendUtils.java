@@ -22,9 +22,9 @@ public class WordExtendUtils {
     /**
      * 添加水印
      *
-     * @param inputPath
-     * @param targetPath
-     * @param waterMark
+     * @param inputPath  原文件路径
+     * @param targetPath 文件输出路径
+     * @param waterMark  水印内容
      */
     public static void addWaterMark(String inputPath, String targetPath, String waterMark) {
         WordWaterMarkUtil.addWaterMark(inputPath, targetPath, waterMark, 10, 4);
@@ -34,9 +34,9 @@ public class WordExtendUtils {
     /**
      * 添加水印
      *
-     * @param inputPath
-     * @param targetPath
-     * @param waterMark
+     * @param inputPath  原文件路径
+     * @param targetPath 文件输出路径
+     * @param waterMark  水印内容
      * @param rows       水印行数
      * @param cols       水印列数
      */
