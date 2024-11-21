@@ -18,6 +18,33 @@ public class WordExtendUtils {
 
     private static final Logger log = LoggerFactory.getLogger(WordExtendUtils.class);
 
+
+    /**
+     * 添加水印
+     *
+     * @param inputPath
+     * @param targetPath
+     * @param waterMark
+     */
+    public static void addWaterMark(String inputPath, String targetPath, String waterMark) {
+        WordWaterMarkUtil.addWaterMark(inputPath, targetPath, waterMark, 10, 4);
+    }
+
+
+    /**
+     * 添加水印
+     *
+     * @param inputPath
+     * @param targetPath
+     * @param waterMark
+     * @param rows       水印行数
+     * @param cols       水印列数
+     */
+    public static void addWaterMark(String inputPath, String targetPath, String waterMark, int rows, int cols) {
+        WordWaterMarkUtil.addWaterMark(inputPath, targetPath, waterMark, rows, cols);
+    }
+
+
     /**
      * 模板填充
      *
