@@ -22,7 +22,7 @@ import java.nio.file.Paths;
  * @author geqian
  * @date 20:39 2024/11/21
  */
-public class WaterMarkUtil {
+public class ExcelWaterMarkUtil {
 
 
     /**

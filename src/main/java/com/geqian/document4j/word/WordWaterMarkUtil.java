@@ -1,6 +1,6 @@
 package com.geqian.document4j.word;
 
-import com.geqian.document4j.excel.WaterMarkUtil;
+import com.geqian.document4j.excel.ExcelWaterMarkUtil;
 import com.microsoft.schemas.office.office.CTLock;
 import com.microsoft.schemas.vml.*;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -12,11 +12,8 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -30,7 +27,7 @@ import java.util.stream.Stream;
  */
 public class WordWaterMarkUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(WaterMarkUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(ExcelWaterMarkUtil.class);
 
     /**
      * word字体
@@ -55,15 +52,55 @@ public class WordWaterMarkUtil {
     private static final String STYLE_ROTATION = "30";
 
 
+    /**
+     * 添加水印
+     *
+     * @param inputBytes
+     * @param waterMark
+     */
+    public static byte[] addWaterMark(byte[] inputBytes, String waterMark) {
+        return addWaterMark(inputBytes, waterMark, 10, 4);
+    }
+
+    /**
+     * 添加水印
+     *
+     * @param inputBytes
+     * @param waterMark
+     */
+    public static byte[] addWaterMark(byte[] inputBytes, String waterMark, int rows, int cols) {
+        try (ByteArrayInputStream in = new ByteArrayInputStream(inputBytes);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addWaterMark(in, out, waterMark, rows, cols);
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public static void addWaterMark(String inputPath, String targetPath, String waterMark) {
         addWaterMark(inputPath, targetPath, waterMark, 10, 4);
     }
 
     public static void addWaterMark(String inputPath, String targetPath, String waterMark, int rows, int cols) {
+        try (FileInputStream in = new FileInputStream(inputPath);
+             FileOutputStream out = new FileOutputStream(targetPath)) {
+            addWaterMark(in, out, waterMark, rows, cols);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
+        addWaterMark(in, out, waterMark, 10, 4);
+    }
+
+
+    public static void addWaterMark(InputStream in, OutputStream out, String waterMark, int rows, int cols) {
         long beginTime = System.currentTimeMillis();
         try (
-                OutputStream out = Files.newOutputStream(Paths.get(targetPath));
-                InputStream in = Files.newInputStream(Paths.get(inputPath));
                 OPCPackage srcPackage = OPCPackage.open(in);
                 XWPFDocument doc = new XWPFDocument(srcPackage)
         ) {
@@ -137,7 +174,7 @@ public class WordWaterMarkUtil {
                 shape.setSpt(136f);
                 shape.setType("#_x0000_t136");
                 // 设置形状样式（旋转，位置，相对路径等参数）
-                shape.setStyle(getShapeStyle(content.length(), (row - 1) * spacing));
+                shape.setStyle(getShapeStyle(content.length(), row * spacing));
                 shape.setFillcolor(FONT_COLOR);
                 shape.setFilled(STTrueFalse.T);
                 shape.setCoordsize("21600,21600");
@@ -185,10 +222,10 @@ public class WordWaterMarkUtil {
 
 
     public static void main(String[] args) {
-        String srcWord = "D:\\Desktop\\个人简历.docx";
-        String tarWord = "D:\\Desktop\\个人简历-副本.docx";
+        String inputPath = "D:\\Desktop\\个人简历.docx";
+        String outputPath = "D:\\Desktop\\个人简历-副本.docx";
         String waterMark = "严禁复制";
-        WordWaterMarkUtil.addWaterMark(srcWord, tarWord, waterMark);
+        WordWaterMarkUtil.addWaterMark(inputPath, outputPath, waterMark,5,4);
     }
 
 }

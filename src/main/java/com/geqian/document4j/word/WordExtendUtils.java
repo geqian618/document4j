@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -22,26 +24,26 @@ public class WordExtendUtils {
     /**
      * 添加水印
      *
-     * @param inputPath  原文件路径
-     * @param targetPath 文件输出路径
-     * @param waterMark  水印内容
+     * @param in        输入流
+     * @param out       输出流
+     * @param waterMark 水印内容
      */
-    public static void addWaterMark(String inputPath, String targetPath, String waterMark) {
-        WordWaterMarkUtil.addWaterMark(inputPath, targetPath, waterMark, 10, 4);
+    public static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
+        WordWaterMarkUtil.addWaterMark(in, out, waterMark, 10, 4);
     }
 
 
     /**
      * 添加水印
      *
-     * @param inputPath  原文件路径
-     * @param targetPath 文件输出路径
-     * @param waterMark  水印内容
-     * @param rows       水印行数
-     * @param cols       水印列数
+     * @param in        输入流
+     * @param out       输出流
+     * @param waterMark 水印内容
+     * @param rows      水印行数
+     * @param cols      水印列数
      */
-    public static void addWaterMark(String inputPath, String targetPath, String waterMark, int rows, int cols) {
-        WordWaterMarkUtil.addWaterMark(inputPath, targetPath, waterMark, rows, cols);
+    public static void addWaterMark(InputStream in, OutputStream out, String waterMark, int rows, int cols) {
+        WordWaterMarkUtil.addWaterMark(in, out, waterMark, rows, cols);
     }
 
 
