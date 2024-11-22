@@ -55,6 +55,33 @@ public class WordWaterMarkUtil {
     /**
      * 添加水印
      *
+     * @param in
+     * @param waterMark
+     */
+    public static byte[] addWaterMark(InputStream in, String waterMark) {
+        return addWaterMark(in, waterMark, 10, 4);
+    }
+
+    /**
+     * 添加水印
+     *
+     * @param in
+     * @param waterMark
+     */
+    public static byte[] addWaterMark(InputStream in, String waterMark, int rows, int cols) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addWaterMark(in, out, waterMark, rows, cols);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("WORD文档添加水印时发生异常", e);
+            return new byte[0];
+        }
+    }
+
+
+    /**
+     * 添加水印
+     *
      * @param inputBytes
      * @param waterMark
      */
@@ -74,7 +101,8 @@ public class WordWaterMarkUtil {
             addWaterMark(in, out, waterMark, rows, cols);
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("WORD文档添加水印时发生异常", e);
+            return new byte[0];
         }
     }
 
@@ -88,7 +116,7 @@ public class WordWaterMarkUtil {
              FileOutputStream out = new FileOutputStream(targetPath)) {
             addWaterMark(in, out, waterMark, rows, cols);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("WORD文档添加水印时发生异常", e);
         }
     }
 
@@ -109,7 +137,7 @@ public class WordWaterMarkUtil {
             doc.write(out);
             log.info("添加水印成功！一共耗时" + (System.currentTimeMillis() - beginTime) + "毫秒");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("WORD文档添加水印时发生异常", e);
         }
     }
 
@@ -225,7 +253,7 @@ public class WordWaterMarkUtil {
         String inputPath = "D:\\Desktop\\个人简历.docx";
         String outputPath = "D:\\Desktop\\个人简历-副本.docx";
         String waterMark = "严禁复制";
-        WordWaterMarkUtil.addWaterMark(inputPath, outputPath, waterMark,5,4);
+        WordWaterMarkUtil.addWaterMark(inputPath, outputPath, waterMark, 5, 4);
     }
 
 }

@@ -4,10 +4,7 @@ import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -19,6 +16,27 @@ import java.util.Map;
 public class WordExtendUtils {
 
     private static final Logger log = LoggerFactory.getLogger(WordExtendUtils.class);
+
+
+    /**
+     * 添加水印
+     *
+     * @param in
+     * @param waterMark
+     */
+    public static byte[] addWaterMark(InputStream in, String waterMark) {
+        return WordWaterMarkUtil.addWaterMark(in, waterMark, 10, 4);
+    }
+
+    /**
+     * 添加水印
+     *
+     * @param in
+     * @param waterMark
+     */
+    public static byte[] addWaterMark(InputStream in, String waterMark, int rows, int cols) {
+        return WordWaterMarkUtil.addWaterMark(in, waterMark, rows, cols);
+    }
 
 
     /**

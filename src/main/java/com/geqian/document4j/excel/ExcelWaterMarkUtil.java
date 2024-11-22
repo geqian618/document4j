@@ -8,6 +8,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,8 +17,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * @author geqian
@@ -24,15 +24,29 @@ import java.nio.file.Paths;
  */
 public class ExcelWaterMarkUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(ExcelWaterMarkUtil.class);
+
+
+
+    public static byte[] addWaterMark(InputStream in, String waterMark){
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addWaterMark(in, out, waterMark);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("EXCEL文档添加水印时发生异常", e);
+            return new byte[0];
+        }
+    }
+
 
     /**
      * 添加 excel 水印
      *
-     * @param inputPath  原文件路径
-     * @param targetPath 输出文件路径
+     * @param in  原文件输入流
+     * @param out 输出文件输出流
      * @param waterMark  水印文字
      */
-    private static void addExcelWaterMark(String inputPath, String targetPath, String waterMark) {
+    private static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
         // 读取水印文字
         String[] textArray = waterMark.split("\n");
         // 设置字体
@@ -69,12 +83,9 @@ public class ExcelWaterMarkUtil {
         // 释放画笔
         g.dispose();
 
-        try (InputStream inputStream = Files.newInputStream(Paths.get(inputPath));
-             OutputStream outputStream = Files.newOutputStream(Paths.get(targetPath));
-             // 读取原文档
-             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+        try (// 读取原文档
+             XSSFWorkbook workbook = new XSSFWorkbook(in);
              ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-
             // 将内存中的图片写入至输出流
             ImageIO.write(image, "png", os);
 
@@ -93,9 +104,9 @@ public class ExcelWaterMarkUtil {
                 // 将图片关系添加到Sheet底层结构中
                 sheet.getCTWorksheet().addNewPicture().setId(pr.getId());
             }
-            workbook.write(outputStream);
+            workbook.write(out);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("EXCEL文档添加水印时发生异常", e);
         }
     }
 

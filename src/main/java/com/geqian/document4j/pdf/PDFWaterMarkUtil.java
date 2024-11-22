@@ -21,6 +21,24 @@ public class PDFWaterMarkUtil {
 
     private static final Logger log = LoggerFactory.getLogger(PDFWaterMarkUtil.class);
 
+
+    /**
+     * 添加水印
+     *
+     * @param in
+     * @param watermark
+     * @return
+     */
+    public static byte[] addWaterMark(InputStream in, String watermark) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addWaterMark(in, out, watermark);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("PDF文档添加水印时发生异常", e);
+            return new byte[0];
+        }
+    }
+
     /**
      * 添加水印
      *
@@ -110,7 +128,8 @@ public class PDFWaterMarkUtil {
             addWaterMark(is, os, waterMark);
             return os.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("PDF文档添加水印时发生异常", e);
+            log.error("PDF文档添加水印时发生异常", e);
+            return new byte[0];
         }
     }
 
