@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * @author geqian
@@ -27,8 +25,7 @@ public class ExcelWaterMarkUtil {
     private static final Logger log = LoggerFactory.getLogger(ExcelWaterMarkUtil.class);
 
 
-
-    public static byte[] addWaterMark(InputStream in, String waterMark){
+    public static byte[] addWaterMark(InputStream in, String waterMark) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             addWaterMark(in, out, waterMark);
             return out.toByteArray();
@@ -42,15 +39,15 @@ public class ExcelWaterMarkUtil {
     /**
      * 添加 excel 水印
      *
-     * @param in  原文件输入流
-     * @param out 输出文件输出流
-     * @param waterMark  水印文字
+     * @param in        原文件输入流
+     * @param out       输出文件输出流
+     * @param waterMark 水印文字
      */
     private static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
         // 读取水印文字
         String[] textArray = waterMark.split("\n");
         // 设置字体
-        Font font = new Font("microsoft-yahei", Font.PLAIN, 25);
+        Font font = new Font("microsoft-yahei", Font.PLAIN, 30);
         // 单元水印图片宽高
         int width = 500;
         int height = 300;
