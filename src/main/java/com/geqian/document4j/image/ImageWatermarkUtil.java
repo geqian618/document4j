@@ -22,6 +22,7 @@ public class ImageWatermarkUtil {
      * @param target
      */
     public static void addTextWatermark(String text, InputStream source, TextWatermarkConfig config, OutputStream target) {
+        config = config == null ? new TextWatermarkConfig() : config;
         Float opacity = config.getOpacity();
         Color color = config.getColor();
         Font font = config.getFont();
@@ -89,6 +90,7 @@ public class ImageWatermarkUtil {
      * @param target
      */
     public static void addImageWatermark(InputStream watermark, InputStream source, ImageWatermarkConfig config, OutputStream target) {
+        config = config == null ? new ImageWatermarkConfig() : config;
         Float opacity = config.getOpacity();
         Integer offsetX = config.getOffsetX();
         Integer offsetY = config.getOffsetY();
@@ -165,6 +167,7 @@ public class ImageWatermarkUtil {
      * @param target
      */
     public static void addFullTextWatermark(String text, InputStream source, TextWatermarkConfig config, OutputStream target) {
+        config = config == null ? new TextWatermarkConfig() : config;
         Float opacity = config.getOpacity();
         Color color = config.getColor();
         Font font = config.getFont();
@@ -233,6 +236,7 @@ public class ImageWatermarkUtil {
      * @param target
      */
     public static void addFullImageWatermark(InputStream watermark, InputStream source, ImageWatermarkConfig config, OutputStream target) {
+        config = config == null ? new ImageWatermarkConfig() : config;
         Float opacity = config.getOpacity();
         Integer scale = config.getScale();
         String formatName = config.getFormatName();
