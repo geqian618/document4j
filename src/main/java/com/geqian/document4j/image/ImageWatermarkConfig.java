@@ -16,7 +16,6 @@ public class ImageWatermarkConfig {
 
     private String formatName = "jpg";
 
-
     private Integer margin = 20;
 
 
