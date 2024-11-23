@@ -18,10 +18,10 @@ public class ImageWatermarkUtil {
      *
      * @param text
      * @param config
-     * @param in
-     * @param out
+     * @param source
+     * @param target
      */
-    public static void addTextWatermark(String text, TextWatermarkConfig config, InputStream in, OutputStream out) {
+    public static void addTextWatermark(String text, InputStream source, TextWatermarkConfig config, OutputStream target) {
         Float opacity = config.getOpacity();
         Color color = config.getColor();
         Font font = config.getFont();
@@ -30,7 +30,7 @@ public class ImageWatermarkUtil {
         String formatName = config.getFormatName();
         try {
             int imageType = "png".equalsIgnoreCase(formatName) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
-            BufferedImage sourceImage = ImageIO.read(in);
+            BufferedImage sourceImage = ImageIO.read(source);
             BufferedImage rgbImage = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), imageType);
             // 创建 Graphics2D 对象，并绘制原始图像
             Graphics2D g2d = rgbImage.createGraphics();
@@ -54,10 +54,28 @@ public class ImageWatermarkUtil {
             // 释放资源
             g2d.dispose();
             // 将修改后的图像保存为 JPEG 格式
-            ImageIO.write(rgbImage, formatName, out);
+            ImageIO.write(rgbImage, formatName, target);
             log.info("Text watermark added successfully.");
         } catch (Exception e) {
             log.error("添加水印发生异常", e);
+        }
+    }
+
+
+    /**
+     * 添加文字水印
+     *
+     * @param text
+     * @param config
+     * @param source
+     */
+    public static byte[] addTextWatermark(String text, InputStream source, TextWatermarkConfig config) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addTextWatermark(text, source, config, out);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("添加水印发生异常", e);
+            return new byte[0];
         }
     }
 
@@ -67,10 +85,10 @@ public class ImageWatermarkUtil {
      *
      * @param watermark
      * @param config
-     * @param in
-     * @param out
+     * @param source
+     * @param target
      */
-    public static void addImageWatermark(InputStream watermark, ImageWatermarkConfig config, InputStream in, OutputStream out) {
+    public static void addImageWatermark(InputStream watermark, InputStream source, ImageWatermarkConfig config, OutputStream target) {
         Float opacity = config.getOpacity();
         Integer offsetX = config.getOffsetX();
         Integer offsetY = config.getOffsetY();
@@ -90,7 +108,7 @@ public class ImageWatermarkUtil {
             g2dScale.drawImage(scaledWatermarkImg, 0, 0, null);
             g2dScale.dispose();
             // 读取原始图片
-            BufferedImage sourceImage = ImageIO.read(in);
+            BufferedImage sourceImage = ImageIO.read(source);
             // 获取原始图片的宽高
             int sourceWidth = sourceImage.getWidth();
             int sourceHeight = sourceImage.getHeight();
@@ -112,10 +130,28 @@ public class ImageWatermarkUtil {
             // 释放资源
             g2d.dispose();
             // 将图像保存为指定格式（如JPEG、PNG等）
-            ImageIO.write(rgbImage, formatName, out);
+            ImageIO.write(rgbImage, formatName, target);
             log.info("Image watermark added successfully.");
         } catch (Exception e) {
             log.error("添加水印发生异常", e);
+        }
+    }
+
+
+    /**
+     * 添加图片水印
+     *
+     * @param watermark
+     * @param config
+     * @param source
+     */
+    public static byte[] addImageWatermark(InputStream watermark, InputStream source, ImageWatermarkConfig config) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addImageWatermark(watermark, source, config, out);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("添加水印发生异常", e);
+            return new byte[0];
         }
     }
 
@@ -125,10 +161,10 @@ public class ImageWatermarkUtil {
      *
      * @param text
      * @param config
-     * @param in
-     * @param out
+     * @param source
+     * @param target
      */
-    public static void addFullTextWatermark(String text, TextWatermarkConfig config, InputStream in, OutputStream out) {
+    public static void addFullTextWatermark(String text, InputStream source, TextWatermarkConfig config, OutputStream target) {
         Float opacity = config.getOpacity();
         Color color = config.getColor();
         Font font = config.getFont();
@@ -136,7 +172,7 @@ public class ImageWatermarkUtil {
         String formatName = config.getFormatName();
         try {
             int imageType = "png".equalsIgnoreCase(formatName) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
-            BufferedImage sourceImage = ImageIO.read(in);
+            BufferedImage sourceImage = ImageIO.read(source);
             BufferedImage rgbImage = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), imageType);
             // 创建 Graphics2D 对象，并绘制原始图像
             Graphics2D g2d = rgbImage.createGraphics();
@@ -162,10 +198,28 @@ public class ImageWatermarkUtil {
             // 释放资源
             g2d.dispose();
             // 将修改后的图像保存为 JPEG 格式
-            ImageIO.write(rgbImage, formatName, out);
+            ImageIO.write(rgbImage, formatName, target);
             log.info("Text watermark added successfully.");
         } catch (Exception e) {
             log.error("添加水印发生异常", e);
+        }
+    }
+
+
+    /**
+     * 添加文字水印
+     *
+     * @param text
+     * @param config
+     * @param source
+     */
+    public static byte[] addFullTextWatermark(String text, InputStream source, TextWatermarkConfig config) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addFullTextWatermark(text, source, config, out);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("添加水印发生异常", e);
+            return new byte[0];
         }
     }
 
@@ -175,10 +229,10 @@ public class ImageWatermarkUtil {
      *
      * @param watermark
      * @param config
-     * @param in
-     * @param out
+     * @param source
+     * @param target
      */
-    public static void addFullImageWatermark(InputStream watermark, ImageWatermarkConfig config, InputStream in, OutputStream out) {
+    public static void addFullImageWatermark(InputStream watermark, InputStream source, ImageWatermarkConfig config, OutputStream target) {
         Float opacity = config.getOpacity();
         Integer scale = config.getScale();
         String formatName = config.getFormatName();
@@ -197,7 +251,7 @@ public class ImageWatermarkUtil {
             g2dScale.drawImage(scaledWatermarkImg, 0, 0, null);
             g2dScale.dispose();
             // 读取原始图片
-            BufferedImage sourceImage = ImageIO.read(in);
+            BufferedImage sourceImage = ImageIO.read(source);
             // 获取原始图片的宽高
             int sourceWidth = sourceImage.getWidth();
             int sourceHeight = sourceImage.getHeight();
@@ -220,7 +274,7 @@ public class ImageWatermarkUtil {
             // 释放资源
             g2d.dispose();
             // 将图像保存为指定格式（如JPEG、PNG等）
-            ImageIO.write(rgbImage, formatName, out);
+            ImageIO.write(rgbImage, formatName, target);
             log.info("Image watermark added successfully.");
         } catch (Exception e) {
             log.error("添加水印发生异常", e);
@@ -228,14 +282,32 @@ public class ImageWatermarkUtil {
     }
 
 
-    public static void main(String[] args) throws IOException {
-        FileInputStream img = new FileInputStream("d://desktop/icon.jpg");
-        FileInputStream inputStream = new FileInputStream("d://desktop/img.png");
-        FileOutputStream outputStream = new FileOutputStream("d://desktop/img-副本.png");
+    /**
+     * 添加图片水印
+     *
+     * @param watermark
+     * @param config
+     * @param source
+     */
+    public static byte[] addFullImageWatermark(InputStream watermark, InputStream source, ImageWatermarkConfig config) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            addFullImageWatermark(watermark, source, config, out);
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("添加水印发生异常", e);
+            return new byte[0];
+        }
+    }
 
-        addFullImageWatermark(img, new ImageWatermarkConfig(), inputStream, outputStream);
+    public static void main(String[] args) {
 
-        outputStream.close();
+        try (FileInputStream watermark = new FileInputStream("d://desktop/watermark.jpg");
+             FileInputStream inputStream = new FileInputStream("d://desktop/我的图片.png");
+             FileOutputStream outputStream = new FileOutputStream("d://desktop/我的图片-新.png");) {
+            addFullImageWatermark(watermark, inputStream, new ImageWatermarkConfig(), outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }
