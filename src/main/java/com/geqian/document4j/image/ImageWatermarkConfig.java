@@ -16,7 +16,7 @@ public class ImageWatermarkConfig {
 
     private String formatName = "jpg";
 
-    private Integer margin = 20;
+    private Integer spacing = 20;
 
 
     public Integer getOffsetX() {
@@ -59,12 +59,11 @@ public class ImageWatermarkConfig {
         this.formatName = formatName;
     }
 
-
-    public Integer getMargin() {
-        return margin;
+    public Integer getSpacing() {
+        return spacing;
     }
 
-    public void setMargin(Integer margin) {
-        this.margin = margin;
+    public void setSpacing(Integer spacing) {
+        this.spacing = spacing;
     }
 }

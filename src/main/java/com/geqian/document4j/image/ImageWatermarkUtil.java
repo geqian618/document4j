@@ -171,7 +171,7 @@ public class ImageWatermarkUtil {
         Float opacity = config.getOpacity();
         Color color = config.getColor();
         Font font = config.getFont();
-        Integer margin = config.getMargin();
+        Integer spacing = config.getSpacing();
         String formatName = config.getFormatName();
         try {
             int imageType = "png".equalsIgnoreCase(formatName) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
@@ -192,8 +192,8 @@ public class ImageWatermarkUtil {
             int textHeight = fontMetrics.getHeight();
 
             // 循环绘制水印文本，覆盖整个图像
-            for (int x = 0; x < sourceImage.getWidth(); x += textWidth + margin) {
-                for (int y = 0; y < sourceImage.getHeight(); y += textHeight + margin) {
+            for (int x = 0; x < sourceImage.getWidth(); x += textWidth + spacing) {
+                for (int y = 0; y < sourceImage.getHeight(); y += textHeight + spacing) {
                     g2d.drawString(text, x, y);
                 }
             }
@@ -240,7 +240,7 @@ public class ImageWatermarkUtil {
         Float opacity = config.getOpacity();
         Integer scale = config.getScale();
         String formatName = config.getFormatName();
-        Integer margin = config.getMargin();
+        Integer spacing = config.getSpacing();
         try {
             int imageType = "png".equalsIgnoreCase(formatName) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
             // 读取水印图片
@@ -269,8 +269,8 @@ public class ImageWatermarkUtil {
             g2d.setComposite(alphaChannel);
 
             // 循环绘制水印文本，覆盖整个图像
-            for (int x = 0; x < sourceImage.getWidth(); x += width + margin) {
-                for (int y = 0; y < sourceImage.getHeight(); y += height + margin) {
+            for (int x = 0; x < sourceImage.getWidth(); x += width + spacing) {
+                for (int y = 0; y < sourceImage.getHeight(); y += height + spacing) {
                     // 绘制水印图片
                     g2d.drawImage(scaledWatermarkImg, x, y, null);
                 }

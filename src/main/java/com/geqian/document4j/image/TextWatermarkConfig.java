@@ -14,7 +14,7 @@ public class TextWatermarkConfig {
 
     private Font font = new Font("宋体", Font.BOLD, 64);
 
-    private Integer margin = 20;
+    private Integer spacing = 20;
 
     private String formatName = "jpg";
 
@@ -71,12 +71,11 @@ public class TextWatermarkConfig {
         this.offsetY = offsetY;
     }
 
-    public Integer getMargin() {
-        return margin;
+    public Integer getSpacing() {
+        return spacing;
     }
 
-    public void setMargin(Integer margin) {
-        this.margin = margin;
+    public void setSpacing(Integer spacing) {
+        this.spacing = spacing;
     }
-
 }

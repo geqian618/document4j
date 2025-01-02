@@ -9,14 +9,15 @@ class WaterMark {
         this.#element = element || document.documentElement;
         this.#text = text;
         this.#settings = {
-            "startX": settings.startX || 20,                     // 水印起始位置x轴坐标
-            "startY": settings.startY || 20,                     // 水印起始位置y轴坐标
+            "offsetX": settings.offsetX || 20,                     // 水印起始位置x轴坐标
+            "offsetY": settings.offsetY || 20,                     // 水印起始位置y轴坐标
             "spacingX": settings.spacingX || 150,                // 水印x轴间隔
             "spacingY": settings.spacingY || 100,                // 水印y轴间隔
-            "transparency": settings.transparency || 0.15,        // 水印透明度
-            "width": settings.width || 200,                // 水印宽度
-            "height": settings.height || 100,               // 水印长度
-            "rotate_angle": settings.rotate_angle || 20           // 水印倾斜度
+            "fontSize": settings.fontSize || '22px',    //字体大小
+            "fontFamily": settings.fontFamily || window.getComputedStyle(this.#element).fontFamily,
+            "opacity": settings.opacity || 0.3,        // 水印透明度
+            "rotateAngle": settings.rotateAngle || 20,           // 水印倾斜度
+            "fontColor": settings.fontColor || 'grey'
         };
     }
 
@@ -39,34 +40,40 @@ class WaterMark {
         }
 
         // 获取当前页面的宽度和高度
-        let page_width = this.#element.scrollWidth - this.#settings.startX;
-        let page_height = this.#element.scrollHeight - this.#settings.startY;
+        let page_width = this.#element.scrollWidth - this.#settings.offsetX;
+        let page_height = this.#element.scrollHeight - this.#settings.offsetY;
+
+        let fontSize = Number.parseInt(this.#settings.fontSize.replace('px', ''));
+        let width = fontSize * this.#text.length;
+        let height = fontSize;
 
         // 计算水印的列数和行数
-        let cols = parseInt(page_width / (this.#settings.spacingX + this.#settings.width)) + 1;
-        let rows = parseInt(page_height / (this.#settings.spacingY + this.#settings.height)) + 1;
+        let cols = parseInt(page_width / (this.#settings.spacingX + width)) + 1;
+        let rows = parseInt(page_height / (this.#settings.spacingY + height)) + 1;
 
         let x;
         let y;
+
         // 循环生成水印
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
-                x = this.#settings.startX + (this.#settings.spacingX + this.#settings.width) * j;
-                y = this.#settings.startY + (this.#settings.spacingY + this.#settings.height) * i;
+                x = this.#settings.offsetX + (this.#settings.spacingX + width) * j;
+                y = this.#settings.offsetY + (this.#settings.spacingY + height) * i;
                 let new_div = document.createElement("div");
                 new_div.className = 'watermark';
                 new_div.innerHTML = this.#text + (remarkTime ? `<br>${this.#getNowFormatDay()}` : '');
-                new_div.style.transform = "rotate(-" + this.#settings.rotate_angle.toString() + "deg)"; // 旋转
+                new_div.style.transform = "rotate(-" + this.#settings.rotateAngle.toString() + "deg)"; // 旋转
                 new_div.style.position = "absolute";
                 new_div.style.left = x + 'px';
                 new_div.style.top = y + 'px';
                 new_div.style.overflow = "hidden";
                 new_div.style.zIndex = "9999";
                 new_div.style.pointerEvents = "none";
-                new_div.style.opacity = "0.3";
-                new_div.style.fontSize = "22px";
+                new_div.style.opacity = this.#settings.opacity;
+                new_div.style.fontSize = this.#settings.fontSize;
+                new_div.style.fontFamily = this.#settings.fontFamily
                 new_div.style.textAlign = "center";
-                new_div.style.color = "grey";
+                new_div.style.color = this.#settings.fontColor;
                 this.#element.appendChild(new_div);
             }
         }
@@ -89,23 +96,59 @@ class WaterMark {
         return value < 10 ? "0" + value : value;
     }
 
-
-    updateElement(element) {
+    setElement(element) {
         this.#element = element;
     }
 
-    // 更新水印文本
-    updateWaterMarkText(newText) {
+    // 设置水印文本
+    setText(newText) {
         this.#text = newText;
     }
 
-    // 更新水印的透明度
-    updateWaterMarkTransparency(newTransparency) {
-        this.#settings.transparency = newTransparency;
+    // 设置水印的透明度
+    setOpacity(opacity) {
+        this.#settings.opacity = opacity;
     }
 
-    // 更新水印的倾斜角度
-    updateWaterMarkAngle(newAngle) {
-        this.#settings.rotate_angle = newAngle;
+    // 设置水印的倾斜角度
+    setRotateAngle(rotateAngle) {
+        this.#settings.rotateAngle = rotateAngle;
+    }
+
+    // 设置水印字体大小
+    updateFontSize(fontSize) {
+        this.#settings.fontSize = fontSize;
+    }
+
+
+    // 设置水印字体颜色
+    setFontColor(fontColor) {
+        this.#settings.fontColor = fontColor;
+    }
+
+    // 设置水印的字体
+    setFontFamily(fontFamily) {
+        this.#settings.fontFamily = fontFamily;
+    }
+
+
+    // 设置开始添加水印x轴位置
+    setOffsetX(offsetX) {
+        this.#settings.offsetX = offsetX;
+    }
+
+    // 设置开始添加水印Y轴位置
+    setOffsetY(offsetY) {
+        this.#settings.offsetY = offsetY;
+    }
+
+    // 设置水印间水平间隔大小
+    setSpacingX(spacingX) {
+        this.#settings.spacingX = spacingX;
+    }
+
+    // 设置水印间垂直间隔大小
+    setSpacingY(spacingY) {
+        this.#settings.spacingY = spacingY;
     }
 }
