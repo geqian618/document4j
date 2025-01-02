@@ -38,7 +38,6 @@ class WaterMark {
         for (let watermark of watermarks) {
             watermark.remove();
         }
-
         // 获取当前页面的宽度和高度
         let page_width = this.#element.scrollWidth - this.#settings.offsetX;
         let page_height = this.#element.scrollHeight - this.#settings.offsetY;
