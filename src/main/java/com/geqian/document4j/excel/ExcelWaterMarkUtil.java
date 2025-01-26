@@ -43,7 +43,7 @@ public class ExcelWaterMarkUtil {
      * @param out       输出文件输出流
      * @param waterMark 水印文字
      */
-    private static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
+    public static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
         // 读取水印文字
         String[] textArray = waterMark.split("\n");
         // 设置字体
