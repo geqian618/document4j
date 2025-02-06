@@ -67,9 +67,8 @@ public interface WordStyle {
             }
         }
 
-
         public static Font fontColor(String fontColor) {
-            return new Font(run -> run.setColor(fontColor));
+            return new Font(run -> run.setColor(fontColor.replace("#", "")));
         }
 
         public static Font fontSize(int fontSize) {
