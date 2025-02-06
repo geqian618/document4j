@@ -58,22 +58,23 @@ class WaterMark {
             for (let j = 0; j < cols; j++) {
                 x = this.#settings.offsetX + (this.#settings.spacingX + width) * j;
                 y = this.#settings.offsetY + (this.#settings.spacingY + height) * i;
-                let new_div = document.createElement("div");
-                new_div.className = 'watermark';
-                new_div.innerHTML = this.#text + (remarkTime ? `<br>${this.#getNowFormatDay()}` : '');
-                new_div.style.transform = "rotate(-" + this.#settings.rotateAngle.toString() + "deg)"; // 旋转
-                new_div.style.position = "absolute";
-                new_div.style.left = x + 'px';
-                new_div.style.top = y + 'px';
-                new_div.style.overflow = "hidden";
-                new_div.style.zIndex = "9999";
-                new_div.style.pointerEvents = "none";
-                new_div.style.opacity = this.#settings.opacity;
-                new_div.style.fontSize = this.#settings.fontSize;
-                new_div.style.fontFamily = this.#settings.fontFamily
-                new_div.style.textAlign = "center";
-                new_div.style.color = this.#settings.fontColor;
-                this.#element.appendChild(new_div);
+                const watermark = document.createElement("span");
+                watermark.className = 'watermark';
+                watermark.innerHTML = this.#text + (remarkTime ? `<br>${this.#getNowFormatDay()}` : '');
+                watermark.style.transform = "rotate(-" + this.#settings.rotateAngle.toString() + "deg)"; // 旋转
+                watermark.style.position = "absolute";
+                watermark.style.left = x + 'px';
+                watermark.style.top = y + 'px';
+                watermark.style.overflow = "hidden";
+                watermark.style.zIndex = "9999";
+                watermark.style.pointerEvents = "none";
+                watermark.style.opacity = this.#settings.opacity;
+                watermark.style.fontSize = this.#settings.fontSize;
+                watermark.style.fontFamily = this.#settings.fontFamily
+                watermark.style.textAlign = "center";
+                watermark.style.color = this.#settings.fontColor;
+                watermark.style.whiteSpace = 'nowrap'
+                this.#element.appendChild(watermark);
             }
         }
     }
@@ -95,59 +96,4 @@ class WaterMark {
         return value < 10 ? "0" + value : value;
     }
 
-    setElement(element) {
-        this.#element = element;
-    }
-
-    // 设置水印文本
-    setText(newText) {
-        this.#text = newText;
-    }
-
-    // 设置水印的透明度
-    setOpacity(opacity) {
-        this.#settings.opacity = opacity;
-    }
-
-    // 设置水印的倾斜角度
-    setRotateAngle(rotateAngle) {
-        this.#settings.rotateAngle = rotateAngle;
-    }
-
-    // 设置水印字体大小
-    updateFontSize(fontSize) {
-        this.#settings.fontSize = fontSize;
-    }
-
-
-    // 设置水印字体颜色
-    setFontColor(fontColor) {
-        this.#settings.fontColor = fontColor;
-    }
-
-    // 设置水印的字体
-    setFontFamily(fontFamily) {
-        this.#settings.fontFamily = fontFamily;
-    }
-
-
-    // 设置开始添加水印x轴位置
-    setOffsetX(offsetX) {
-        this.#settings.offsetX = offsetX;
-    }
-
-    // 设置开始添加水印Y轴位置
-    setOffsetY(offsetY) {
-        this.#settings.offsetY = offsetY;
-    }
-
-    // 设置水印间水平间隔大小
-    setSpacingX(spacingX) {
-        this.#settings.spacingX = spacingX;
-    }
-
-    // 设置水印间垂直间隔大小
-    setSpacingY(spacingY) {
-        this.#settings.spacingY = spacingY;
-    }
 }
