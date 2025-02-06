@@ -8,13 +8,10 @@ import com.geqian.document4j.markload.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,44 +28,26 @@ public class HTMLBuilder {
 
     private final StringBuffer styleBuffer = new StringBuffer();
 
+    private final OutputStream outputStream;
+
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
-    {
-        setInnerCssStyle("*{padding:0;margin:0;}p{overflow:auto;word-wrap:break-word;}");
+    private HTMLBuilder(OutputStream outputStream) {
+        this.outputStream = outputStream;
+        setStyleSelector("*{padding:0;margin:0;}p{overflow:auto;word-wrap:break-word;}");
+        setStyleSelector(tableDefaultStyle());
     }
 
-    private HTMLBuilder(String padding) {
-        setInnerCssStyle("body{padding:" + padding + "}");
-        setInnerCssStyle(tableDefaultStyle());
-    }
 
-    private HTMLBuilder(String paddingLeft, String paddingRight) {
-        setInnerCssStyle("body{padding-left:" + paddingLeft + ";padding-right:" + paddingRight + ";}");
-        setInnerCssStyle(tableDefaultStyle());
-    }
-
-    private HTMLBuilder(String paddingTop, String paddingBottom, String paddingLeft, String paddingRight) {
-        setInnerCssStyle("body{padding-left:" + paddingLeft + ";padding-right:" + paddingRight + ";padding-top:" + paddingTop + ";padding-bottom:" + paddingBottom + ";}");
-        setInnerCssStyle(tableDefaultStyle());
-    }
-
-    public HTMLBuilder setInnerCssStyle(String style) {
+    public HTMLBuilder setStyleSelector(String style) {
         this.styleBuffer.append(style);
         return this;
     }
 
-    public static HTMLBuilder create(String padding) {
-        return new HTMLBuilder(padding);
-    }
-
-    public static HTMLBuilder create(String paddingLeft, String paddingRight) {
-        return new HTMLBuilder(paddingLeft, paddingRight);
-    }
-
-    public static HTMLBuilder create(String paddingTop, String paddingBottom, String paddingLeft, String paddingRight) {
-        return new HTMLBuilder(paddingTop, paddingBottom, paddingLeft, paddingRight);
+    public static HTMLBuilder create(OutputStream outputStream) {
+        return new HTMLBuilder(outputStream);
     }
 
     public HTMLBuilder title(String text, HTMLStyle.Title title) {
@@ -181,10 +160,10 @@ public class HTMLBuilder {
      * @param data
      * @return
      */
-    public HTMLBuilder table(Object[][] data, StringBuilder... innerCssBuilders) {
+    public HTMLBuilder table(Object[][] data, StringBuilder... styleSelectors) {
         if (data != null && data.length > 0) {
-            for (StringBuilder innerCssBuilder : innerCssBuilders) {
-                setInnerCssStyle(innerCssBuilder.toString());
+            for (StringBuilder selector : styleSelectors) {
+                setStyleSelector(selector.toString());
             }
             bodyBuffer.append("<table>");
             for (int i = 0; i < data.length; i++) {
@@ -432,7 +411,7 @@ public class HTMLBuilder {
     }
 
 
-    public byte[] asBytes() {
+    public void build() {
         String html = "<!DOCTYPE html>" +
                 "<html lang=\"zh-CN\">" +
                 "<meta charset=\"UTF-8\">" +
@@ -444,23 +423,11 @@ public class HTMLBuilder {
                 bodyBuffer +
                 "</body>" +
                 "</html>";
-        return html.getBytes(StandardCharsets.UTF_8);
-    }
-
-    public void asFile(String outputPath) {
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(outputPath)))) {
-            out.write(asBytes());
-        } catch (Exception e) {
-            log.error("HTML文档写入文件时发生异常", e);
-        }
-    }
-
-
-    public void asStream(OutputStream out) {
         try {
-            out.write(asBytes());
+            byte[] bytes = html.getBytes(StandardCharsets.UTF_8);
+            this.outputStream.write(bytes);
         } catch (IOException e) {
-            log.error("HTML文档写入输出流时发生异常", e);
+            throw new RuntimeException("构建HTML文档发生异常", e);
         }
     }
 

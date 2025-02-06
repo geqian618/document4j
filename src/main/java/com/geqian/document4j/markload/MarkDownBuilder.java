@@ -7,13 +7,10 @@ import com.geqian.document4j.common.extend.WriteTableable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,24 +29,29 @@ public class MarkDownBuilder {
 
     private Map<String, Converter> converters;
 
-    private MarkDownBuilder() {
+    private final OutputStream outputStream;
+
+
+    private MarkDownBuilder(OutputStream outputStream) {
         this.stringBuffer = new StringBuffer();
+        this.outputStream = outputStream;
     }
 
-    private MarkDownBuilder(boolean hasCatalogue) {
-        this.stringBuffer = new StringBuffer();
+
+    public static MarkDownBuilder create(OutputStream outputStream) {
+        return new MarkDownBuilder(outputStream);
+    }
+
+
+    /**
+     * 添加目录
+     *
+     * @param hasCatalogue 是否添加目录
+     */
+    public void addCatalogue(boolean hasCatalogue) {
         if (hasCatalogue) {
-            this.stringBuffer.append("[TOC]\n");
+            this.stringBuffer.insert(0, "[TOC]\n");
         }
-    }
-
-
-    public static MarkDownBuilder create() {
-        return new MarkDownBuilder();
-    }
-
-    public static MarkDownBuilder create(boolean hasCatalogue) {
-        return new MarkDownBuilder(hasCatalogue);
     }
 
 
@@ -346,28 +348,15 @@ public class MarkDownBuilder {
     }
 
 
-    public byte[] asBytes() {
-        return stringBuffer.toString().getBytes(StandardCharsets.UTF_8);
-    }
-
-
-    public void asStream(OutputStream out) {
-        if (out != null) {
-            try {
-                out.write(asBytes());
-            } catch (IOException e) {
-                log.error("写入输出流发生异常", e);
-            }
-        }
-
-    }
-
-
-    public void asFile(String filePath) {
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
-            out.write(asBytes());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    /**
+     * 构建 HTML 文档
+     */
+    public void build() {
+        try {
+            byte[] bytes = stringBuffer.toString().getBytes(StandardCharsets.UTF_8);
+            this.outputStream.write(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException("构建 markdown 文档发生异常", e);
         }
     }
 
@@ -594,7 +583,6 @@ public class MarkDownBuilder {
             subStringBuffer.append(String.format("<%s>", link));
             return this;
         }
-
     }
 
 }

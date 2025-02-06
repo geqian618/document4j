@@ -5,14 +5,15 @@ import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
 import com.geqian.document4j.common.extend.WriteTableable;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,23 +43,23 @@ public class PDFBuilder {
 
     private final PdfWriter pdfWriter;
 
-    private final ByteArrayOutputStream out;
+    private final OutputStream outputStream;
 
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
-    private PDFBuilder(String watermark) {
+    private PDFBuilder(OutputStream outputStream) {
         try {
             this.document = new Document(PageSize.A4);
             float padding = PageSize.A4.getWidth() * 0.1f;
             // 设置左右填充为页面宽度的 10%
             document.setMargins(padding, padding, 36, 36);
-            this.out = new ByteArrayOutputStream();
-            pdfWriter = PdfWriter.getInstance(this.document, this.out);
-            if (watermark != null && !watermark.trim().isEmpty()) {
-                pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermark));
-            }
+            this.outputStream = outputStream;
+            pdfWriter = PdfWriter.getInstance(this.document, this.outputStream);
+            //if (watermark != null && !watermark.trim().isEmpty()) {
+            //    pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermark));
+            //}
             this.document.open();
         } catch (Exception e) {
             throw new RuntimeException("创建PdfBuilder异常", e);
@@ -66,63 +67,8 @@ public class PDFBuilder {
     }
 
 
-    private PDFBuilder(Rectangle pageSize, float margin, String watermark) {
-        try {
-            this.document = new Document(pageSize);
-            // 设置左右填充为页面宽度的 10%
-            document.setMargins(margin, margin, margin, margin);
-            this.out = new ByteArrayOutputStream();
-            pdfWriter = PdfWriter.getInstance(this.document, this.out);
-            if (watermark != null && !watermark.trim().isEmpty()) {
-                pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermark));
-            }
-            this.document.open();
-        } catch (Exception e) {
-            throw new RuntimeException("创建PdfBuilder异常", e);
-        }
-    }
-
-
-    private PDFBuilder(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom, String watermarkText) {
-        try {
-            this.document = new Document(pageSize);
-            // 设置左右填充为页面宽度的 10%
-            document.setMargins(marginLeft, marginRight, marginTop, marginBottom);
-            this.out = new ByteArrayOutputStream();
-            pdfWriter = PdfWriter.getInstance(this.document, this.out);
-            if (watermarkText != null && !watermarkText.trim().isEmpty()) {
-                pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermarkText));
-            }
-            this.document.open();
-        } catch (Exception e) {
-            throw new RuntimeException("创建PdfBuilder异常", e);
-        }
-    }
-
-    public static PDFBuilder create() {
-        return new PDFBuilder(null);
-    }
-
-    public static PDFBuilder create(String watermark) {
-        return new PDFBuilder(watermark);
-    }
-
-
-    public static PDFBuilder create(Rectangle pageSize, float margin) {
-        return new PDFBuilder(pageSize, margin, null);
-    }
-
-    public static PDFBuilder create(Rectangle pageSize, float margin, String watermark) {
-        return new PDFBuilder(pageSize, margin, watermark);
-    }
-
-
-    public static PDFBuilder create(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom) {
-        return new PDFBuilder(pageSize, marginLeft, marginRight, marginTop, marginBottom, null);
-    }
-
-    public static PDFBuilder create(Rectangle pageSize, float marginLeft, float marginRight, float marginTop, float marginBottom, String watermark) {
-        return new PDFBuilder(pageSize, marginLeft, marginRight, marginTop, marginBottom, watermark);
+    public static PDFBuilder create(OutputStream target) {
+        return new PDFBuilder(target);
     }
 
 
@@ -371,53 +317,10 @@ public class PDFBuilder {
 
 
     /**
-     * word文档转换为字节数组
-     *
-     * @return
-     * @throws Exception
+     * 构建PDF文档
      */
-    public byte[] asBytes() {
-        try {
-            //关闭pdf文档对象
-            closeDocument(this.document);
-            return this.out.toByteArray();
-        } catch (Exception e) {
-            log.error("生成pdf文件发生异常", e);
-            return new byte[0];
-        } finally {
-            closePdfWriter(pdfWriter);
-            //关闭输出流
-            closeResource(this.out);
-        }
-    }
-
-    /**
-     * word文档写入文件
-     *
-     * @return
-     * @throws Exception
-     */
-    public void asFile(String filePath) {
-        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
-            outputStream.write(asBytes());
-        } catch (IOException e) {
-            log.error("生成pdf文件发生异常", e);
-        }
-    }
-
-
-    /**
-     * word文档写入输出流
-     *
-     * @return
-     * @throws Exception
-     */
-    public void asStream(OutputStream outputStream) {
-        try {
-            outputStream.write(asBytes());
-        } catch (IOException e) {
-            log.error("pdf字节数组写入输出流发生异常", e);
-        }
+    public void build() {
+        closeResources(this.document, this.pdfWriter);
     }
 
 
@@ -672,29 +575,15 @@ public class PDFBuilder {
     /**
      * 关闭资源
      */
-    private void closeDocument(Document document) {
+    private void closeResources(Document document, PdfWriter pdfWriter) {
         if (document != null) {
-            try {
-                document.close();
-            } catch (Exception e) {
-                log.error("资源释放出出现异常", e);
-            }
+            document.close();
+        }
+        if (pdfWriter != null) {
+            pdfWriter.close();
         }
     }
 
-
-    /**
-     * 关闭资源
-     */
-    private void closeResource(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Exception e) {
-                log.error("资源释放出出现异常", e);
-            }
-        }
-    }
 
     /**
      * 关闭资源

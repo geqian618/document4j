@@ -274,7 +274,7 @@ public class WordBuilder {
         try {
             document.write(outputStream);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("构建PDF文件时发生异常", e);
         } finally {
             //关闭word文档对象
             closeResources(document);
