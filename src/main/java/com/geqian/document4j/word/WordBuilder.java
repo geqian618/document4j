@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,12 +30,15 @@ public class WordBuilder {
 
     private final XWPFDocument document;
 
+    private final OutputStream outputStream;
+
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
-    private WordBuilder(XWPFDocument document) {
+    private WordBuilder(XWPFDocument document, OutputStream outputStream) {
         this.document = document;
+        this.outputStream = outputStream;
     }
 
     /**
@@ -45,8 +46,8 @@ public class WordBuilder {
      *
      * @return
      */
-    public static WordBuilder create() {
-        return new WordBuilder(new XWPFDocument());
+    public static WordBuilder create(OutputStream target) {
+        return new WordBuilder(new XWPFDocument(), target);
     }
 
     /**
@@ -54,10 +55,9 @@ public class WordBuilder {
      *
      * @return
      */
-    public static WordBuilder create(String templatePath) {
+    public static WordBuilder create(InputStream template, OutputStream target) {
         try {
-            FileInputStream inputStream = new FileInputStream(templatePath);
-            return new WordBuilder(new XWPFDocument(inputStream));
+            return new WordBuilder(new XWPFDocument(template), target);
         } catch (IOException e) {
             throw new RuntimeException("获取word模板时发生异常", e);
         }
@@ -194,9 +194,9 @@ public class WordBuilder {
 
             int rows = dataList.size() + 1;
 
-            int colums = fields.size();
+            int columns = fields.size();
 
-            XWPFTable table = createTable(rows, colums);
+            XWPFTable table = createTable(rows, columns);
 
             if (writeTableable instanceof WordTableInterceptor) {
                 ((WordTableInterceptor) writeTableable).interceptWordTable(table);
@@ -266,51 +266,18 @@ public class WordBuilder {
         return new ParagraphBuilder();
     }
 
+
     /**
-     * word文档转换为字节数组
-     *
-     * @return
-     * @throws Exception
+     * 构建 word 文档
      */
-    public byte[] asBytes() {
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            document.write(out);
-            return out.toByteArray();
+    public void build() {
+        try {
+            document.write(outputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             //关闭word文档对象
-            close(document);
-        }
-    }
-
-
-    /**
-     * word文档写入文件
-     *
-     * @return
-     * @throws Exception
-     */
-    public void asFile(String filePath) {
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
-            out.write(asBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
-     * word文档写入输出流
-     *
-     * @return
-     * @throws Exception
-     */
-    public void asStream(OutputStream out) {
-        try {
-            document.write(out);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            closeResources(document);
         }
     }
 
@@ -608,14 +575,17 @@ public class WordBuilder {
     /**
      * 关闭资源
      */
-    private void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException e) {
-                log.error("释放资源发生异常", e);
+    private void closeResources(Closeable... closeables) {
+        for (Closeable closeable : closeables) {
+            if (closeable != null) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    log.error("释放资源发生异常", e);
+                }
             }
         }
+
     }
 
 
@@ -636,15 +606,6 @@ public class WordBuilder {
             return WordBuilder.this;
         }
 
-    }
-
-
-    public static void main(String[] args) {
-        WordBuilder.create()
-                .table(new String[][]{{"3", "3", "3"}, {"3", "3", "3"}, {"3", "3", "3"}})
-                .paragraph("haha")
-                .table(new String[][]{{"1", "3", "3"}, {"3", "3", "3"}, {"3", "3", "3"}})
-                .asFile("d://desktop/haha.docx");
     }
 
 
