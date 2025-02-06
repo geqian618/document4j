@@ -292,7 +292,7 @@ public class WordBuilder {
      * @throws Exception
      */
     public void asFile(String filePath) {
-        try (OutputStream out = Files.newOutputStream(Paths.get(filePath))) {
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
             out.write(asBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -308,7 +308,7 @@ public class WordBuilder {
      */
     public void asStream(OutputStream out) {
         try {
-            out.write(asBytes());
+            document.write(out);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

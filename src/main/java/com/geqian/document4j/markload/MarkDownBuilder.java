@@ -1,17 +1,19 @@
 package com.geqian.document4j.markload;
 
+import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
-import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.extend.WriteTableable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -362,7 +364,7 @@ public class MarkDownBuilder {
 
 
     public void asFile(String filePath) {
-        try (FileOutputStream out = new FileOutputStream(filePath)) {
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
             out.write(asBytes());
         } catch (Exception e) {
             throw new RuntimeException(e);

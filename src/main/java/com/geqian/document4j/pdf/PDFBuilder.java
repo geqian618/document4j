@@ -9,10 +9,7 @@ import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -401,7 +398,7 @@ public class PDFBuilder {
      * @throws Exception
      */
     public void asFile(String filePath) {
-        try (OutputStream outputStream = Files.newOutputStream(Paths.get(filePath))) {
+        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
             outputStream.write(asBytes());
         } catch (IOException e) {
             log.error("生成pdf文件发生异常", e);

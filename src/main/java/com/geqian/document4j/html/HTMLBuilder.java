@@ -8,11 +8,13 @@ import com.geqian.document4j.markload.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -446,7 +448,7 @@ public class HTMLBuilder {
     }
 
     public void asFile(String outputPath) {
-        try (FileOutputStream out = new FileOutputStream(outputPath)) {
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(outputPath)))) {
             out.write(asBytes());
         } catch (Exception e) {
             log.error("HTML文档写入文件时发生异常", e);
