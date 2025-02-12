@@ -19,53 +19,6 @@ public class WordExtendUtils {
 
 
     /**
-     * 添加水印
-     *
-     * @param in
-     * @param waterMark
-     */
-    public static byte[] addWaterMark(InputStream in, String waterMark) {
-        return WordWaterMarkUtil.addWaterMark(in, waterMark, 10, 4);
-    }
-
-    /**
-     * 添加水印
-     *
-     * @param in
-     * @param waterMark
-     */
-    public static byte[] addWaterMark(InputStream in, String waterMark, int rows, int cols) {
-        return WordWaterMarkUtil.addWaterMark(in, waterMark, rows, cols);
-    }
-
-
-    /**
-     * 添加水印
-     *
-     * @param in        输入流
-     * @param out       输出流
-     * @param waterMark 水印内容
-     */
-    public static void addWaterMark(InputStream in, OutputStream out, String waterMark) {
-        WordWaterMarkUtil.addWaterMark(in, out, waterMark, 10, 4);
-    }
-
-
-    /**
-     * 添加水印
-     *
-     * @param in        输入流
-     * @param out       输出流
-     * @param waterMark 水印内容
-     * @param rows      水印行数
-     * @param cols      水印列数
-     */
-    public static void addWaterMark(InputStream in, OutputStream out, String waterMark, int rows, int cols) {
-        WordWaterMarkUtil.addWaterMark(in, out, waterMark, rows, cols);
-    }
-
-
-    /**
      * 模板填充
      *
      * @param placeholderMap 占位符映射
