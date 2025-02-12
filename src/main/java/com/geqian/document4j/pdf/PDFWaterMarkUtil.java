@@ -158,7 +158,7 @@ public class PDFWaterMarkUtil {
         font.setSize(Font.DEFAULTSIZE);
         for (PDFStyle pdfStyle : pdfStyles) {
             if (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.fillStyle(font);
+                pdfStyle.buildStyle(font);
             }
         }
         return font;
