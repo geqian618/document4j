@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  */
 public interface PDFStyle {
 
-    void fillStyle(Object obj);
+    void buildStyle(Object obj);
 
 
     class Font implements PDFStyle {
@@ -76,7 +76,7 @@ public interface PDFStyle {
         }
 
         @Override
-        public void fillStyle(Object obj) {
+        public void buildStyle(Object obj) {
             this.wrapper.accept((com.itextpdf.text.Font) obj);
         }
 
@@ -112,7 +112,7 @@ public interface PDFStyle {
         }
 
         @Override
-        public void fillStyle(Object obj) {
+        public void buildStyle(Object obj) {
             this.wrapper.accept((com.itextpdf.text.Paragraph) obj);
         }
 

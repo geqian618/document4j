@@ -6,29 +6,32 @@ package com.geqian.document4j.markdown;
  */
 public interface MarkDownStyle {
 
+    String buildStyle(String text);
+
     /**
      * 对齐方式
      */
-    enum CellAlignment {
+    enum CellAlignment implements MarkDownStyle {
         LEFT(":-"),
         RIGHT("-:"),
         CENTER(":-:");
 
-        private final String alignment;
+        private final String style;
 
-        CellAlignment(String alignment) {
-            this.alignment = alignment;
+        CellAlignment(String style) {
+            this.style = style;
         }
 
-        public String getMark() {
-            return alignment;
+        @Override
+        public String buildStyle(String text) {
+            return this.style;
         }
     }
 
     /**
      * 标题级别
      */
-    enum Title {
+    enum Title implements MarkDownStyle {
 
         FIRST("# %s\n"),
         SECOND("## %s\n"),
@@ -43,7 +46,9 @@ public interface MarkDownStyle {
             this.template = template;
         }
 
-        public String fillStyle(String text) {
+
+        @Override
+        public String buildStyle(String text) {
             return String.format(template, text);
         }
     }
@@ -52,7 +57,7 @@ public interface MarkDownStyle {
     /**
      * 字体样式
      */
-    public class Font {
+    public class Font implements MarkDownStyle {
 
         public static final Font BOLD = new Font("**%s**");
 
@@ -78,10 +83,10 @@ public interface MarkDownStyle {
             this.template = template;
         }
 
-        public String fillStyle(String text) {
+
+        @Override
+        public String buildStyle(String text) {
             return String.format(template, text);
         }
-
-
     }
 }

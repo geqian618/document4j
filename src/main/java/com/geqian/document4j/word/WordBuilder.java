@@ -137,7 +137,7 @@ public class WordBuilder {
         for (WordStyle wordStyle : wordStyles) {
             if (wordStyle != null) {
                 boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass());
-                wordStyle.fillStyle(isParagraph ? paragraph : run);
+                wordStyle.buildStyle(isParagraph ? paragraph : run);
             }
         }
     }

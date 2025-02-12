@@ -6,7 +6,7 @@ package com.geqian.document4j.html;
  */
 public interface HTMLStyle {
 
-    String getStyle();
+    String buildStyle();
 
     enum Title implements HTMLStyle {
         FIRST("font-size:32px;font-weight:bold;color:#333;"),
@@ -16,15 +16,15 @@ public interface HTMLStyle {
         FIVE("font-size:16px;font-weight:bold;color:#aaa;"),
         SIX("font-size:14px; font-weight:bold;color:#bbb;");
 
-        private final String level;
+        private final String style;
 
-        Title(String level) {
-            this.level = level;
+        Title(String style) {
+            this.style = style;
         }
 
         @Override
-        public String getStyle() {
-            return this.level;
+        public String buildStyle() {
+            return this.style;
         }
 
     }
@@ -62,7 +62,7 @@ public interface HTMLStyle {
         }
 
         @Override
-        public String getStyle() {
+        public String buildStyle() {
             return this.style;
         }
 
@@ -89,7 +89,7 @@ public interface HTMLStyle {
         }
 
         @Override
-        public String getStyle() {
+        public String buildStyle() {
             return this.style;
         }
 
@@ -136,7 +136,7 @@ public interface HTMLStyle {
         }
 
         @Override
-        public String getStyle() {
+        public String buildStyle() {
             return style;
         }
     }
@@ -151,7 +151,7 @@ public interface HTMLStyle {
         }
 
         @Override
-        public String getStyle() {
+        public String buildStyle() {
             return style;
         }
 
@@ -230,7 +230,7 @@ public interface HTMLStyle {
         }
 
         @Override
-        public String getStyle() {
+        public String buildStyle() {
             return style;
         }
 
@@ -298,16 +298,16 @@ public interface HTMLStyle {
 
     }
 
-    class Dimension implements HTMLStyle {
+    class Size implements HTMLStyle {
 
         private final String style;
 
-        public Dimension(String style) {
+        public Size(String style) {
             this.style = style;
         }
 
         @Override
-        public String getStyle() {
+        public String buildStyle() {
             return style;
         }
 
@@ -317,8 +317,8 @@ public interface HTMLStyle {
          * @param width
          * @return
          */
-        public static Dimension width(String width) {
-            return new Dimension(String.format("width:%s;", width));
+        public static Size width(String width) {
+            return new Size(String.format("width:%s;", width));
         }
 
         /**
@@ -327,8 +327,8 @@ public interface HTMLStyle {
          * @param height
          * @return
          */
-        public static Dimension height(String height) {
-            return new Dimension(String.format("height:%s;", height));
+        public static Size height(String height) {
+            return new Size(String.format("height:%s;", height));
         }
     }
 }

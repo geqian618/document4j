@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  */
 public interface WordStyle {
 
-    void fillStyle(Object obj);
+    void buildStyle(Object obj);
 
     class Font implements WordStyle {
         /**
@@ -61,7 +61,7 @@ public interface WordStyle {
         }
 
         @Override
-        public void fillStyle(Object run) {
+        public void buildStyle(Object run) {
             if (run instanceof XWPFRun) {
                 this.wrapper.accept((XWPFRun) run);
             }
@@ -140,7 +140,7 @@ public interface WordStyle {
         }
 
         @Override
-        public void fillStyle(Object paragraph) {
+        public void buildStyle(Object paragraph) {
             if (paragraph instanceof XWPFParagraph) {
                 this.wrapper.accept((XWPFParagraph) paragraph);
             }
