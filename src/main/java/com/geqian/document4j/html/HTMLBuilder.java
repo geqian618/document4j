@@ -302,7 +302,7 @@ public class HTMLBuilder {
         }
 
         if (obj instanceof HTMLTableInterceptor) {
-            fields = ((HTMLTableInterceptor) obj).interceptHtmlFields(fields, obj.getClass());
+            fields = ((HTMLTableInterceptor) obj).interceptHtmlFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {

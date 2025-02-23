@@ -19,7 +19,7 @@ public interface HTMLTableInterceptor extends WriteTableable {
      * @param fields
      * @return
      */
-    default List<Field> interceptHtmlFields(List<Field> fields, Class<?> type) {
+    default List<Field> interceptHtmlFields(Class<?> type, List<Field> fields) {
         return fields;
     }
 
