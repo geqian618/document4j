@@ -212,7 +212,7 @@ public class WordBuilder {
             List<String> tableHeaders = getTableHeaders(fields);
 
             if (writeTableable instanceof WordTableInterceptor) {
-                ((WordTableInterceptor) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
+                tableHeaders = ((WordTableInterceptor) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
             }
 
             //写入表头

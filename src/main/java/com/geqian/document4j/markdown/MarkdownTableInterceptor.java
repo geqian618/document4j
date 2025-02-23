@@ -29,8 +29,8 @@ public interface MarkdownTableInterceptor {
      * @param headers 表头名称
      * @return
      */
-    default void interceptMdHeaders(List<String> headers, Class<?> type) {
-
+    default List<String> interceptMdHeaders(List<String> headers, Class<?> type) {
+        return headers;
     }
 
 

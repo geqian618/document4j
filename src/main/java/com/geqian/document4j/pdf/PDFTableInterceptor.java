@@ -31,7 +31,8 @@ public interface PDFTableInterceptor {
      * @param headers 表头名称
      * @return
      */
-    default void interceptPdfHeaders(Class<?> type, List<String> headers) {
+    default List<String> interceptPdfHeaders(Class<?> type, List<String> headers) {
+        return headers;
     }
 
 

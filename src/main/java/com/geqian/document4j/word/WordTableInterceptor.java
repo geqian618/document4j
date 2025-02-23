@@ -34,7 +34,8 @@ public interface WordTableInterceptor extends WriteTableable {
      * @param headers
      * @return
      */
-    default void interceptWordHeaders(Class<?> type, List<Field> fields, List<String> headers) {
+    default List<String> interceptWordHeaders(Class<?> type, List<Field> fields, List<String> headers) {
+        return headers;
     }
 
 

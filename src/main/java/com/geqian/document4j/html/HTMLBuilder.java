@@ -129,7 +129,7 @@ public class HTMLBuilder {
             List<String> tableHeaders = getTableHeaders(fields);
 
             if (writeTableable instanceof HTMLTableInterceptor) {
-                ((HTMLTableInterceptor) writeTableable).interceptHtmlHeaders(tableHeaders, writeTableable.getClass());
+                tableHeaders = ((HTMLTableInterceptor) writeTableable).interceptHtmlHeaders(tableHeaders, writeTableable.getClass());
             }
 
             StringBuilder tableBuilder = new StringBuilder();

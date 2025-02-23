@@ -247,7 +247,7 @@ public class MarkDownBuilder {
             List<String> tableHeaders = getTableHeaders(fields);
 
             if (writeTableable instanceof MarkdownTableInterceptor) {
-                ((MarkdownTableInterceptor) writeTableable).interceptMdHeaders(tableHeaders, writeTableable.getClass());
+                tableHeaders = ((MarkdownTableInterceptor) writeTableable).interceptMdHeaders(tableHeaders, writeTableable.getClass());
             }
 
             StringBuilder tableBuilder = new StringBuilder();

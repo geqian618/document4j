@@ -31,8 +31,8 @@ public interface HTMLTableInterceptor extends WriteTableable {
      * @param headers 表头名称
      * @return
      */
-    default void interceptHtmlHeaders(List<String> headers, Class<?> type) {
-
+    default List<String> interceptHtmlHeaders(List<String> headers, Class<?> type) {
+        return headers;
     }
 
 
