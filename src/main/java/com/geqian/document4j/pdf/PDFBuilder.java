@@ -714,19 +714,4 @@ public class PDFBuilder {
         }
     }
 
-    //public static void main(String[] args) throws FileNotFoundException, DocumentException {
-    //    PDFBuilder.create(new FileOutputStream("d:\\desktop\\demo.pdf"))
-    //            .title("第一章", 1)
-    //            .newPage()
-    //            .chapter("第二章", 2)
-    //            .chapter("第二章", 3)
-    //            .chapter("第二章", 1)
-    //            .chapter("第二章", 3)
-    //            .chapter("第二章", 4)
-    //            .chapter("第二章", 2)
-    //            .chapter("第二章", 1)
-    //            .build();
-    //
-    //}
-
 }
