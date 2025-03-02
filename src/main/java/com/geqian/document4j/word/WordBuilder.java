@@ -630,18 +630,4 @@ public class WordBuilder {
     }
 
 
-    public static void main(String[] args) throws FileNotFoundException {
-        WordBuilder.create(new FileOutputStream("d:\\desktop\\demo.docx"))
-                .title("标题1", WordStyle.Title.level1)
-                .title("标题2", WordStyle.Title.level2)
-                .title("三级标题", WordStyle.Title.level3)
-                .title("四级标题", WordStyle.Title.level4)
-                .title("五级标题", WordStyle.Title.level5)
-                .title("六级标题", WordStyle.Title.level6)
-                .title("七级标题", WordStyle.Title.level7)
-                .title("八级标题", WordStyle.Title.level8)
-                .build();
-
-    }
-
 }
