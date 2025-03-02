@@ -130,39 +130,6 @@ public class WordBuilder {
         }
     }
 
-    /**
-     * 设置标题级别
-     *
-     * @param paragraph
-     * @param level
-     */
-    private void setTitleLevel(XWPFParagraph paragraph, int level) {
-        if (level < 1 || level > 8) {
-            throw new IllegalArgumentException("标题级别需为 1~8 的整数");
-        }
-        // 设置段落样式为对应级别的标题（例如"Heading1"）
-        // 注意：Word 内置样式名称需与实际模板匹配，否则可能不生效
-        paragraph.setStyle("Heading" + level);
-
-        // 操作底层 XML 对象以设置大纲级别（必需步骤）
-        // 获取或创建段落属性对象（CTPPr）
-        CTPPr ppr = paragraph.getCTP().getPPr();
-        if (ppr == null) {
-            ppr = paragraph.getCTP().addNewPPr();
-        }
-
-        // 设置段后间距（单位：缇，1磅=20缇，此处200缇=10磅）
-        // 获取或创建间距属性对象（CTSpacing）
-        CTSpacing spacing = ppr.isSetSpacing() ? ppr.getSpacing() : ppr.addNewSpacing();
-        // 设置段后间距
-        spacing.setAfter(BigInteger.valueOf(200));
-
-        // 设置大纲级别（对应导航窗格中的层级）
-        // 获取或创建大纲级别对象（CTDecimalNumber）
-        CTDecimalNumber ctDecimalNumber = ppr.isSetOutlineLvl() ? ppr.getOutlineLvl() : ppr.addNewOutlineLvl();
-        // 0=正文，1=1级标题，依此类推
-        ctDecimalNumber.setVal(BigInteger.valueOf(level));
-    }
 
     /**
      * 添加图片
