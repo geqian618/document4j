@@ -33,12 +33,12 @@ public interface MarkDownStyle {
      */
     enum Title implements MarkDownStyle {
 
-        FIRST("# %s\n"),
-        SECOND("## %s\n"),
-        THIRD("### %s\n"),
-        FOUR("#### %s\n"),
-        FIVE("##### %s\n"),
-        SIX("###### %s\n");
+        LEVEL_1("# %s\n"),
+        LEVEL_2("## %s\n"),
+        LEVEL_3("### %s\n"),
+        LEVEL_4("#### %s\n"),
+        LEVEL_5("##### %s\n"),
+        LEVEL_6("###### %s\n");
 
         private final String template;
 

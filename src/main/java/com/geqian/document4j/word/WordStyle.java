@@ -19,29 +19,29 @@ public interface WordStyle {
 
     class Title implements WordStyle {
 
-        public static final Title level1 = new Title(paragraph -> {
+        public static final Title LEVEL_1 = new Title(paragraph -> {
             setTitleLevel(paragraph, 0);
 
         });
-        public static final Title level2 = new Title(paragraph -> {
+        public static final Title LEVEL_2 = new Title(paragraph -> {
             setTitleLevel(paragraph, 1);
         });
-        public static final Title level3 = new Title(paragraph -> {
+        public static final Title LEVEL_3 = new Title(paragraph -> {
             setTitleLevel(paragraph, 2);
         });
-        public static final Title level4 = new Title(paragraph -> {
+        public static final Title LEVEL_4 = new Title(paragraph -> {
             setTitleLevel(paragraph, 3);
         });
-        public static final Title level5 = new Title(paragraph -> {
+        public static final Title LEVEL_5 = new Title(paragraph -> {
             setTitleLevel(paragraph, 4);
         });
-        public static final Title level6 = new Title(paragraph -> {
+        public static final Title LEVEL_6 = new Title(paragraph -> {
             setTitleLevel(paragraph, 5);
         });
-        public static final Title level7 = new Title(paragraph -> {
+        public static final Title LEVEL_7 = new Title(paragraph -> {
             setTitleLevel(paragraph, 6);
         });
-        public static final Title level8 = new Title(paragraph -> {
+        public static final Title LEVEL_8 = new Title(paragraph -> {
             setTitleLevel(paragraph, 7);
         });
         public static final Title level9 = new Title(paragraph -> {

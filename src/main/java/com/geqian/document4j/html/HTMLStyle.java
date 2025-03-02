@@ -9,12 +9,12 @@ public interface HTMLStyle {
     String buildStyle();
 
     enum Title implements HTMLStyle {
-        FIRST("font-size:32px;font-weight:bold;color:#333;"),
-        SECOND("font-size:28px;font-weight:bold;color:#555;"),
-        THIRD("font-size:24px;font-weight:bold;color:#777;"),
-        FOUR("font-size:20px;font-weight:bold;color:#999;"),
-        FIVE("font-size:16px;font-weight:bold;color:#aaa;"),
-        SIX("font-size:14px; font-weight:bold;color:#bbb;");
+        LEVEL_1("font-size:32px;font-weight:bold;color:#333;"),
+        LEVEL_2("font-size:28px;font-weight:bold;color:#555;"),
+        LEVEL_3("font-size:24px;font-weight:bold;color:#777;"),
+        LEVEL_4("font-size:20px;font-weight:bold;color:#999;"),
+        LEVEL_5("font-size:16px;font-weight:bold;color:#aaa;"),
+        LEVEL_6("font-size:14px; font-weight:bold;color:#bbb;");
 
         private final String style;
 
