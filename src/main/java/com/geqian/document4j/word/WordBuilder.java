@@ -6,10 +6,7 @@ import com.geqian.document4j.common.extend.NoConverter;
 import com.geqian.document4j.common.extend.WriteTableable;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,12 +96,6 @@ public class WordBuilder {
     public WordBuilder title(String text, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
-        if (wordStyles == null) {
-            WordStyle.Font bold = WordStyle.Font.BOLD;
-            WordStyle.Font fontSize = WordStyle.Font.fontSize(25);
-            WordStyle.Paragraph center = WordStyle.Paragraph.ALIGN_CENTER;
-            wordStyles = new WordStyle[]{bold, fontSize, center};
-        }
         paragraph(paragraph, text, wordStyles);
         return this;
     }
@@ -128,20 +119,50 @@ public class WordBuilder {
      * @return
      */
     private void paragraph(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
-
         //创建段落文本
         XWPFRun run = paragraph.createRun();
-
         run.setText(text);
-
         for (WordStyle wordStyle : wordStyles) {
             if (wordStyle != null) {
-                boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass());
+                boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Title.class.isAssignableFrom(wordStyle.getClass());
                 wordStyle.buildStyle(isParagraph ? paragraph : run);
             }
         }
     }
 
+    /**
+     * 设置标题级别
+     *
+     * @param paragraph
+     * @param level
+     */
+    private void setTitleLevel(XWPFParagraph paragraph, int level) {
+        if (level < 1 || level > 8) {
+            throw new IllegalArgumentException("标题级别需为 1~8 的整数");
+        }
+        // 设置段落样式为对应级别的标题（例如"Heading1"）
+        // 注意：Word 内置样式名称需与实际模板匹配，否则可能不生效
+        paragraph.setStyle("Heading" + level);
+
+        // 操作底层 XML 对象以设置大纲级别（必需步骤）
+        // 获取或创建段落属性对象（CTPPr）
+        CTPPr ppr = paragraph.getCTP().getPPr();
+        if (ppr == null) {
+            ppr = paragraph.getCTP().addNewPPr();
+        }
+
+        // 设置段后间距（单位：缇，1磅=20缇，此处200缇=10磅）
+        // 获取或创建间距属性对象（CTSpacing）
+        CTSpacing spacing = ppr.isSetSpacing() ? ppr.getSpacing() : ppr.addNewSpacing();
+        // 设置段后间距
+        spacing.setAfter(BigInteger.valueOf(200));
+
+        // 设置大纲级别（对应导航窗格中的层级）
+        // 获取或创建大纲级别对象（CTDecimalNumber）
+        CTDecimalNumber ctDecimalNumber = ppr.isSetOutlineLvl() ? ppr.getOutlineLvl() : ppr.addNewOutlineLvl();
+        // 0=正文，1=1级标题，依此类推
+        ctDecimalNumber.setVal(BigInteger.valueOf(level));
+    }
 
     /**
      * 添加图片
@@ -608,5 +629,19 @@ public class WordBuilder {
 
     }
 
+
+    public static void main(String[] args) throws FileNotFoundException {
+        WordBuilder.create(new FileOutputStream("d:\\desktop\\demo.docx"))
+                .title("标题1", WordStyle.Title.level1)
+                .title("标题2", WordStyle.Title.level2)
+                .title("三级标题", WordStyle.Title.level3)
+                .title("四级标题", WordStyle.Title.level4)
+                .title("五级标题", WordStyle.Title.level5)
+                .title("六级标题", WordStyle.Title.level6)
+                .title("七级标题", WordStyle.Title.level7)
+                .title("八级标题", WordStyle.Title.level8)
+                .build();
+
+    }
 
 }
