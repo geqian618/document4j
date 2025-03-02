@@ -9,17 +9,20 @@ public interface HTMLStyle {
     String buildStyle();
 
     enum Title implements HTMLStyle {
-        LEVEL_1("font-size:32px;font-weight:bold;color:#333;"),
-        LEVEL_2("font-size:28px;font-weight:bold;color:#555;"),
-        LEVEL_3("font-size:24px;font-weight:bold;color:#777;"),
-        LEVEL_4("font-size:20px;font-weight:bold;color:#999;"),
-        LEVEL_5("font-size:16px;font-weight:bold;color:#aaa;"),
-        LEVEL_6("font-size:14px; font-weight:bold;color:#bbb;");
+        LEVEL_1("h1", "font-size:32px;font-weight:bold;color:#333;"),
+        LEVEL_2("h2", "font-size:28px;font-weight:bold;color:#555;"),
+        LEVEL_3("h3", "font-size:24px;font-weight:bold;color:#777;"),
+        LEVEL_4("h4", "font-size:20px;font-weight:bold;color:#999;"),
+        LEVEL_5("h5", "font-size:16px;font-weight:bold;color:#aaa;"),
+        LEVEL_6("h6", "font-size:14px; font-weight:bold;color:#bbb;");
 
         private final String style;
 
-        Title(String style) {
+        private final String tagName;
+
+        Title(String tagName, String style) {
             this.style = style;
+            this.tagName = tagName;
         }
 
         @Override
@@ -27,6 +30,9 @@ public interface HTMLStyle {
             return this.style;
         }
 
+        public String getTagName() {
+            return tagName;
+        }
     }
 
 

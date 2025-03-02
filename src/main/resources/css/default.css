@@ -1,0 +1,99 @@
+:root {
+    --common-border: 1px solid black;
+    --drag-bar-width: 10px;
+    --aside-width: 250px;
+    --aside-min-width: 250px;
+    --content-min-width: 300px;
+    --drag-bar-offsetLeft: calc(var(--aside-width) - var(--drag-bar-width) / 2);
+}
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+.page-layout {
+    width: 100vw;
+    height: 100vh;
+    background-color: #f3f0f0;
+}
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.aside {
+    background: white;
+    min-width: var(--aside-min-width);
+    position: relative;
+    width: var(--aside-width);
+    height: 100%;
+    border: var(--common-border);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+    font-size: 16px;
+    border: 1px solid #dedcdc;
+}
+.drag-bar {
+    z-index: 10;
+    height: 100%;
+    width: var(--drag-bar-width);
+    position: absolute;
+    top: 0;
+    left: var(--drag-bar-offsetLeft);
+    background-color: transparent;
+}
+.drag-bar:hover {
+    cursor: w-resize;
+}
+.content {
+    min-width: var(--content-min-width);
+    position: absolute;
+    top: 0;
+    left: var(--aside-width);
+    width: calc(100% - var(--aside-width));
+    height: 100%;
+    background-color: white;
+    overflow-y: auto;
+    padding: 15px;
+}
+h1, h2, h3, h4, h5, h6 {
+    padding: 5px 0;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 15px;
+}
+a:hover {
+    background: #efefef;
+}
+p {
+    overflow: auto;
+    word-wrap: break-word;
+}
+table {
+    text-align: left;
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+table thead {
+    text-align: left;
+}
+table th {
+    height: 40px;
+}
+table td {
+    height: 30px;
+}
+table, th, td {
+    border: 1px solid #b4b3b3;
+    padding-left: 10px;
+    padding-right: 10px;
+}

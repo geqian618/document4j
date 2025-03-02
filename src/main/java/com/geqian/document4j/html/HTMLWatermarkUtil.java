@@ -116,7 +116,7 @@ public class HTMLWatermarkUtil {
      * @throws IOException
      */
     public static String readToString(String filePath) {
-        return readToString(new File(filePath));
+        return readFile(new File(filePath));
     }
 
     /**
@@ -126,7 +126,7 @@ public class HTMLWatermarkUtil {
      * @return
      * @throws IOException
      */
-    public static String readToString(File file) {
+    public static String readFile(File file) {
         try {
             StringBuilder stringBuilder = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -162,7 +162,7 @@ public class HTMLWatermarkUtil {
 
     public static void main(String[] args) throws Exception {
 
-        String text = readToString(new File("d://desktop/index.html"));
+        String text = readFile(new File("d://desktop/index.html"));
 
         byte[] htmlBytes = text.getBytes(charset);
 

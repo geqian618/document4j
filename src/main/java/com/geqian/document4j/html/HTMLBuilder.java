@@ -8,10 +8,11 @@ import com.geqian.document4j.markdown.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,9 +25,11 @@ public class HTMLBuilder {
 
     private final Logger log = LoggerFactory.getLogger(MarkDownBuilder.class);
 
-    private final StringBuffer bodyBuffer = new StringBuffer();
+    private final StringBuilder labelBuilder = new StringBuilder();
 
-    private final StringBuffer styleBuffer = new StringBuffer();
+    private final StringBuilder styleBuilder = new StringBuilder();
+
+    private final StringBuilder javaScriptBuilder = new StringBuilder();
 
     private final OutputStream outputStream;
 
@@ -36,13 +39,18 @@ public class HTMLBuilder {
 
     private HTMLBuilder(OutputStream outputStream) {
         this.outputStream = outputStream;
-        setStyleSelector("*{padding:0;margin:0;}p{overflow:auto;word-wrap:break-word;}");
-        setStyleSelector(tableDefaultStyle());
+        setStyleSelector(defaultStyle());
+        setJavaScript(defaultJavaScript());
     }
 
 
     public HTMLBuilder setStyleSelector(String style) {
-        this.styleBuffer.append(style);
+        this.styleBuilder.append(style);
+        return this;
+    }
+
+    public HTMLBuilder setJavaScript(String style) {
+        this.javaScriptBuilder.append(style);
         return this;
     }
 
@@ -51,7 +59,10 @@ public class HTMLBuilder {
     }
 
     public HTMLBuilder title(String text, HTMLStyle.Title title) {
-        this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", title != null ? title.buildStyle() : "", text));
+        if (title == null) {
+            throw new IllegalArgumentException("HTMLStyle.Title cannot be null");
+        }
+        this.labelBuilder.append(String.format("<%s style=\"%s\">%s</%s>", title.getTagName(), title.buildStyle(), text, title.getTagName()));
         return this;
     }
 
@@ -65,7 +76,7 @@ public class HTMLBuilder {
                 }
             }
         }
-        this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
+        this.labelBuilder.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
         return this;
     }
 
@@ -88,23 +99,23 @@ public class HTMLBuilder {
                 }
             }
         }
-        this.bodyBuffer.append(String.format("<a style=\"%s\" href=\"%s\">%s</a>", styleBuilder, link, desc));
+        this.labelBuilder.append(String.format("<a style=\"%s\" href=\"%s\">%s</a>", styleBuilder, link, desc));
         return this;
     }
 
     public HTMLBuilder blankRow() {
-        this.bodyBuffer.append("<br>");
+        this.labelBuilder.append("<br>");
         return this;
     }
 
     public HTMLBuilder divisionLine() {
-        this.bodyBuffer.append("<hr>");
+        this.labelBuilder.append("<hr>");
         return this;
     }
 
 
     public HTMLBuilder html(String html) {
-        this.bodyBuffer.append(html);
+        this.labelBuilder.append(html);
         return this;
     }
 
@@ -152,7 +163,7 @@ public class HTMLBuilder {
             writeTableRows(tableBuilder, dataList, fields, htmlStyles);
             tableBuilder.append("</table>");
 
-            bodyBuffer.append(tableBuilder);
+            labelBuilder.append(tableBuilder);
         }
         return this;
     }
@@ -169,26 +180,26 @@ public class HTMLBuilder {
             for (StringBuilder selector : styleSelectors) {
                 setStyleSelector(selector.toString());
             }
-            bodyBuffer.append("<table>");
+            labelBuilder.append("<table>");
             for (int i = 0; i < data.length; i++) {
                 if (i == 0) {
-                    bodyBuffer.append("<thead><tr>");
+                    labelBuilder.append("<thead><tr>");
                     Object[] heads = data[i];
                     for (Object head : heads) {
-                        bodyBuffer.append("<th>").append(head).append("</th>");
+                        labelBuilder.append("<th>").append(head).append("</th>");
                     }
-                    bodyBuffer.append("</tr></thead>");
+                    labelBuilder.append("</tr></thead>");
                 } else {
-                    bodyBuffer.append("<tbody><tr>");
+                    labelBuilder.append("<tbody><tr>");
                     Object[] heads = data[i];
                     for (Object head : heads) {
-                        bodyBuffer.append("<td>").append(head).append("</td>");
+                        labelBuilder.append("<td>").append(head).append("</td>");
                     }
-                    bodyBuffer.append("</tr></tbody>");
+                    labelBuilder.append("</tr></tbody>");
                 }
             }
         }
-        bodyBuffer.append("</table>");
+        labelBuilder.append("</table>");
         return this;
     }
 
@@ -421,10 +432,25 @@ public class HTMLBuilder {
                 "<meta charset=\"UTF-8\">" +
                 "<head>" +
                 "<title>HTML文档</title>" +
-                "<style>" + styleBuffer + "</style>" +
+                "<style>" + styleBuilder + "</style>" +
                 "</head>" +
                 "<body>" +
-                bodyBuffer +
+                "<div class=\"page-layout\">\n" +
+                "    <div class=\"container\">\n" +
+                "        <!--侧边栏区域-->\n" +
+                "        <section class=\"aside\">\n" +
+                "        </section>\n" +
+                "        <!--拖动按钮-->\n" +
+                "        <div class=\"drag-bar\"></div>\n" +
+                "        <!--内容区域-->\n" +
+                "        <div class=\"content\">\n" +
+                labelBuilder +
+                "        </div>\n" +
+                "    </div>\n" +
+                "</div>" +
+                "<script type=\"text/javascript\">" +
+                javaScriptBuilder +
+                "</script>" +
                 "</body>" +
                 "</html>";
         try {
@@ -436,11 +462,48 @@ public class HTMLBuilder {
     }
 
 
-    private String tableDefaultStyle() {
-        return "table{text-align:left;border-collapse:collapse;width:100%;margin-left:auto;margin-right:auto;} table thead {text-align:left;} table th {height:40px;} table td {height:30px;}\n" +
-                "table,th,td{border:1px solid #b4b3b3;padding-left:10px;padding-right:10px;}";
+    /**
+     * 加载默认样式
+     *
+     * @return
+     */
+    private String defaultStyle() {
+        String path = HTMLBuilder.class.getClassLoader().getResource("css/default.css").getPath();
+        return readFile(new File(path));
     }
 
+    /**
+     * 加载默认样式
+     *
+     * @return
+     */
+    private String defaultJavaScript() {
+        String path = HTMLBuilder.class.getClassLoader().getResource("js/default.js").getPath();
+        return readFile(new File(path));
+    }
+
+
+    /**
+     * 读取文件为字符串
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static String readFile(File file) {
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("读取文件发生异常", e);
+        }
+    }
 
     public class ParagraphBuilder {
 
@@ -464,9 +527,22 @@ public class HTMLBuilder {
         }
 
         public HTMLBuilder endParagraph() {
-            HTMLBuilder.this.bodyBuffer.append(paragraphBuilder);
+            HTMLBuilder.this.labelBuilder.append(paragraphBuilder);
             return HTMLBuilder.this;
         }
 
+    }
+
+
+    public static void main(String[] args) throws IOException {
+
+        HTMLBuilder.create(Files.newOutputStream(Paths.get("d:\\desktop\\demo.html")))
+                .title("一级标题", HTMLStyle.Title.LEVEL_1)
+                .title("一级标题", HTMLStyle.Title.LEVEL_2)
+                .title("一级标题", HTMLStyle.Title.LEVEL_3)
+                .title("一级标题", HTMLStyle.Title.LEVEL_4)
+                .title("一级标题", HTMLStyle.Title.LEVEL_5)
+                .title("一级标题", HTMLStyle.Title.LEVEL_6)
+                .build();
     }
 }
