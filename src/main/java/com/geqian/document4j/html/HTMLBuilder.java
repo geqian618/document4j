@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,11 +56,19 @@ public class HTMLBuilder {
         return new HTMLBuilder(outputStream);
     }
 
-    public HTMLBuilder title(String text, HTMLStyle.Title title) {
+    public HTMLBuilder title(String text, HTMLStyle.Title title, HTMLStyle... styles) {
         if (title == null) {
             throw new IllegalArgumentException("HTMLStyle.Title cannot be null");
         }
-        this.labelBuilder.append(String.format("<%s style=\"%s\">%s</%s>", title.getTagName(), title.buildStyle(), text, title.getTagName()));
+        StringBuilder styleBuilder = new StringBuilder();
+        if (styles != null) {
+            for (HTMLStyle htmlStyle : styles) {
+                if (htmlStyle != null) {
+                    styleBuilder.append(htmlStyle.buildStyle());
+                }
+            }
+        }
+        this.labelBuilder.append(String.format("<%s style=\"%s\">%s</%s>", title.getTagName(), title.buildStyle() + styleBuilder, text, title.getTagName()));
         return this;
     }
 
@@ -533,16 +539,4 @@ public class HTMLBuilder {
 
     }
 
-
-    public static void main(String[] args) throws IOException {
-
-        HTMLBuilder.create(Files.newOutputStream(Paths.get("d:\\desktop\\demo.html")))
-                .title("一级标题", HTMLStyle.Title.LEVEL_1)
-                .title("一级标题", HTMLStyle.Title.LEVEL_2)
-                .title("一级标题", HTMLStyle.Title.LEVEL_3)
-                .title("一级标题", HTMLStyle.Title.LEVEL_4)
-                .title("一级标题", HTMLStyle.Title.LEVEL_5)
-                .title("一级标题", HTMLStyle.Title.LEVEL_6)
-                .build();
-    }
 }
