@@ -63,9 +63,11 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder title(String text, MarkDownStyle.Title title, MarkDownStyle.Font... styles) {
-        for (MarkDownStyle.Font style : styles) {
-            if (style != null) {
-                text = style.buildStyle(text);
+        if (styles != null) {
+            for (MarkDownStyle.Font style : styles) {
+                if (style != null) {
+                    text = style.buildStyle(text);
+                }
             }
         }
         stringBuffer.append(title != null ? title.buildStyle(text) : text);
@@ -92,9 +94,11 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder paragraph(String text, MarkDownStyle.Font... styles) {
-        for (MarkDownStyle.Font style : styles) {
-            if (style != null) {
-                text = style.buildStyle(text);
+        if (styles != null) {
+            for (MarkDownStyle.Font style : styles) {
+                if (style != null) {
+                    text = style.buildStyle(text);
+                }
             }
         }
         stringBuffer.append(text).append("\n");
@@ -550,9 +554,11 @@ public class MarkDownBuilder {
          * @return
          */
         public ParagraphBuilder text(String text, MarkDownStyle.Font... styles) {
-            for (MarkDownStyle.Font style : styles) {
-                if (style != null) {
-                    text = style.buildStyle(text);
+            if (styles != null) {
+                for (MarkDownStyle.Font style : styles) {
+                    if (style != null) {
+                        text = style.buildStyle(text);
+                    }
                 }
             }
             subStringBuffer.append(text);

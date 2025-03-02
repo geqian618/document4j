@@ -44,9 +44,6 @@ public interface WordStyle {
         public static final Title LEVEL_8 = new Title(paragraph -> {
             setTitleLevel(paragraph, 7);
         });
-        public static final Title level9 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 8);
-        });
 
         private final Consumer<XWPFParagraph> wrapper;
 

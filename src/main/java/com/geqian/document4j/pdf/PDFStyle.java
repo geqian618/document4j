@@ -14,6 +14,32 @@ public interface PDFStyle {
     void buildStyle(Object obj);
 
 
+    class Title implements PDFStyle {
+
+        public static final Title LEVEL_1 = new Title(1);
+        public static final Title LEVEL_2 = new Title(2);
+        public static final Title LEVEL_3 = new Title(3);
+        public static final Title LEVEL_4 = new Title(4);
+        public static final Title LEVEL_5 = new Title(5);
+        public static final Title LEVEL_6 = new Title(6);
+
+        private final int level;
+
+        public Title(int level) {
+            this.level = level;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        @Override
+        public void buildStyle(Object obj) {
+
+        }
+    }
+
+
     class Font implements PDFStyle {
 
         private String familyStyle;

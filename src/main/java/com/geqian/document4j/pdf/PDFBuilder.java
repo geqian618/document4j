@@ -5,10 +5,7 @@ import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
 import com.geqian.document4j.common.extend.WriteTableable;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +44,8 @@ public class PDFBuilder {
 
     private Map<String, String> enumMappings;
 
+    private final Stack<Map.Entry<Integer, PdfOutline>> stack;
+
     private Map<String, Converter> converters;
 
     private PDFBuilder(OutputStream outputStream) {
@@ -57,10 +56,14 @@ public class PDFBuilder {
             document.setMargins(padding, padding, 36, 36);
             this.outputStream = outputStream;
             pdfWriter = PdfWriter.getInstance(this.document, this.outputStream);
+            this.stack = new Stack<>();
             //if (watermark != null && !watermark.trim().isEmpty()) {
             //    pdfWriter.setPageEvent(new WaterMarkEvent(createFont(), watermark));
             //}
             this.document.open();
+            // 获取根大纲
+            PdfOutline root = pdfWriter.getRootOutline();
+            this.stack.push(new AbstractMap.SimpleEntry<>(0, root));
         } catch (Exception e) {
             throw new RuntimeException("创建PdfBuilder异常", e);
         }
@@ -110,6 +113,38 @@ public class PDFBuilder {
 
 
     /**
+     * 添加标题（书签）
+     *
+     * @param title
+     * @param level
+     * @param styles
+     * @return
+     * @throws DocumentException
+     */
+    public PDFBuilder title(String title, PDFStyle.Title level, PDFStyle... styles) throws DocumentException {
+        if (level == null) {
+            throw new IllegalArgumentException("Title level cannot be null");
+        }
+        // 锚点
+        String anchor = UUID.randomUUID().toString();
+        Chunk anchorChunk = new Chunk(title, createFont(styles));
+        anchorChunk.setLocalDestination(anchor);
+
+        document.add(new Paragraph(anchorChunk));
+        // 添加空行分隔内容
+        blankRow();
+        // 使用锚点名
+        PdfAction action = PdfAction.gotoLocalPage(anchor, true);
+        while (!stack.isEmpty() && stack.peek().getKey() >= level.getLevel()) {
+            stack.pop();
+        }
+        PdfOutline parent = stack.peek().getValue();
+        PdfOutline pdfOutline = new PdfOutline(parent, action, title);
+        stack.push(new AbstractMap.SimpleEntry<>(level.getLevel(), pdfOutline));
+        return this;
+    }
+
+    /**
      * 空白行
      *
      * @return
@@ -133,33 +168,6 @@ public class PDFBuilder {
      */
     public PDFBuilder newPage() {
         this.document.newPage();
-        return this;
-    }
-
-
-    /**
-     * 添加段落文字
-     *
-     * @return
-     */
-    public PDFBuilder title(String text) {
-        title(text, null);
-        return this;
-    }
-
-
-    /**
-     * 添加段落文本
-     *
-     * @return
-     */
-    public PDFBuilder title(String text, PDFStyle... pdfStyles) {
-        if (pdfStyles == null) {
-            PDFStyle.Paragraph alignCenter = PDFStyle.Paragraph.ALIGN_CENTER;
-            PDFStyle.Font fontSize = PDFStyle.Font.fontSize(25);
-            pdfStyles = new PDFStyle[]{alignCenter, fontSize};
-        }
-        paragraph(text, pdfStyles);
         return this;
     }
 
@@ -605,13 +613,16 @@ public class PDFBuilder {
      */
     private Paragraph createParagraph(String text, PDFStyle... pdfStyles) {
         Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
-        for (PDFStyle pdfStyle : pdfStyles) {
-            if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.buildStyle(paragraph);
+        if (pdfStyles != null) {
+            for (PDFStyle pdfStyle : pdfStyles) {
+                if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+                    pdfStyle.buildStyle(paragraph);
+                }
             }
         }
         return paragraph;
     }
+
 
     /**
      * 创建字体
@@ -622,9 +633,11 @@ public class PDFBuilder {
         String fontFamily = null;
         Font font;
         try {
-            for (PDFStyle pdfStyle : pdfStyles) {
-                if (pdfStyle instanceof PDFStyle.Font && (fontFamily = ((PDFStyle.Font) pdfStyle).getFamilyStyle()) != null) {
-                    break;
+            if (pdfStyles != null) {
+                for (PDFStyle pdfStyle : pdfStyles) {
+                    if (pdfStyle instanceof PDFStyle.Font && (fontFamily = ((PDFStyle.Font) pdfStyle).getFamilyStyle()) != null) {
+                        break;
+                    }
                 }
             }
             font = fontFamily != null ?
@@ -635,14 +648,15 @@ public class PDFBuilder {
         }
         font.setStyle(Font.NORMAL);
         font.setSize(Font.DEFAULTSIZE);
-        for (PDFStyle pdfStyle : pdfStyles) {
-            if (pdfStyle != null && PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.buildStyle(font);
+        if (pdfStyles != null) {
+            for (PDFStyle pdfStyle : pdfStyles) {
+                if (pdfStyle != null && PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+                    pdfStyle.buildStyle(font);
+                }
             }
         }
         return font;
     }
-
 
     /**
      * 创建表格单元格
@@ -679,9 +693,11 @@ public class PDFBuilder {
         public ParagraphBuilder text(String text, PDFStyle... pdfStyles) {
             Chunk chunk = new Chunk(text, createFont(pdfStyles));
             paragraph.add(chunk);
-            for (PDFStyle pdfStyle : pdfStyles) {
-                if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
-                    pdfStyle.buildStyle(paragraph);
+            if (pdfStyles != null) {
+                for (PDFStyle pdfStyle : pdfStyles) {
+                    if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+                        pdfStyle.buildStyle(paragraph);
+                    }
                 }
             }
             return this;
@@ -697,5 +713,20 @@ public class PDFBuilder {
             }
         }
     }
+
+    //public static void main(String[] args) throws FileNotFoundException, DocumentException {
+    //    PDFBuilder.create(new FileOutputStream("d:\\desktop\\demo.pdf"))
+    //            .title("第一章", 1)
+    //            .newPage()
+    //            .chapter("第二章", 2)
+    //            .chapter("第二章", 3)
+    //            .chapter("第二章", 1)
+    //            .chapter("第二章", 3)
+    //            .chapter("第二章", 4)
+    //            .chapter("第二章", 2)
+    //            .chapter("第二章", 1)
+    //            .build();
+    //
+    //}
 
 }

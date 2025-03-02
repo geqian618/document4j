@@ -93,9 +93,15 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder title(String text, WordStyle... wordStyles) {
+    public WordBuilder title(String text, WordStyle.Title title, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
+        if (wordStyles != null) {
+            wordStyles = Arrays.copyOf(wordStyles, wordStyles.length + 1);
+            wordStyles[wordStyles.length - 1] = title;
+        } else {
+            wordStyles = new WordStyle[]{title};
+        }
         paragraph(paragraph, text, wordStyles);
         return this;
     }
@@ -122,10 +128,12 @@ public class WordBuilder {
         //创建段落文本
         XWPFRun run = paragraph.createRun();
         run.setText(text);
-        for (WordStyle wordStyle : wordStyles) {
-            if (wordStyle != null) {
-                boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Title.class.isAssignableFrom(wordStyle.getClass());
-                wordStyle.buildStyle(isParagraph ? paragraph : run);
+        if (wordStyles != null) {
+            for (WordStyle wordStyle : wordStyles) {
+                if (wordStyle != null) {
+                    boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Title.class.isAssignableFrom(wordStyle.getClass());
+                    wordStyle.buildStyle(isParagraph ? paragraph : run);
+                }
             }
         }
     }

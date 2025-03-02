@@ -58,9 +58,11 @@ public class HTMLBuilder {
 
     public HTMLBuilder paragraph(String text, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
-        for (HTMLStyle htmlStyle : htmlStyles) {
-            if (htmlStyle != null) {
-                styleBuilder.append(htmlStyle.buildStyle());
+        if (htmlStyles != null) {
+            for (HTMLStyle htmlStyle : htmlStyles) {
+                if (htmlStyle != null) {
+                    styleBuilder.append(htmlStyle.buildStyle());
+                }
             }
         }
         this.bodyBuffer.append(String.format("<p style=\"%s\">%s</p>", styleBuilder, text));
@@ -79,9 +81,11 @@ public class HTMLBuilder {
 
     public HTMLBuilder link(String link, String desc, HTMLStyle... htmlStyles) {
         StringBuilder styleBuilder = new StringBuilder();
-        for (HTMLStyle htmlStyle : htmlStyles) {
-            if (htmlStyle != null) {
-                styleBuilder.append(htmlStyle.buildStyle());
+        if (htmlStyles != null) {
+            for (HTMLStyle htmlStyle : htmlStyles) {
+                if (htmlStyle != null) {
+                    styleBuilder.append(htmlStyle.buildStyle());
+                }
             }
         }
         this.bodyBuffer.append(String.format("<a style=\"%s\" href=\"%s\">%s</a>", styleBuilder, link, desc));
@@ -448,9 +452,11 @@ public class HTMLBuilder {
 
         public HTMLBuilder.ParagraphBuilder text(String text, HTMLStyle... htmlStyles) {
             StringBuilder styleBuilder = new StringBuilder();
-            for (HTMLStyle htmlStyle : htmlStyles) {
-                if (htmlStyle != null) {
-                    styleBuilder.append(htmlStyle.buildStyle());
+            if (htmlStyles != null) {
+                for (HTMLStyle htmlStyle : htmlStyles) {
+                    if (htmlStyle != null) {
+                        styleBuilder.append(htmlStyle.buildStyle());
+                    }
                 }
             }
             paragraphBuilder.append(String.format("<span style=\"%s\">%s</span>", styleBuilder, text));
