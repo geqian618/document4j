@@ -62,7 +62,7 @@ function buildMenu() {
         element.textContent = heading.textContent;
         element.href = '#item' + i;
         element.classList.add('menu-item')
-        element.style.paddingLeft = (15 + 15 * (level - 1)) + 'px';
+        element.style.paddingLeft = level + 'em';
         element.addEventListener('click', () => {
             if (lastElement) {
                 lastElement.style.color = 'black'
