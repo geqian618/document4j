@@ -121,26 +121,41 @@ public class PDFBuilder {
      * @return
      * @throws DocumentException
      */
-    public PDFBuilder title(String title, PDFStyle.Title level, PDFStyle... styles) throws DocumentException {
+    public PDFBuilder title(String title, PDFStyle.Title level, PDFStyle... styles) {
         if (level == null) {
             throw new IllegalArgumentException("Title level cannot be null");
+        }
+        if (styles != null) {
+            // 创建一个新数组，长度比原数组长1
+            PDFStyle[] newArray = new PDFStyle[styles.length + 1];
+            // 将新元素放到新数组的第一个位置
+            newArray[0] = level;
+            // 将原数组的元素复制到新数组中，从新数组的第二个位置开始
+            System.arraycopy(styles, 0, newArray, 1, styles.length);
+            styles = newArray;
+        } else {
+            styles = new PDFStyle[]{level};
         }
         // 锚点
         String anchor = UUID.randomUUID().toString();
         Chunk anchorChunk = new Chunk(title, createFont(styles));
         anchorChunk.setLocalDestination(anchor);
-
-        document.add(new Paragraph(anchorChunk));
-        // 添加空行分隔内容
-        blankRow();
-        // 使用锚点名
-        PdfAction action = PdfAction.gotoLocalPage(anchor, true);
-        while (!stack.isEmpty() && stack.peek().getKey() >= level.getLevel()) {
-            stack.pop();
+        try {
+            document.add(new Paragraph(anchorChunk));
+            // 添加空行分隔内容
+            blankRow();
+            // 使用锚点名
+            PdfAction action = PdfAction.gotoLocalPage(anchor, true);
+            while (!stack.isEmpty() && stack.peek().getKey() >= level.getLevel()) {
+                stack.pop();
+            }
+            PdfOutline parent = stack.peek().getValue();
+            PdfOutline pdfOutline = new PdfOutline(parent, action, title);
+            stack.push(new AbstractMap.SimpleEntry<>(level.getLevel(), pdfOutline));
+        } catch (DocumentException e) {
+            log.error("添加标题时发生异常", e);
+            return this;
         }
-        PdfOutline parent = stack.peek().getValue();
-        PdfOutline pdfOutline = new PdfOutline(parent, action, title);
-        stack.push(new AbstractMap.SimpleEntry<>(level.getLevel(), pdfOutline));
         return this;
     }
 
@@ -650,7 +665,7 @@ public class PDFBuilder {
         font.setSize(Font.DEFAULTSIZE);
         if (pdfStyles != null) {
             for (PDFStyle pdfStyle : pdfStyles) {
-                if (pdfStyle != null && PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
+                if (pdfStyle != null && (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass()) || PDFStyle.Title.class.isAssignableFrom(pdfStyle.getClass()))) {
                     pdfStyle.buildStyle(font);
                 }
             }

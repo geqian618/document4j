@@ -35,7 +35,11 @@ public interface PDFStyle {
 
         @Override
         public void buildStyle(Object obj) {
-
+            if (obj instanceof com.itextpdf.text.Font) {
+                com.itextpdf.text.Font font = (com.itextpdf.text.Font) obj;
+                font.setSize(22 - 2 * level);
+                font.setStyle(com.itextpdf.text.Font.BOLD);
+            }
         }
     }
 
