@@ -73,6 +73,18 @@ function buildMenu() {
         aside.appendChild(element)
     }
 }
-
+function showCatalogue(required) {
+    if (!required) {
+        const aside = document.querySelector(".aside");
+        const drag = document.querySelector(".drag-bar");
+        const content = document.querySelector(".content");
+        aside.remove()
+        drag.remove()
+        content.style.position = "static"
+        content.style.width = "100%"
+        content.style.top = ""
+        content.style.left = ""
+    }
+}
 doDrag();
 buildMenu();

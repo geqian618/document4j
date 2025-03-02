@@ -56,6 +56,18 @@ public class HTMLBuilder {
         return new HTMLBuilder(outputStream);
     }
 
+    /**
+     * 是否需要左侧目录
+     *
+     * @param required
+     * @return
+     */
+    public HTMLBuilder setCatalogue(boolean required) {
+        setJavaScript("showCatalogue(" + required + ")");
+        return this;
+    }
+
+
     public HTMLBuilder title(String text, HTMLStyle.Title title, HTMLStyle... styles) {
         if (title == null) {
             throw new IllegalArgumentException("HTMLStyle.Title cannot be null");
