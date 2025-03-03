@@ -446,14 +446,14 @@ public class HTMLBuilder {
 
 
     public void build() {
-        String html = "<!DOCTYPE html>" +
-                "<html lang=\"zh-CN\">" +
-                "<meta charset=\"UTF-8\">" +
-                "<head>" +
-                "<title>HTML文档</title>" +
-                "<style>" + styleBuilder + "</style>" +
-                "</head>" +
-                "<body>" +
+        String html = "<!DOCTYPE html>\n" +
+                "<html lang=\"zh-CN\">\n" +
+                "<meta charset=\"UTF-8\">\n" +
+                "<head>\n" +
+                "<title>HTML文档</title>\n" +
+                "<style>" + styleBuilder + "</style>\n" +
+                "</head>\n" +
+                "<body>\n" +
                 "<div class=\"page-layout\">\n" +
                 "    <div class=\"container\">\n" +
                 "        <!--侧边栏区域-->\n" +
@@ -466,12 +466,12 @@ public class HTMLBuilder {
                 labelBuilder +
                 "        </div>\n" +
                 "    </div>\n" +
-                "</div>" +
-                "<script type=\"text/javascript\">" +
+                "</div>\n" +
+                "<script type=\"text/javascript\">\n" +
                 javaScriptBuilder +
-                "</script>" +
-                "</body>" +
-                "</html>";
+                "</script>\n" +
+                "</body>\n" +
+                "</html>\n";
         try {
             byte[] bytes = html.getBytes(StandardCharsets.UTF_8);
             this.outputStream.write(bytes);
