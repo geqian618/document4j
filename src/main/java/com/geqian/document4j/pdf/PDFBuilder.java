@@ -286,6 +286,7 @@ public class PDFBuilder {
             if (writeTableable instanceof BaseTableInterceptor) {
                 tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
             }
+
             //写入表头
             writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
 
