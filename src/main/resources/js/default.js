@@ -87,7 +87,7 @@ function showCatalogue(required) {
         content.style.top = ""
         content.style.left = ""
         content.style.overflowY = 'visible'
-        page.style.margin = '0 15%'
+        page.style.padding = '0 15%'
         page.style.overflowX = 'hidden'
     }
 }
