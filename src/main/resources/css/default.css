@@ -1,7 +1,7 @@
 :root {
     --common-border: 1px solid black;
     --drag-bar-width: 10px;
-    --aside-width: 250px;
+    --aside-width: 330px;
     --aside-min-width: 250px;
     --content-min-width: 300px;
     --drag-bar-offsetLeft: calc(var(--aside-width) - var(--drag-bar-width) / 2);
@@ -32,7 +32,9 @@
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1;
     font-size: 16px;
+    color: #304455;
     border: 1px solid #dedcdc;
+    padding: 10px 0;
 }
 .drag-bar {
     z-index: 10;
@@ -64,8 +66,8 @@ a {
     text-decoration: none;
     color: inherit;
     display: block;
-    height: 30px;
-    line-height: 30px;
+    height: 2.2em;
+    line-height: 2.2em;
     padding-left: 15px;
     white-space: nowrap;
     overflow: hidden;

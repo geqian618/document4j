@@ -63,6 +63,7 @@ function buildMenu() {
         element.href = '#item' + i;
         element.classList.add('menu-item')
         element.style.paddingLeft = level + 'em';
+        element.style.fontSize = (18 - level * 2) + "px"
         element.addEventListener('click', () => {
             if (lastElement) {
                 lastElement.style.color = 'black'
