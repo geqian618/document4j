@@ -1,9 +1,10 @@
 package com.geqian.document4j.pdf;
 
 import com.geqian.document4j.common.annotation.TableField;
+import com.geqian.document4j.common.core.BaseTableInterceptor;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
-import com.geqian.document4j.common.extend.WriteTableable;
+import com.geqian.document4j.common.core.WriteTableable;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
@@ -261,6 +262,11 @@ public class PDFBuilder {
             //获取需要输出字段
             List<Field> fields = getFieldList(writeTableable);
 
+            if (writeTableable instanceof BaseTableInterceptor) {
+                fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
+            }
+
+
             int colums = fields.size();
 
             PdfPTable table = createTable(colums);
@@ -278,8 +284,8 @@ public class PDFBuilder {
             //获取表头
             List<String> tableHeaders = getTableHeaders(fields);
 
-            if (writeTableable instanceof PDFTableInterceptor) {
-                tableHeaders = ((PDFTableInterceptor) writeTableable).interceptPdfHeaders(writeTableable.getClass(), tableHeaders);
+            if (writeTableable instanceof BaseTableInterceptor) {
+                tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
             }
             //写入表头
             writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
@@ -555,10 +561,6 @@ public class PDFBuilder {
             fields = fields.stream()
                     .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                     .collect(Collectors.toList());
-        }
-
-        if (obj instanceof PDFTableInterceptor) {
-            fields = ((PDFTableInterceptor) obj).interceptPdfFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {

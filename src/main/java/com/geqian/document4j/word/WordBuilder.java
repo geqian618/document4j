@@ -1,9 +1,10 @@
 package com.geqian.document4j.word;
 
 import com.geqian.document4j.common.annotation.TableField;
+import com.geqian.document4j.common.core.BaseTableInterceptor;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
-import com.geqian.document4j.common.extend.WriteTableable;
+import com.geqian.document4j.common.core.WriteTableable;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
@@ -188,6 +189,10 @@ public class WordBuilder {
             //获取需要输出字段
             List<Field> fields = getFieldList(writeTableable);
 
+            if (writeTableable instanceof BaseTableInterceptor) {
+                fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
+            }
+
             int rows = dataList.size() + 1;
 
             int columns = fields.size();
@@ -207,8 +212,8 @@ public class WordBuilder {
             //获取表头
             List<String> tableHeaders = getTableHeaders(fields);
 
-            if (writeTableable instanceof WordTableInterceptor) {
-                tableHeaders = ((WordTableInterceptor) writeTableable).interceptWordHeaders(writeTableable.getClass(), fields, tableHeaders);
+            if (writeTableable instanceof BaseTableInterceptor) {
+                tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
             }
 
             //写入表头
@@ -556,15 +561,12 @@ public class WordBuilder {
                     .collect(Collectors.toList());
         }
 
-        if (obj instanceof WordTableInterceptor) {
-            fields = ((WordTableInterceptor) obj).interceptWordFields(obj.getClass(), fields);
-        }
-
         return fields.stream().sorted((a, b) -> {
             TableField before = a.getAnnotation(TableField.class);
             TableField next = b.getAnnotation(TableField.class);
             return (before == null ? Integer.MAX_VALUE : before.order()) - (next == null ? Integer.MAX_VALUE : next.order());
         }).collect(Collectors.toList());
+
     }
 
 

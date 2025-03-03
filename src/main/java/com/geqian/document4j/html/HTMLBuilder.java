@@ -1,9 +1,10 @@
 package com.geqian.document4j.html;
 
 import com.geqian.document4j.common.annotation.TableField;
+import com.geqian.document4j.common.core.BaseTableInterceptor;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
-import com.geqian.document4j.common.extend.WriteTableable;
+import com.geqian.document4j.common.core.WriteTableable;
 import com.geqian.document4j.markdown.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +153,10 @@ public class HTMLBuilder {
             //获取需要输出字段
             List<Field> fields = getFieldList(writeTableable);
 
+            if (writeTableable instanceof BaseTableInterceptor) {
+                fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
+            }
+
             //加载枚举映射关系
             loadEnumMappings(fields);
 
@@ -161,8 +166,8 @@ public class HTMLBuilder {
             //获取表头
             List<String> tableHeaders = getTableHeaders(fields);
 
-            if (writeTableable instanceof HTMLTableInterceptor) {
-                tableHeaders = ((HTMLTableInterceptor) writeTableable).interceptHtmlHeaders(tableHeaders, writeTableable.getClass());
+            if (writeTableable instanceof BaseTableInterceptor) {
+                tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
             }
 
             StringBuilder tableBuilder = new StringBuilder();
@@ -332,10 +337,6 @@ public class HTMLBuilder {
             fields = fields.stream()
                     .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
                     .collect(Collectors.toList());
-        }
-
-        if (obj instanceof HTMLTableInterceptor) {
-            fields = ((HTMLTableInterceptor) obj).interceptHtmlFields(obj.getClass(), fields);
         }
 
         return fields.stream().sorted((a, b) -> {

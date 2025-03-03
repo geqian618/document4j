@@ -1,39 +1,16 @@
 package com.geqian.document4j.pdf;
 
+import com.geqian.document4j.common.core.BaseTableInterceptor;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface PDFTableInterceptor {
-
-
-    /**
-     * 拦截写入表格的属性集合
-     *
-     * @param type
-     * @param fields
-     * @return
-     */
-    default List<Field> interceptPdfFields(Class<?> type, List<Field> fields) {
-        return fields;
-    }
-
-    /**
-     * 拦截写入表格的表头
-     *
-     * @param type    类型
-     * @param headers 表头名称
-     * @return
-     */
-    default List<String> interceptPdfHeaders(Class<?> type, List<String> headers) {
-        return headers;
-    }
+public interface PDFTableInterceptor extends BaseTableInterceptor {
 
 
     /**

@@ -1,42 +1,18 @@
 package com.geqian.document4j.word;
 
-import com.geqian.document4j.common.extend.WriteTableable;
+import com.geqian.document4j.common.core.BaseTableInterceptor;
 import org.apache.poi.wp.usermodel.Paragraph;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * @author geqian
  * @date 21:29 2023/11/5
  */
-public interface WordTableInterceptor extends WriteTableable {
-
-    /**
-     * 拦截写入表格的属性集合
-     *
-     * @param type
-     * @param fields
-     * @return
-     */
-    default List<Field> interceptWordFields(Class<?> type, List<Field> fields) {
-        return fields;
-    }
-
-    /**
-     * 拦截写入表格的表头
-     *
-     * @param type
-     * @param fields
-     * @param headers
-     * @return
-     */
-    default List<String> interceptWordHeaders(Class<?> type, List<Field> fields, List<String> headers) {
-        return headers;
-    }
+public interface WordTableInterceptor extends BaseTableInterceptor {
 
 
     /**
