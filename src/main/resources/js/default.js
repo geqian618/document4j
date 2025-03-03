@@ -73,8 +73,10 @@ function buildMenu() {
         aside.appendChild(element)
     }
 }
+
 function showCatalogue(required) {
     if (!required) {
+        const page = document.querySelector(".page-layout");
         const aside = document.querySelector(".aside");
         const drag = document.querySelector(".drag-bar");
         const content = document.querySelector(".content");
@@ -84,7 +86,11 @@ function showCatalogue(required) {
         content.style.width = "100%"
         content.style.top = ""
         content.style.left = ""
+        content.style.overflowY = 'visible'
+        page.style.margin = '0 15%'
+        page.style.overflowX = 'hidden'
     }
 }
+
 doDrag();
 buildMenu();

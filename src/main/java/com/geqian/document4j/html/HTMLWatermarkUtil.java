@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URL;
 
 public class HTMLWatermarkUtil {
 
@@ -18,9 +17,8 @@ public class HTMLWatermarkUtil {
     private static final String watermarkScript;
 
     static {
-        URL url = HTMLWatermarkUtil.class.getClassLoader().getResource("js/WaterMark.js");
-        String file = url.getFile();
-        watermarkScript = readToString(file);
+        InputStream inputStream = HTMLWatermarkUtil.class.getClassLoader().getResourceAsStream("js/WaterMark.js");
+        watermarkScript = readToString(inputStream);
     }
 
     /**
@@ -109,27 +107,16 @@ public class HTMLWatermarkUtil {
 
 
     /**
-     * 读取文件为字符串
+     * 读取输入流为字符串
      *
-     * @param filePath
+     * @param inputStream
      * @return
      * @throws IOException
      */
-    public static String readToString(String filePath) {
-        return readFile(new File(filePath));
-    }
-
-    /**
-     * 读取文件为字符串
-     *
-     * @param file
-     * @return
-     * @throws IOException
-     */
-    public static String readFile(File file) {
+    private static String readToString(InputStream inputStream) {
         try {
             StringBuilder stringBuilder = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line).append("\n");
@@ -137,37 +124,8 @@ public class HTMLWatermarkUtil {
             }
             return stringBuilder.toString();
         } catch (IOException e) {
-            throw new RuntimeException("读取文件发生异常", e);
+            throw new RuntimeException(e);
         }
     }
 
-
-    /**
-     * 读取输入流为字符串
-     *
-     * @param inputStream
-     * @return
-     * @throws IOException
-     */
-    public static String readToString(InputStream inputStream) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
-            }
-        }
-        return stringBuilder.toString();
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        String text = readFile(new File("d://desktop/index.html"));
-
-        byte[] htmlBytes = text.getBytes(charset);
-
-        FileOutputStream outputStream = new FileOutputStream("d://desktop/output.html");
-
-        addFullTextWatermark(htmlBytes, outputStream, "水印文字");
-    }
 }

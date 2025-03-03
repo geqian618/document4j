@@ -482,13 +482,25 @@ public class HTMLBuilder {
 
 
     /**
+     * 设置 body 样式
+     *
+     * @param style
+     * @return
+     */
+    public HTMLBuilder setBodyStyle(String style) {
+        setStyleSelector(".page-layout {" + style + "}");
+        return this;
+    }
+
+
+    /**
      * 加载默认样式
      *
      * @return
      */
     private String defaultStyle() {
-        String path = HTMLBuilder.class.getClassLoader().getResource("css/default.css").getPath();
-        return readFile(new File(path));
+        InputStream inputStream = HTMLBuilder.class.getClassLoader().getResourceAsStream("css/default.css");
+        return readToString(inputStream);
     }
 
     /**
@@ -497,22 +509,22 @@ public class HTMLBuilder {
      * @return
      */
     private String defaultJavaScript() {
-        String path = HTMLBuilder.class.getClassLoader().getResource("js/default.js").getPath();
-        return readFile(new File(path));
+        InputStream inputStream = HTMLBuilder.class.getClassLoader().getResourceAsStream("js/default.js");
+        return readToString(inputStream);
     }
 
 
     /**
-     * 读取文件为字符串
+     * 读取输入流为字符串
      *
-     * @param file
+     * @param inputStream
      * @return
      * @throws IOException
      */
-    public static String readFile(File file) {
+    public static String readToString(InputStream inputStream) {
         try {
             StringBuilder stringBuilder = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line).append("\n");
@@ -520,9 +532,10 @@ public class HTMLBuilder {
             }
             return stringBuilder.toString();
         } catch (IOException e) {
-            throw new RuntimeException("读取文件发生异常", e);
+            throw new RuntimeException(e);
         }
     }
+
 
     public class ParagraphBuilder {
 
