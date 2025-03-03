@@ -266,7 +266,6 @@ public class PDFBuilder {
                 fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
             }
 
-
             int colums = fields.size();
 
             PdfPTable table = createTable(colums);
