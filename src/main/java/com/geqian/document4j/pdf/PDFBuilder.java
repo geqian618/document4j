@@ -10,8 +10,9 @@ import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,15 +38,15 @@ public class PDFBuilder {
 
     private final Logger log = LoggerFactory.getLogger(PDFBuilder.class);
 
-    private final Document document;
+    private Document document;
 
-    private final PdfWriter pdfWriter;
+    private PdfWriter pdfWriter;
 
-    private final OutputStream outputStream;
+    private OutputStream outputStream;
 
     private Map<String, String> enumMappings;
 
-    private final Stack<Map.Entry<Integer, PdfOutline>> stack;
+    private Stack<Map.Entry<Integer, PdfOutline>> stack;
 
     private Map<String, Converter> converters;
 
@@ -68,6 +69,15 @@ public class PDFBuilder {
         } catch (Exception e) {
             throw new RuntimeException("创建PdfBuilder异常", e);
         }
+    }
+
+    private PDFBuilder() {
+        new PDFBuilder(new ByteArrayOutputStream());
+    }
+
+
+    public static PDFBuilder create() {
+        return new PDFBuilder();
     }
 
 
@@ -350,6 +360,58 @@ public class PDFBuilder {
      */
     public void build() {
         closeResources(this.document, this.pdfWriter);
+    }
+
+
+    /**
+     * PDF文档转换为字节数组
+     *
+     * @return
+     */
+    public byte[] asBytes() {
+        try {
+            return ((ByteArrayOutputStream) outputStream).toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * PDF文档写入文件
+     *
+     * @return
+     */
+    public void asFile(File file) {
+        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(file.toPath()))) {
+            outputStream.write(asBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * PDF 文档写入文件
+     *
+     * @return
+     */
+    public void asFile(String filePath) {
+        asFile(new File(filePath));
+    }
+
+
+    /**
+     * PDF文档写入到输出流
+     *
+     * @return
+     */
+    public void asOutputStream(OutputStream outputStream) {
+        try {
+            outputStream.write(asBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

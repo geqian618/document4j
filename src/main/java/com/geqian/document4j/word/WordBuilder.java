@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,15 +29,12 @@ public class WordBuilder {
 
     private final XWPFDocument document;
 
-    private final OutputStream outputStream;
-
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
-    private WordBuilder(XWPFDocument document, OutputStream outputStream) {
+    private WordBuilder(XWPFDocument document) {
         this.document = document;
-        this.outputStream = outputStream;
     }
 
     /**
@@ -44,8 +42,8 @@ public class WordBuilder {
      *
      * @return
      */
-    public static WordBuilder create(OutputStream target) {
-        return new WordBuilder(new XWPFDocument(), target);
+    public static WordBuilder create() {
+        return new WordBuilder(new XWPFDocument());
     }
 
     /**
@@ -53,9 +51,9 @@ public class WordBuilder {
      *
      * @return
      */
-    public static WordBuilder create(InputStream template, OutputStream target) {
+    public static WordBuilder create(InputStream template) {
         try {
-            return new WordBuilder(new XWPFDocument(template), target);
+            return new WordBuilder(new XWPFDocument(template));
         } catch (IOException e) {
             throw new RuntimeException("获取word模板时发生异常", e);
         }
@@ -269,9 +267,48 @@ public class WordBuilder {
 
 
     /**
-     * 构建 word 文档
+     * word文档转换为字节数组
+     *
+     * @return
      */
-    public void build() {
+    public byte[] asBytes() {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            asOutputStream(outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * word文档写入文件
+     *
+     * @return
+     */
+    public void asFile(File file) {
+        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(file.toPath()))) {
+            asOutputStream(outputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * word文档写入文件
+     *
+     * @return
+     */
+    public void asFile(String filePath) {
+        asFile(new File(filePath));
+    }
+
+
+    /**
+     * word文档写入输出流
+     */
+    public void asOutputStream(OutputStream outputStream) {
         try {
             document.write(outputStream);
         } catch (IOException e) {

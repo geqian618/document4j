@@ -2,9 +2,9 @@ package com.geqian.document4j.html;
 
 import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.core.BaseTableInterceptor;
+import com.geqian.document4j.common.core.WriteTableable;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
-import com.geqian.document4j.common.core.WriteTableable;
 import com.geqian.document4j.markdown.MarkDownBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,14 +31,12 @@ public class HTMLBuilder {
 
     private final StringBuilder javaScriptBuilder = new StringBuilder();
 
-    private final OutputStream outputStream;
 
     private Map<String, String> enumMappings;
 
     private Map<String, Converter> converters;
 
-    private HTMLBuilder(OutputStream outputStream) {
-        this.outputStream = outputStream;
+    private HTMLBuilder() {
         setStyleSelector(defaultStyle());
         setJavaScript(defaultJavaScript());
     }
@@ -53,9 +52,10 @@ public class HTMLBuilder {
         return this;
     }
 
-    public static HTMLBuilder create(OutputStream outputStream) {
-        return new HTMLBuilder(outputStream);
+    public static HTMLBuilder create() {
+        return new HTMLBuilder();
     }
+
 
     /**
      * 是否需要左侧目录
@@ -445,8 +445,53 @@ public class HTMLBuilder {
     }
 
 
-    public void build() {
-        String html = "<!DOCTYPE html>\n" +
+    /**
+     * HTMl文档转换为字节数组
+     *
+     * @return
+     */
+    public byte[] asBytes() {
+        return buildHtml().getBytes(StandardCharsets.UTF_8);
+    }
+
+
+    /**
+     * HTML文档写入文件
+     *
+     * @param file
+     */
+    public void asFile(File file) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))) {
+            writer.write(buildHtml());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * HTML文档写入文件
+     *
+     * @param filePath
+     */
+    public void asFile(String filePath) {
+        asFile(new File(filePath));
+    }
+
+    /**
+     * HTML文档写入输出流
+     *
+     * @param outputStream
+     */
+    public void asOutputStream(OutputStream outputStream) {
+        try {
+            outputStream.write(asBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String buildHtml() {
+        return "<!DOCTYPE html>\n" +
                 "<html lang=\"zh-CN\">\n" +
                 "<meta charset=\"UTF-8\">\n" +
                 "<head>\n" +
@@ -472,12 +517,6 @@ public class HTMLBuilder {
                 "</script>\n" +
                 "</body>\n" +
                 "</html>\n";
-        try {
-            byte[] bytes = html.getBytes(StandardCharsets.UTF_8);
-            this.outputStream.write(bytes);
-        } catch (IOException e) {
-            throw new RuntimeException("构建HTML文档发生异常", e);
-        }
     }
 
 

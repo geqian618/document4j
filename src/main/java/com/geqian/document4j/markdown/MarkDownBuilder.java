@@ -8,10 +8,10 @@ import com.geqian.document4j.common.extend.NoConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,17 +30,12 @@ public class MarkDownBuilder {
 
     private Map<String, Converter> converters;
 
-    private final OutputStream outputStream;
-
-
-    private MarkDownBuilder(OutputStream outputStream) {
+    private MarkDownBuilder() {
         this.stringBuffer = new StringBuffer();
-        this.outputStream = outputStream;
     }
 
-
-    public static MarkDownBuilder create(OutputStream outputStream) {
-        return new MarkDownBuilder(outputStream);
+    public static MarkDownBuilder create() {
+        return new MarkDownBuilder();
     }
 
 
@@ -358,14 +353,55 @@ public class MarkDownBuilder {
 
 
     /**
-     * 构建 HTML 文档
+     * 构建 Markdown 文档
      */
-    public void build() {
-        try {
-            byte[] bytes = stringBuffer.toString().getBytes(StandardCharsets.UTF_8);
-            this.outputStream.write(bytes);
+    public String buildMarkdown() {
+        return stringBuffer.toString();
+    }
+
+
+    /**
+     * HTMl文档转换为字节数组
+     *
+     * @return
+     */
+    public byte[] asBytes() {
+        return buildMarkdown().getBytes(StandardCharsets.UTF_8);
+    }
+
+
+    /**
+     * HTML文档写入文件
+     *
+     * @param file
+     */
+    public void asFile(File file) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))) {
+            writer.write(buildMarkdown());
         } catch (IOException e) {
-            throw new RuntimeException("构建 markdown 文档发生异常", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * HTML文档写入文件
+     *
+     * @param filePath
+     */
+    public void asFile(String filePath) {
+        asFile(new File(filePath));
+    }
+
+    /**
+     * HTML文档写入输出流
+     *
+     * @param outputStream
+     */
+    public void asOutputStream(OutputStream outputStream) {
+        try {
+            outputStream.write(asBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
