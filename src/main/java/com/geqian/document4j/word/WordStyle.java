@@ -1,10 +1,10 @@
 package com.geqian.document4j.word;
 
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDecimalNumber;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSpacing;
 
 import java.math.BigInteger;
 import java.util.function.Consumer;
@@ -80,7 +80,7 @@ public interface WordStyle {
             }
 
             XWPFRun run = paragraph.getRuns().get(0);
-            if (run == null){
+            if (run == null) {
                 run = paragraph.createRun();
             }
             // 字号递减
@@ -193,14 +193,52 @@ public interface WordStyle {
 
 
         /**
-         * 行间距倍数（fontSize为基数）
+         * 行间距（单位基数为 fontSize）
          *
-         * @param lineSpacing
+         * @param lineHeight 行号
          * @return
          */
-        public static Paragraph lineSpacing(int lineSpacing) {
-            return new Paragraph(paragraph -> paragraph.setSpacingBetween(lineSpacing));
+        public static Paragraph spacingBetween(int lineHeight) {
+            return new Paragraph(paragraph -> paragraph.setSpacingBetween(lineHeight, LineSpacingRule.AUTO));
         }
+
+
+        /**
+         * 设置段前间距：参数单位是磅的 1/20
+         *
+         * @param spacing
+         * @return
+         */
+        public static Paragraph spacingBefore(int spacing) {
+            return new Paragraph(paragraph -> paragraph.setSpacingBefore(spacing));
+        }
+
+
+        /**
+         * 设置段后间距：参数单位是磅的 1/20
+         *
+         * @param spacing
+         * @return
+         */
+        public static Paragraph spacingAfter(int spacing) {
+            return new Paragraph(paragraph -> paragraph.setSpacingAfter(spacing));
+        }
+
+
+        /**
+         * 设置段后与段后间距：参数单位是磅的 1/20
+         *
+         * @param before 段前间距
+         * @param after  断后间距
+         * @return
+         */
+        public static Paragraph spacing(int before, int after) {
+            return new Paragraph(paragraph -> {
+                paragraph.setSpacingAfter(before);
+                paragraph.setSpacingBefore(after);
+            });
+        }
+
 
         /**
          * 段落首行缩进

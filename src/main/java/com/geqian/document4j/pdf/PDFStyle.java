@@ -161,31 +161,61 @@ public interface PDFStyle {
         }
 
         /**
-         * 行间距倍数（fontSize为基数）
+         * 行间距
          *
-         * @param lineSpacing
+         * @param spacing 行间距
          * @return
          */
-        public static Paragraph lineSpacing(float lineSpacing) {
+        public static Paragraph spacingBetween(int spacing) {
+            return new Paragraph(paragraph -> paragraph.setLeading(spacing));
+        }
+
+
+        /**
+         * 行间距
+         *
+         * @param fontSizeMultiple 字体大小倍数
+         * @return
+         */
+        public static Paragraph spacingBetween(float fontSizeMultiple) {
+            return new Paragraph(paragraph -> paragraph.setLeading(0, fontSizeMultiple));
+        }
+
+
+        /**
+         * 段落前与段后间距
+         *
+         * @param before 段前间距
+         * @param after  段后间距
+         * @return
+         */
+        public static Paragraph spacing(float before, float after) {
             return new Paragraph(paragraph -> {
-                float fontSize = paragraph.getFont().getSize();
-                paragraph.setLeading(fontSize * lineSpacing);
+                paragraph.setSpacingBefore(before);
+                paragraph.setSpacingAfter(after);
             });
         }
 
 
         /**
-         * 段落间距倍数
+         * 段落间距
          *
-         * @param paragraphSpacing
+         * @param spacing 段前间距
          * @return
          */
-        public static Paragraph paragraphSpacing(float paragraphSpacing) {
-            return new Paragraph(paragraph -> {
-                float fontSize = paragraph.getFont().getSize();
-                paragraph.setSpacingBefore(fontSize * (paragraphSpacing - 1));
-                paragraph.setSpacingAfter(fontSize * (paragraphSpacing - 1));
-            });
+        public static Paragraph spacingBefore(float spacing) {
+            return new Paragraph(paragraph -> paragraph.setSpacingBefore(spacing));
+        }
+
+
+        /**
+         * 段落间距
+         *
+         * @param spacing 段后间距
+         * @return
+         */
+        public static Paragraph spacingAfter(float spacing) {
+            return new Paragraph(paragraph -> paragraph.setSpacingAfter(spacing));
         }
 
 
