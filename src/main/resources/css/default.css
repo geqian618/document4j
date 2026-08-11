@@ -277,35 +277,6 @@ body {
     display: none;
 }
 
-.content h1 {
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-    line-height: 1.4;
-    margin: 40px 0 20px !important;
-    padding: 0 0 14px !important;
-    border-bottom: 1px solid var(--border);
-}
-
-.content h1:first-child {
-    margin-top: 0 !important;
-}
-
-.content h2 {
-    font-weight: 600 !important;
-    color: #1f2937 !important;
-    line-height: 1.4;
-    margin: 32px 0 12px !important;
-    padding: 0 !important;
-}
-
-.content h3, .content h4, .content h5, .content h6 {
-    font-weight: 600 !important;
-    color: #374151 !important;
-    line-height: 1.4;
-    margin: 20px 0 8px !important;
-    padding: 0 !important;
-}
-
 .content a {
     text-decoration: none;
     color: var(--primary);
