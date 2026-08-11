@@ -163,10 +163,10 @@ public interface PDFStyle {
         /**
          * 行间距
          *
-         * @param spacing 行间距
+         * @param spacing 固定数值
          * @return
          */
-        public static Paragraph spacingBetween(int spacing) {
+        public static Paragraph spacingBetween(Integer spacing) {
             return new Paragraph(paragraph -> paragraph.setLeading(spacing));
         }
 
@@ -177,7 +177,7 @@ public interface PDFStyle {
          * @param fontSizeMultiple 字体大小倍数
          * @return
          */
-        public static Paragraph spacingBetween(float fontSizeMultiple) {
+        public static Paragraph spacingBetween(Float fontSizeMultiple) {
             return new Paragraph(paragraph -> paragraph.setLeading(0, fontSizeMultiple));
         }
 
@@ -189,7 +189,22 @@ public interface PDFStyle {
          * @param after  段后间距
          * @return
          */
-        public static Paragraph spacing(float before, float after) {
+        public static Paragraph spacing(Integer before, Integer after) {
+            return new Paragraph(paragraph -> {
+                paragraph.setSpacingBefore(before);
+                paragraph.setSpacingAfter(after);
+            });
+        }
+
+
+        /**
+         * 段落前与段后间距
+         *
+         * @param before 段前字体大小倍数
+         * @param after  段后字体大小倍数
+         * @return
+         */
+        public static Paragraph spacing(Float before, Float after) {
             return new Paragraph(paragraph -> {
                 paragraph.setSpacingBefore(before);
                 paragraph.setSpacingAfter(after);
@@ -200,51 +215,51 @@ public interface PDFStyle {
         /**
          * 段落间距
          *
-         * @param spacing 段前间距
+         * @param spacing 固定数值
          * @return
          */
-        public static Paragraph spacingBefore(float spacing) {
+        public static Paragraph spacingBefore(Integer spacing) {
             return new Paragraph(paragraph -> paragraph.setSpacingBefore(spacing));
-        }
-
-
-        /**
-         * 段落间距
-         *
-         * @param spacing 段后间距
-         * @return
-         */
-        public static Paragraph spacingAfter(float spacing) {
-            return new Paragraph(paragraph -> paragraph.setSpacingAfter(spacing));
         }
 
 
         /**
          * 段落前间距倍数
          *
-         * @param spacing
+         * @param fontSizeMultiple 字体大小倍数
          * @return
          */
-        public static Paragraph paragraphBeforeSpacing(float spacing) {
+        public static Paragraph spacingBefore(Float fontSizeMultiple) {
             return new Paragraph(paragraph -> {
                 float fontSize = paragraph.getFont().getSize();
-                paragraph.setSpacingBefore(fontSize * (spacing - 1));
+                System.out.println(fontSize * fontSizeMultiple);
+                paragraph.setSpacingBefore(fontSize * fontSizeMultiple);
             });
         }
 
 
         /**
-         * 段落后间距倍数
+         * 段后间距
          *
-         * @param spacing
+         * @param spacing 固定数值
          * @return
          */
-        public static Paragraph paragraphAfterSpacing(float spacing) {
+        public static Paragraph spacingAfter(Integer spacing) {
+            return new Paragraph(paragraph -> paragraph.setSpacingAfter(spacing));
+        }
+
+
+        /**
+         * 段前间距
+         *
+         * @param fontSizeMultiple 字体大小倍数
+         * @return
+         */
+        public static Paragraph spacingAfter(Float fontSizeMultiple) {
             return new Paragraph(paragraph -> {
                 float fontSize = paragraph.getFont().getSize();
-                paragraph.setSpacingAfter(fontSize * (spacing - 1));
+                paragraph.setSpacingAfter(fontSize * fontSizeMultiple);
             });
         }
     }
-
 }

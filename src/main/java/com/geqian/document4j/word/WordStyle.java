@@ -195,11 +195,11 @@ public interface WordStyle {
         /**
          * 行间距（单位基数为 fontSize）
          *
-         * @param lineHeight 行号
+         * @param fontSizeMultiple 字体大小的倍数
          * @return
          */
-        public static Paragraph spacingBetween(int lineHeight) {
-            return new Paragraph(paragraph -> paragraph.setSpacingBetween(lineHeight, LineSpacingRule.AUTO));
+        public static Paragraph spacingBetween(int fontSizeMultiple) {
+            return new Paragraph(paragraph -> paragraph.setSpacingBetween(fontSizeMultiple, LineSpacingRule.AUTO));
         }
 
 
@@ -210,7 +210,9 @@ public interface WordStyle {
          * @return
          */
         public static Paragraph spacingBefore(int spacing) {
-            return new Paragraph(paragraph -> paragraph.setSpacingBefore(spacing));
+            return new Paragraph(paragraph -> {
+                paragraph.setSpacingBefore(spacing);
+            });
         }
 
 

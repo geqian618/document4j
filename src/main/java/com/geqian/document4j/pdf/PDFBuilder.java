@@ -2,9 +2,9 @@ package com.geqian.document4j.pdf;
 
 import com.geqian.document4j.common.annotation.TableField;
 import com.geqian.document4j.common.core.BaseTableInterceptor;
+import com.geqian.document4j.common.core.WriteTableable;
 import com.geqian.document4j.common.extend.Converter;
 import com.geqian.document4j.common.extend.NoConverter;
-import com.geqian.document4j.common.core.WriteTableable;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class PDFBuilder {
     }
 
     private PDFBuilder() {
-        new PDFBuilder(new ByteArrayOutputStream());
+        this(new ByteArrayOutputStream());
     }
 
 
@@ -370,6 +370,7 @@ public class PDFBuilder {
      */
     public byte[] asBytes() {
         try {
+            closeResources(this.document, this.pdfWriter);
             return ((ByteArrayOutputStream) outputStream).toByteArray();
         } catch (Exception e) {
             throw new RuntimeException(e);
