@@ -38,15 +38,15 @@ public class PDFBuilder {
 
     private final Logger log = LoggerFactory.getLogger(PDFBuilder.class);
 
-    private Document document;
+    private final Document document;
 
-    private PdfWriter pdfWriter;
+    private final PdfWriter pdfWriter;
 
-    private OutputStream outputStream;
+    private final OutputStream outputStream;
 
     private Map<String, String> enumMappings;
 
-    private Stack<Map.Entry<Integer, PdfOutline>> stack;
+    private final Stack<Map.Entry<Integer, PdfOutline>> stack;
 
     private Map<String, Converter> converters;
 
@@ -126,46 +126,45 @@ public class PDFBuilder {
     /**
      * 添加标题（书签）
      *
-     * @param title
-     * @param level
+     * @param text
+     * @param heading
      * @param styles
      * @return
      * @throws DocumentException
      */
-    public PDFBuilder title(String title, PDFStyle.Title level, PDFStyle... styles) {
-        if (level == null) {
+    public PDFBuilder heading(String text, PDFStyle.Heading heading, PDFStyle... styles) {
+        if (heading == null) {
             throw new IllegalArgumentException("Title level cannot be null");
         }
-        if (styles != null) {
-            // 创建一个新数组，长度比原数组长1
-            PDFStyle[] newArray = new PDFStyle[styles.length + 1];
-            // 将新元素放到新数组的第一个位置
-            newArray[0] = level;
-            // 将原数组的元素复制到新数组中，从新数组的第二个位置开始
-            System.arraycopy(styles, 0, newArray, 1, styles.length);
-            styles = newArray;
-        } else {
-            styles = new PDFStyle[]{level};
+        int length = (styles == null) ? 0 : styles.length;
+        PDFStyle[] newStyles = new PDFStyle[length + 1];
+        newStyles[0] = heading;
+        if (length > 0) {
+            System.arraycopy(styles, 0, newStyles, 1, length);
         }
         // 锚点
         String anchor = UUID.randomUUID().toString();
-        Chunk anchorChunk = new Chunk(title, createFont(styles));
+        Chunk anchorChunk = new Chunk(text, createFont(newStyles));
         anchorChunk.setLocalDestination(anchor);
+        // 应用段落级样式（如 spacing/对齐等），与 paragraph() 保持一致；否则传入的 PDFStyle.Paragraph 样式在标题上不生效
+        Paragraph paragraph = new Paragraph(anchorChunk);
+        for (PDFStyle pdfStyle : newStyles) {
+            if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
+                pdfStyle.buildStyle(paragraph);
+            }
+        }
         try {
-            document.add(new Paragraph(anchorChunk));
-            // 添加空行分隔内容
-            blankRow();
+            document.add(paragraph);
             // 使用锚点名
             PdfAction action = PdfAction.gotoLocalPage(anchor, true);
-            while (!stack.isEmpty() && stack.peek().getKey() >= level.getLevel()) {
+            while (!stack.isEmpty() && stack.peek().getKey() >= heading.getLevel()) {
                 stack.pop();
             }
             PdfOutline parent = stack.peek().getValue();
-            PdfOutline pdfOutline = new PdfOutline(parent, action, title);
-            stack.push(new AbstractMap.SimpleEntry<>(level.getLevel(), pdfOutline));
+            PdfOutline pdfOutline = new PdfOutline(parent, action, text);
+            stack.push(new AbstractMap.SimpleEntry<>(heading.getLevel(), pdfOutline));
         } catch (DocumentException e) {
             log.error("添加标题时发生异常", e);
-            return this;
         }
         return this;
     }
@@ -730,7 +729,7 @@ public class PDFBuilder {
         font.setSize(Font.DEFAULTSIZE);
         if (pdfStyles != null) {
             for (PDFStyle pdfStyle : pdfStyles) {
-                if (pdfStyle != null && (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass()) || PDFStyle.Title.class.isAssignableFrom(pdfStyle.getClass()))) {
+                if (pdfStyle != null && (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass()) || PDFStyle.Heading.class.isAssignableFrom(pdfStyle.getClass()))) {
                     pdfStyle.buildStyle(font);
                 }
             }
@@ -792,6 +791,7 @@ public class PDFBuilder {
                 throw new RuntimeException("写入文本发生异常", e);
             }
         }
+
     }
 
 }

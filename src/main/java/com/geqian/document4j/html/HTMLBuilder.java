@@ -69,9 +69,9 @@ public class HTMLBuilder {
     }
 
 
-    public HTMLBuilder title(String text, HTMLStyle.Title title, HTMLStyle... styles) {
-        if (title == null) {
-            throw new IllegalArgumentException("HTMLStyle.Title cannot be null");
+    public HTMLBuilder heading(String text, HTMLStyle.Heading heading, HTMLStyle... styles) {
+        if (heading == null) {
+            throw new IllegalArgumentException("HTMLStyle.heading cannot be null");
         }
         StringBuilder styleBuilder = new StringBuilder();
         if (styles != null) {
@@ -81,7 +81,7 @@ public class HTMLBuilder {
                 }
             }
         }
-        this.labelBuilder.append(String.format("<%s style=\"%s\">%s</%s>", title.getTagName(), title.buildStyle() + styleBuilder, text, title.getTagName()));
+        this.labelBuilder.append(String.format("<%s style=\"%s\">%s</%s>", heading.getTagName(), heading.buildStyle() + styleBuilder, text, heading.getTagName()));
         return this;
     }
 

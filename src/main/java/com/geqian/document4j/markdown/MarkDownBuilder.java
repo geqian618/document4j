@@ -55,10 +55,10 @@ public class MarkDownBuilder {
      * 标题
      *
      * @param text
-     * @param title
+     * @param heading
      * @return
      */
-    public MarkDownBuilder title(String text, MarkDownStyle.Title title, MarkDownStyle.Font... styles) {
+    public MarkDownBuilder heading(String text, MarkDownStyle.Heading heading, MarkDownStyle.Font... styles) {
         if (styles != null) {
             for (MarkDownStyle.Font style : styles) {
                 if (style != null) {
@@ -66,7 +66,7 @@ public class MarkDownBuilder {
                 }
             }
         }
-        stringBuffer.append(title != null ? title.buildStyle(text) : text);
+        stringBuffer.append(heading != null ? heading.buildStyle(text) : text);
         return this;
     }
 

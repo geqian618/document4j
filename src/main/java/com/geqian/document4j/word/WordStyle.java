@@ -17,37 +17,35 @@ public interface WordStyle {
 
     void buildStyle(Object obj);
 
-    class Title implements WordStyle {
-
-        public static final Title LEVEL_1 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 0);
-
+    class Heading implements WordStyle {
+        public static final Heading LEVEL_1 = new Heading(paragraph -> {
+            setHeading(paragraph, 1);
         });
-        public static final Title LEVEL_2 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 1);
+        public static final Heading LEVEL_2 = new Heading(paragraph -> {
+            setHeading(paragraph, 2);
         });
-        public static final Title LEVEL_3 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 2);
+        public static final Heading LEVEL_3 = new Heading(paragraph -> {
+            setHeading(paragraph, 3);
         });
-        public static final Title LEVEL_4 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 3);
+        public static final Heading LEVEL_4 = new Heading(paragraph -> {
+            setHeading(paragraph, 4);
         });
-        public static final Title LEVEL_5 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 4);
+        public static final Heading LEVEL_5 = new Heading(paragraph -> {
+            setHeading(paragraph, 5);
         });
-        public static final Title LEVEL_6 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 5);
+        public static final Heading LEVEL_6 = new Heading(paragraph -> {
+            setHeading(paragraph, 6);
         });
-        public static final Title LEVEL_7 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 6);
+        public static final Heading LEVEL_7 = new Heading(paragraph -> {
+            setHeading(paragraph, 7);
         });
-        public static final Title LEVEL_8 = new Title(paragraph -> {
-            setTitleLevel(paragraph, 7);
+        public static final Heading LEVEL_8 = new Heading(paragraph -> {
+            setHeading(paragraph, 8);
         });
 
         private final Consumer<XWPFParagraph> wrapper;
 
-        Title(Consumer<XWPFParagraph> wrapper) {
+        Heading(Consumer<XWPFParagraph> wrapper) {
             this.wrapper = wrapper;
         }
 
@@ -61,16 +59,16 @@ public interface WordStyle {
         /**
          * 设置标题级别
          *
-         * @param paragraph
-         * @param level
+         * @param paragraph 段落
+         * @param level 标题级别
          */
-        private static void setTitleLevel(XWPFParagraph paragraph, int level) {
+        private static void setHeading(XWPFParagraph paragraph, int level) {
             if (level < 0 || level > 8) {
                 throw new IllegalArgumentException("标题级别需为 1~8 的整数");
             }
             // 设置段落样式为对应级别的标题（例如"Heading1"）
-            // 注意：Word 内置样式名称需与实际模板匹配，否则可能不生效
-            paragraph.setStyle("Heading" + level);
+            // 注意：level 入参为大纲级别（0 代表一级），映射到 Word 内置样式名需 +1，否则会生成非法的 "Heading0"
+            paragraph.setStyle("Heading" + (level + 1));
 
             // 操作底层 XML 对象以设置大纲级别（必需步骤）
             // 获取或创建段落属性对象（CTPPr）
@@ -236,8 +234,8 @@ public interface WordStyle {
          */
         public static Paragraph spacing(int before, int after) {
             return new Paragraph(paragraph -> {
-                paragraph.setSpacingAfter(before);
-                paragraph.setSpacingBefore(after);
+                paragraph.setSpacingBefore(before);
+                paragraph.setSpacingAfter(after);
             });
         }
 

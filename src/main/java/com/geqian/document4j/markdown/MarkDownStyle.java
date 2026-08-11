@@ -31,7 +31,7 @@ public interface MarkDownStyle {
     /**
      * 标题级别
      */
-    enum Title implements MarkDownStyle {
+    enum Heading implements MarkDownStyle {
 
         LEVEL_1("# %s\n"),
         LEVEL_2("## %s\n"),
@@ -42,7 +42,7 @@ public interface MarkDownStyle {
 
         private final String template;
 
-        Title(String template) {
+        Heading(String template) {
             this.template = template;
         }
 

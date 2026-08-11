@@ -35,6 +35,8 @@ public class WordBuilder {
 
     private WordBuilder(XWPFDocument document) {
         this.document = document;
+        // 确保标题样式已定义，使 Word/WPS 导航窗格能按层次识别标题
+        ensureHeadingStyles();
     }
 
     /**
@@ -67,7 +69,9 @@ public class WordBuilder {
      */
     public WordBuilder blankRow() {
         //创建段落
-        document.createParagraph();
+        XWPFParagraph paragraph = document.createParagraph();
+        // 与正文段落保持一致的显式间距（单倍行距、段后 0），避免 Word/WPS 对空白行渲染高度不一致
+        applyDefaultSpacing(paragraph);
         // 对齐方式 paragraph.setAlignment(ParagraphAlignment.CENTER);
         return this;
     }
@@ -92,16 +96,17 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder title(String text, WordStyle.Title title, WordStyle... wordStyles) {
+    public WordBuilder heading(String text, WordStyle.Heading heading, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
+        // 标题样式最先应用，用户自定义样式（如 spacing/spacingBefore/Font 等）随后应用，
+        // 以覆盖标题的默认值（如段前段后间距、字号等），否则 Heading 会覆盖用户传入的样式
+        WordStyle[] styles = new WordStyle[(wordStyles == null ? 0 : wordStyles.length) + 1];
+        styles[0] = heading;
         if (wordStyles != null) {
-            wordStyles = Arrays.copyOf(wordStyles, wordStyles.length + 1);
-            wordStyles[wordStyles.length - 1] = title;
-        } else {
-            wordStyles = new WordStyle[]{title};
+            System.arraycopy(wordStyles, 0, styles, 1, wordStyles.length);
         }
-        paragraph(paragraph, text, wordStyles);
+        paragraph(paragraph, text, styles);
         return this;
     }
 
@@ -124,16 +129,71 @@ public class WordBuilder {
      * @return
      */
     private void paragraph(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
+        // 显式设置段落行距与段后间距，避免 Word 与 WPS 因各自内置 Normal 样式默认值
+        // （Word：段后 8 磅、1.08 倍行距；WPS：段后 0、单倍行距）不同而导致显示不一致
+        applyDefaultSpacing(paragraph);
         //创建段落文本
         XWPFRun run = paragraph.createRun();
         run.setText(text);
         if (wordStyles != null) {
             for (WordStyle wordStyle : wordStyles) {
                 if (wordStyle != null) {
-                    boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Title.class.isAssignableFrom(wordStyle.getClass());
+                    boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Heading.class.isAssignableFrom(wordStyle.getClass());
                     wordStyle.buildStyle(isParagraph ? paragraph : run);
                 }
             }
+        }
+    }
+
+    /**
+     * 为段落设置统一的显式间距：单倍行距、段后 0。
+     * 段落显式属性优先于样式继承，可保证 Word 与 WPS 渲染一致；
+     * 后续通过 WordStyle 设置的间距（如 spacingBefore/spacingAfter/Heading）会覆盖其中的对应值。
+     *
+     * @param paragraph 段落
+     */
+    private void applyDefaultSpacing(XWPFParagraph paragraph) {
+        paragraph.setSpacingBetween(1, LineSpacingRule.AUTO);
+        paragraph.setSpacingAfter(0);
+    }
+
+    /**
+     * 确保文档样式中已定义 Word 内置标题样式 Heading1~Heading9（含大纲级别）。
+     * <p>
+     * Word/WPS 的导航窗格（文档结构图）依据"标题样式或大纲级别"展示标题层级。
+     * POI 新建的文档默认没有 styles.xml，此时段落 pStyle="HeadingN" 引用的样式未定义，
+     * Word/WPS 无法将该段落识别为标题样式（样式面板显示为"正文"），标题无法按层次稳定显示。
+     * 此方法在样式缺失时补充标准标题样式定义；模板或其他来源已自带 Heading1 时跳过，避免覆盖。
+     */
+    private void ensureHeadingStyles() {
+        XWPFStyles styles = document.getStyles();
+        if (styles == null) {
+            styles = document.createStyles();
+        }
+        // 模板或其他来源已定义标题样式时，直接复用
+        if (styles.getStyle("Heading1") != null) {
+            return;
+        }
+        for (int i = 1; i <= 9; i++) {
+            CTStyle ctStyle = CTStyle.Factory.newInstance();
+            ctStyle.setType(STStyleType.PARAGRAPH);
+            ctStyle.setStyleId("Heading" + i);
+            ctStyle.addNewName().setVal("heading " + i);
+            // 样式优先级：决定样式面板中的推荐顺序
+            ctStyle.addNewUiPriority().setVal(BigInteger.valueOf(9 + (i - 1)));
+            ctStyle.addNewQFormat();
+            // 大纲级别：决定导航窗格层级（0 = 一级标题）
+            CTPPrGeneral ppr = ctStyle.addNewPPr();
+            ppr.addNewKeepNext();
+            ppr.addNewKeepLines();
+            ppr.addNewOutlineLvl().setVal(BigInteger.valueOf(i - 1));
+            // 与 Heading 中 run 的显式格式保持一致：字号 22pt 起逐级递减、加粗
+            CTRPr rpr = ctStyle.addNewRPr();
+            BigInteger sz = BigInteger.valueOf(44 - (i - 1) * 4);
+            rpr.addNewSz().setVal(sz);
+            rpr.addNewSzCs().setVal(sz);
+            rpr.addNewB().setVal(true);
+            styles.addStyle(new XWPFStyle(ctStyle));
         }
     }
 
@@ -523,27 +583,55 @@ public class WordBuilder {
      * @param table
      */
     private void setTableStyle(XWPFTable table) {
-        // 设置表格对齐方式
-        table.setCellMargins(70, 0, 70, 0);
-        table.setTableAlignment(TableRowAlign.CENTER);
+        // 注意：OOXML 规范中 tblPr 元素最多只能出现一次，必须复用同一个 CTTblPr，
+        // 不能重复调用 addNewTblPr()，否则生成的文档中会出现多个 tblPr，
+        // 导致 Word 与 WPS 对表格宽度/边框/单元格边距等属性解析不一致
+        CTTblPr tblPr = table.getCTTbl().getTblPr();
+        if (tblPr == null) {
+            tblPr = table.getCTTbl().addNewTblPr();
+        }
 
-        // 设置表格样式，表格宽度
-        table.getCTTbl().addNewTblPr().addNewTblW().setW(BigInteger.valueOf(8270));
-        table.getCTTbl().getTblPr().unsetTblBorders();
+        // 设置表格宽度：固定 8270 缇（约 14.6cm），显式指定 DXA 类型，
+        // 确保 Word/WPS 均按该宽度渲染，而不是各自按内容自适应
+        CTTblWidth tblW = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
+        tblW.setType(STTblWidth.DXA);
+        tblW.setW(BigInteger.valueOf(8270));
 
-        // 设置表格向右移动大小
-        //table.getCTTbl().getTblPr().addNewTblpPr().setTblpX(BigInteger.valueOf(125));
-        // 设置表格向下移动大小
-        //table.getCTTbl().getTblPr().getTblpPr().setTblpY(BigInteger.valueOf(500));
+        // 设置表格居中对齐
+        CTJcTable jc = tblPr.isSetJc() ? tblPr.getJc() : tblPr.addNewJc();
+        jc.setVal(STJcTable.CENTER);
 
-        // 设置表格边框线条类型
-        CTTblBorders borders = table.getCTTbl().addNewTblPr().addNewTblBorders();
-        borders.addNewTop().setVal(STBorder.SINGLE);
-        borders.addNewBottom().setVal(STBorder.SINGLE);
-        borders.addNewLeft().setVal(STBorder.SINGLE);
-        borders.addNewRight().setVal(STBorder.SINGLE);
-        borders.addNewInsideH().setVal(STBorder.SINGLE);
-        borders.addNewInsideV().setVal(STBorder.SINGLE);
+        // 设置表格边框线条类型（createTable 默认已生成边框，需复用已有元素，避免重复添加）
+        CTTblBorders borders = tblPr.isSetTblBorders() ? tblPr.getTblBorders() : tblPr.addNewTblBorders();
+        CTBorder topBorder = borders.isSetTop() ? borders.getTop() : borders.addNewTop();
+        topBorder.setVal(STBorder.SINGLE);
+        CTBorder bottomBorder = borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom();
+        bottomBorder.setVal(STBorder.SINGLE);
+        CTBorder leftBorder = borders.isSetLeft() ? borders.getLeft() : borders.addNewLeft();
+        leftBorder.setVal(STBorder.SINGLE);
+        CTBorder rightBorder = borders.isSetRight() ? borders.getRight() : borders.addNewRight();
+        rightBorder.setVal(STBorder.SINGLE);
+        CTBorder insideHBorder = borders.isSetInsideH() ? borders.getInsideH() : borders.addNewInsideH();
+        insideHBorder.setVal(STBorder.SINGLE);
+        CTBorder insideVBorder = borders.isSetInsideV() ? borders.getInsideV() : borders.addNewInsideV();
+        insideVBorder.setVal(STBorder.SINGLE);
+
+        // 设置单元格边距：上下 70 缇，左右 108 缇（0.19cm，OOXML 标准表格默认边距）
+        // 左右边距必须显式指定：Word 与 WPS 对缺失 left/right 的默认值处理不同，
+        // 不显式写入会导致单元格文本距边框的位置在两软件中不一致
+        CTTblCellMar cellMar = tblPr.isSetTblCellMar() ? tblPr.getTblCellMar() : tblPr.addNewTblCellMar();
+        CTTblWidth top = cellMar.isSetTop() ? cellMar.getTop() : cellMar.addNewTop();
+        top.setType(STTblWidth.DXA);
+        top.setW(BigInteger.valueOf(70));
+        CTTblWidth start = cellMar.isSetStart() ? cellMar.getStart() : cellMar.addNewStart();
+        start.setType(STTblWidth.DXA);
+        start.setW(BigInteger.valueOf(108));
+        CTTblWidth bottom = cellMar.isSetBottom() ? cellMar.getBottom() : cellMar.addNewBottom();
+        bottom.setType(STTblWidth.DXA);
+        bottom.setW(BigInteger.valueOf(70));
+        CTTblWidth end = cellMar.isSetEnd() ? cellMar.getEnd() : cellMar.addNewEnd();
+        end.setType(STTblWidth.DXA);
+        end.setW(BigInteger.valueOf(108));
     }
 
     /**
@@ -643,5 +731,18 @@ public class WordBuilder {
 
     }
 
+
+    public static void main(String[] args) {
+
+        WordStyle.Paragraph spacing = WordStyle.Paragraph.spacing(0, 0);
+
+        WordBuilder.create()
+                .heading("一级标题", WordStyle.Heading.LEVEL_1, spacing)
+                .heading("二级标题", WordStyle.Heading.LEVEL_2, spacing)
+                .heading("三级标题", WordStyle.Heading.LEVEL_3, spacing)
+                .heading("四级标题", WordStyle.Heading.LEVEL_4, spacing)
+                .heading("五级标题", WordStyle.Heading.LEVEL_5, spacing)
+                .asFile("D:\\desktop\\test.docx");
+    }
 
 }

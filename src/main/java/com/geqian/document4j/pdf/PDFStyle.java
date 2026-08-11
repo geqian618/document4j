@@ -14,18 +14,18 @@ public interface PDFStyle {
     void buildStyle(Object obj);
 
 
-    class Title implements PDFStyle {
+    class Heading implements PDFStyle {
 
-        public static final Title LEVEL_1 = new Title(1);
-        public static final Title LEVEL_2 = new Title(2);
-        public static final Title LEVEL_3 = new Title(3);
-        public static final Title LEVEL_4 = new Title(4);
-        public static final Title LEVEL_5 = new Title(5);
-        public static final Title LEVEL_6 = new Title(6);
+        public static final Heading LEVEL_1 = new Heading(1);
+        public static final Heading LEVEL_2 = new Heading(2);
+        public static final Heading LEVEL_3 = new Heading(3);
+        public static final Heading LEVEL_4 = new Heading(4);
+        public static final Heading LEVEL_5 = new Heading(5);
+        public static final Heading LEVEL_6 = new Heading(6);
 
         private final int level;
 
-        public Title(int level) {
+        public Heading(int level) {
             this.level = level;
         }
 
@@ -119,7 +119,6 @@ public interface PDFStyle {
 
     class Paragraph implements PDFStyle {
 
-
         private final Consumer<com.itextpdf.text.Paragraph> wrapper;
 
         /**
@@ -150,7 +149,7 @@ public interface PDFStyle {
         /**
          * 段落首行缩进（文本个数）
          *
-         * @param firstLineIndent
+         * @param firstLineIndent 首行缩进字符个数
          * @return
          */
         public static Paragraph firstLineIndent(float firstLineIndent) {

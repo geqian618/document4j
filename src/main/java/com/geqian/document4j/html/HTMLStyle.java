@@ -8,7 +8,7 @@ public interface HTMLStyle {
 
     String buildStyle();
 
-    enum Title implements HTMLStyle {
+    enum Heading implements HTMLStyle {
         LEVEL_1("h1", "font-size:32px;font-weight:bold;color:#333;"),
         LEVEL_2("h2", "font-size:28px;font-weight:bold;color:#555;"),
         LEVEL_3("h3", "font-size:24px;font-weight:bold;color:#777;"),
@@ -20,9 +20,9 @@ public interface HTMLStyle {
 
         private final String tagName;
 
-        Title(String tagName, String style) {
-            this.style = style;
+        Heading(String tagName, String style) {
             this.tagName = tagName;
+            this.style = style;
         }
 
         @Override
@@ -37,7 +37,6 @@ public interface HTMLStyle {
 
 
     class Font implements HTMLStyle {
-
         // 加粗字体
         public static Font BOLD = new Font("font-weight:bold;");
         // 细字体
@@ -109,18 +108,18 @@ public interface HTMLStyle {
         /**
          * 首行缩进字符个数
          *
-         * @param index
+         * @param number 字符个数
          * @return
          */
-        public static Paragraph firstLineIndent(int index) {
-            return new Paragraph(String.format("text-indent:%dem;", index));
+        public static Paragraph firstLineIndent(int number) {
+            return new Paragraph(String.format("text-indent:%dem;", number));
         }
 
 
         /**
          * 行高
          *
-         * @param lineHeight
+         * @param lineHeight 行高
          * @return
          */
         public static Paragraph lineHeight(String lineHeight) {
