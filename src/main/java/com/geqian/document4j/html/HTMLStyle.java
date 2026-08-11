@@ -211,8 +211,8 @@ public interface HTMLStyle {
          * @param horizontal
          * @return
          */
-        public static Margin padding(String vertical, String horizontal) {
-            return new Margin(String.format("padding:%s %s;", vertical, horizontal));
+        public static Padding padding(String vertical, String horizontal) {
+            return new Padding(String.format("padding:%s %s;", vertical, horizontal));
         }
 
         /**
@@ -221,8 +221,8 @@ public interface HTMLStyle {
          * @param padding
          * @return
          */
-        public static Margin padding(String padding) {
-            return new Margin(String.format("padding:%s;", padding));
+        public static Padding padding(String padding) {
+            return new Padding(String.format("padding:%s;", padding));
         }
 
     }
