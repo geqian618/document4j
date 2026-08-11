@@ -496,7 +496,9 @@ public class HTMLBuilder {
                 "<meta charset=\"UTF-8\">\n" +
                 "<head>\n" +
                 "<title>HTML文档</title>\n" +
-                "<style>" + styleBuilder + "</style>\n" +
+                "<style>\n" +
+                    styleBuilder +
+                "\n</style>\n" +
                 "</head>\n" +
                 "<body>\n" +
                 "<div class=\"page-layout\">\n" +
@@ -508,13 +510,13 @@ public class HTMLBuilder {
                 "        <div class=\"drag-bar\"></div>\n" +
                 "        <!--内容区域-->\n" +
                 "        <div class=\"content\">\n" +
-                labelBuilder +
-                "        </div>\n" +
+                            labelBuilder +
+                "        \n</div>\n" +
                 "    </div>\n" +
                 "</div>\n" +
                 "<script type=\"text/javascript\">\n" +
                 javaScriptBuilder +
-                "</script>\n" +
+                "\n</script>\n" +
                 "</body>\n" +
                 "</html>\n";
     }

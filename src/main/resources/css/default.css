@@ -1,41 +1,236 @@
 :root {
-    --common-border: 1px solid black;
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --primary-light: #eff4ff;
+    --text-main: #1f2937;
+    --text-sub: #6b7280;
+    --border: #e3e8ef;
+    --bg-page: #f3f5f9;
+    --tree-line: #d8dee9;
+    --common-border: 1px solid var(--border);
     --drag-bar-width: 10px;
     --aside-width: 330px;
     --aside-min-width: 250px;
     --content-min-width: 300px;
     --drag-bar-offsetLeft: calc(var(--aside-width) - var(--drag-bar-width) / 2);
 }
+
 * {
     box-sizing: border-box;
     padding: 0;
     margin: 0;
 }
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-main);
+    background: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+}
+
 .page-layout {
     width: 100vw;
     height: 100vh;
 }
+
 .container {
     position: relative;
     width: 100%;
     height: 100%;
 }
+
+/* ===== 侧边栏 ===== */
 .aside {
-    background: white;
+    background: #ffffff;
     min-width: var(--aside-min-width);
     position: relative;
     width: var(--aside-width);
     height: 100%;
-    border: var(--common-border);
-    overflow-x: hidden;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
-    font-size: 16px;
-    color: #304455;
-    border: 1px solid #dedcdc;
-    padding: 10px 0;
+    border-right: 1px solid var(--border);
+    box-shadow: 2px 0 14px rgba(31, 45, 61, .05);
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    color: var(--text-main);
 }
+
+.aside-header {
+    flex: none;
+    padding: 10px 20px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #e8f0fe 0%, #ffffff 70%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.aside-header::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--primary);
+}
+
+.aside-menu {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px 10px 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #c6ccd8 transparent;
+}
+
+/* ===== 树形菜单 ===== */
+.tree-group {
+    margin-bottom: 2px;
+}
+
+.tree-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #374151;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    text-decoration: none;
+    user-select: none;
+    transition: background-color .15s, color .15s;
+}
+
+.tree-item:hover {
+    background: #f0f4fe;
+    color: #2563eb;
+}
+
+.tree-parent {
+    font-weight: 600;
+    color: #1f2937;
+    position: relative;
+}
+
+.tree-parent:hover {
+    color: #1d4ed8;
+}
+
+.tree-leaf.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.tree-arrow {
+    flex: none;
+    width: 0;
+    height: 0;
+    border-left: 5px solid #9aa3b2;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transform: rotate(90deg);
+    transition: transform .2s ease;
+}
+
+.tree-group.closed .tree-arrow {
+    transform: rotate(0deg);
+}
+
+.tree-icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.tree-icon svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+}
+
+/* 图标配色：一级=主题蓝（默认），二级=浅蓝，三级=灰 */
+.tree-icon.book-open {
+    color: #60a5fa;
+}
+
+.tree-icon.file-text {
+    color: #9aa3b2;
+}
+
+.tree-sub {
+    position: relative;
+    margin: 2px 0 4px 23px;
+    padding-left: 11px;
+    max-height: 3000px;
+    opacity: 1;
+    transition: max-height .25s ease, opacity .2s ease;
+}
+
+.tree-group.closed .tree-sub {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+/* 树形连接线 */
+.tree-sub::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 10px;
+    border-left: 1px solid var(--tree-line);
+}
+
+.tree-leaf {
+    position: relative;
+}
+
+.tree-leaf::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    top: 50%;
+    width: 11px;
+    border-top: 1px solid var(--tree-line);
+}
+
+/* 嵌套层级中，有子标题的分组节点行也画一条横线连接到父级竖线 */
+.tree-sub > .tree-group > .tree-parent::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    top: 50%;
+    width: 11px;
+    border-top: 1px solid var(--tree-line);
+}
+
+/* 末级节点下方不再延伸竖线 */
+.tree-leaf:last-child::after {
+    content: '';
+    position: absolute;
+    left: -11px;
+    top: 50%;
+    height: 20px;
+    border-left: 2px solid #ffffff;
+}
+
+/* ===== 拖动条 ===== */
 .drag-bar {
     z-index: 10;
     height: 100%;
@@ -44,10 +239,22 @@
     top: 0;
     left: var(--drag-bar-offsetLeft);
     background-color: transparent;
+    cursor: col-resize;
+    transition: background-color .15s;
 }
-.drag-bar:hover {
-    cursor: w-resize;
+
+.drag-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--border);
+    transform: translateX(-50%);
 }
+
+/* ===== 内容区 ===== */
 .content {
     min-width: var(--content-min-width);
     position: absolute;
@@ -57,46 +264,122 @@
     height: 100%;
     background-color: white;
     overflow-y: auto;
-    padding: 40px 80px;
+    padding: 32px 48px 72px;
+    scrollbar-width: thin;
+    scrollbar-color: #d9dee8 transparent;
+    line-height: 1.7;
+    color: var(--text-main);
 }
-h1, h2, h3, h4, h5, h6 {
-    padding: 5px 0;
+
+/* ===== 标题（右侧内容区，官方文档风格） =====
+ * 标题的间距统一由 CSS margin 控制，隐藏原有的 <br> 分隔 */
+.content br {
+    display: none;
 }
-a {
+
+.content h1 {
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    line-height: 1.4;
+    margin: 40px 0 20px !important;
+    padding: 0 0 14px !important;
+    border-bottom: 1px solid var(--border);
+}
+
+.content h1:first-child {
+    margin-top: 0 !important;
+}
+
+.content h2 {
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    line-height: 1.4;
+    margin: 32px 0 12px !important;
+    padding: 0 !important;
+}
+
+.content h3, .content h4, .content h5, .content h6 {
+    font-weight: 600 !important;
+    color: #374151 !important;
+    line-height: 1.4;
+    margin: 20px 0 8px !important;
+    padding: 0 !important;
+}
+
+.content a {
     text-decoration: none;
-    color: inherit;
-    display: block;
-    height: 2.2em;
-    line-height: 2.2em;
-    padding-left: 15px;
-    white-space: nowrap;
-    overflow: hidden;
+    color: var(--primary);
 }
-a:hover {
-    background: #efefef;
+
+.content a:hover {
+    color: var(--primary-dark);
+    background: transparent;
+    text-decoration: underline;
 }
-p {
-    overflow: auto;
-    word-wrap: break-word;
-}
-table {
-    text-align: left;
-    border-collapse: collapse;
+
+/* ===== 表格（右侧内容区，官方文档风格） ===== */
+.content table {
     width: 100%;
+    text-align: left;
     margin-left: auto;
     margin-right: auto;
+    font-size: 13px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
 }
-table thead {
+
+.content table thead {
     text-align: left;
 }
-table th {
+
+.content table th {
+    height: 44px;
+    padding: 0 12px;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.content table td {
     height: 40px;
+    padding: 0 12px;
+    color: #374151;
+    border-bottom: 1px solid #eef0f4;
 }
-table td {
-    height: 30px;
+
+.content table tbody tr:nth-child(even) {
+    background: #fafbfc;
 }
-table, th, td {
-    border: 1px solid #b4b3b3;
-    padding-left: 10px;
-    padding-right: 10px;
+
+.content table tbody tr:hover {
+    background: #f0f6ff;
+}
+
+.content table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===== 滚动条 ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c6ccd8;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8b1c0;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
 }
