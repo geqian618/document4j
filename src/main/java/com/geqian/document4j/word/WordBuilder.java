@@ -106,7 +106,7 @@ public class WordBuilder {
         if (wordStyles != null) {
             System.arraycopy(wordStyles, 0, styles, 1, wordStyles.length);
         }
-        paragraph(paragraph, text, styles);
+        this.paragraph(paragraph, text, styles);
         return this;
     }
 
@@ -119,7 +119,7 @@ public class WordBuilder {
     public WordBuilder paragraph(String text, WordStyle... wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
-        paragraph(paragraph, text, wordStyles);
+        this.paragraph(paragraph, text, wordStyles);
         return this;
     }
 
@@ -153,6 +153,7 @@ public class WordBuilder {
      * @param paragraph 段落
      */
     private void applyDefaultSpacing(XWPFParagraph paragraph) {
+        paragraph.setSpacingBefore(1);
         paragraph.setSpacingBetween(1, LineSpacingRule.AUTO);
         paragraph.setSpacingAfter(0);
     }
@@ -730,19 +731,4 @@ public class WordBuilder {
         }
 
     }
-
-
-    public static void main(String[] args) {
-
-        WordStyle.Paragraph spacing = WordStyle.Paragraph.spacing(0, 0);
-
-        WordBuilder.create()
-                .heading("一级标题", WordStyle.Heading.LEVEL_1, spacing)
-                .heading("二级标题", WordStyle.Heading.LEVEL_2, spacing)
-                .heading("三级标题", WordStyle.Heading.LEVEL_3, spacing)
-                .heading("四级标题", WordStyle.Heading.LEVEL_4, spacing)
-                .heading("五级标题", WordStyle.Heading.LEVEL_5, spacing)
-                .asFile("D:\\desktop\\test.docx");
-    }
-
 }
