@@ -206,8 +206,9 @@ public interface PDFStyle {
          */
         public static Paragraph spacing(Float before, Float after) {
             return new Paragraph(paragraph -> {
-                paragraph.setSpacingBefore(before);
-                paragraph.setSpacingAfter(after);
+                float fontSize = paragraph.getFont().getSize();
+                paragraph.setSpacingBefore(before * fontSize);
+                paragraph.setSpacingAfter(after * fontSize);
             });
         }
 
@@ -232,7 +233,6 @@ public interface PDFStyle {
         public static Paragraph spacingBefore(Float fontSizeMultiple) {
             return new Paragraph(paragraph -> {
                 float fontSize = paragraph.getFont().getSize();
-                System.out.println(fontSize * fontSizeMultiple);
                 paragraph.setSpacingBefore(fontSize * fontSizeMultiple);
             });
         }
