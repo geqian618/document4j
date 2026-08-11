@@ -272,11 +272,8 @@ body {
 }
 
 /* ===== 标题（右侧内容区，官方文档风格） =====
- * 标题的间距统一由 CSS margin 控制，隐藏原有的 <br> 分隔 */
-.content br {
-    display: none;
-}
 
+ */
 .content a {
     text-decoration: none;
     color: var(--primary);
