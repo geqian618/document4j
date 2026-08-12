@@ -3,6 +3,7 @@ package com.geqian.document4j.word;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDecimalNumber;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTInd;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTOnOff;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSpacing;
 
@@ -60,7 +61,7 @@ public interface WordStyle {
          * 设置标题级别
          *
          * @param paragraph 段落
-         * @param level 标题级别
+         * @param level     标题级别
          */
         private static void setHeading(XWPFParagraph paragraph, int level) {
             if (level < 1 || level > 8) {
@@ -91,6 +92,12 @@ public interface WordStyle {
             spacing.setBefore(BigInteger.valueOf(200));
             spacing.setAfter(BigInteger.valueOf(200));
 
+            // 关闭 "如果定义了文档网格，则对齐到网格"（等价于 Word 中取消勾选该项），
+            // 否则 Word/WPS 会把标题的段前段后间距、行距按文档网格取整渲染，
+            // 导致 XML 中设置的间距与行距与实际显示不一致
+            // 复用已存在的元素，避免与 applyDefaultSpacing 重复写入多个 w:snapToGrid
+            CTOnOff snapToGrid = ppr.isSetSnapToGrid() ? ppr.getSnapToGrid() : ppr.addNewSnapToGrid();
+            snapToGrid.setVal(false);
             // 设置大纲级别（对应导航窗格中的层级）
             // 获取或创建大纲级别对象（CTDecimalNumber）
             CTDecimalNumber ctDecimalNumber = ppr.isSetOutlineLvl() ? ppr.getOutlineLvl() : ppr.addNewOutlineLvl();
@@ -230,7 +237,7 @@ public interface WordStyle {
          * @param fontSizeMultiple 字体大小的倍数
          * @return
          */
-        public static Paragraph spacingBetween(int fontSizeMultiple) {
+        public static Paragraph spacingBetween(double fontSizeMultiple) {
             return new Paragraph(paragraph -> paragraph.setSpacingBetween(fontSizeMultiple, LineSpacingRule.AUTO));
         }
 
@@ -243,7 +250,7 @@ public interface WordStyle {
          */
         public static Paragraph spacingBefore(int spacing) {
             return new Paragraph(paragraph -> {
-                paragraph.setSpacingBefore(spacing);
+                paragraph.setSpacingBefore(spacing * 20);
             });
         }
 
@@ -255,7 +262,7 @@ public interface WordStyle {
          * @return
          */
         public static Paragraph spacingAfter(int spacing) {
-            return new Paragraph(paragraph -> paragraph.setSpacingAfter(spacing));
+            return new Paragraph(paragraph -> paragraph.setSpacingAfter(spacing * 20));
         }
 
 
@@ -268,8 +275,8 @@ public interface WordStyle {
          */
         public static Paragraph spacing(int before, int after) {
             return new Paragraph(paragraph -> {
-                paragraph.setSpacingBefore(before);
-                paragraph.setSpacingAfter(after);
+                paragraph.setSpacingBefore(before * 20);
+                paragraph.setSpacingAfter(after * 20);
             });
         }
 

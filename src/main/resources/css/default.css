@@ -305,7 +305,7 @@ body {
 }
 
 .content table th {
-    height: 44px;
+    height: 40px;
     padding: 0 12px;
     background: #f8fafc;
     color: #475569;
@@ -315,7 +315,7 @@ body {
 }
 
 .content table td {
-    height: 40px;
+    height: 35px;
     padding: 0 12px;
     color: #374151;
     border-bottom: 1px solid #eef0f4;

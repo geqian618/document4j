@@ -76,6 +76,27 @@ public class WordBuilder {
         return this;
     }
 
+    /**
+     * 取消段落"如果定义了文档网格，则对齐到网格"。
+     * <p>
+     * 文档定义了网格（sectPr 中的 docGrid，Word 新建文档默认携带）时，段落默认按网格对齐，
+     * Word/WPS 会把段落的段前/段后间距、行距按文档网格取整渲染，
+     * 导致 XML 中已是段前段后 0、单倍行距的段落，实际显示仍有额外间距或非单倍行距。
+     * 写入 {@code <w:snapToGrid w:val="0"/>} 等价于在 Word 中取消勾选
+     * "如果定义了文档网格，则对齐到网格(W)"，使间距与行距严格按显式设置渲染。
+     *
+     * @param paragraph 段落
+     */
+    private void setSnapToGridOff(XWPFParagraph paragraph) {
+        CTPPr ppr = paragraph.getCTP().getPPr();
+        if (ppr == null) {
+            ppr = paragraph.getCTP().addNewPPr();
+        }
+        // 复用已存在的元素，避免重复写入多个 w:snapToGrid
+        CTOnOff snapToGrid = ppr.isSetSnapToGrid() ? ppr.getSnapToGrid() : ppr.addNewSnapToGrid();
+        snapToGrid.setVal(false);
+    }
+
 
     /**
      * 添加一个新页面
@@ -85,6 +106,8 @@ public class WordBuilder {
     public WordBuilder newPage() {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
+        // 分页符段落同样关闭网格对齐，避免其行高被文档网格取整
+        setSnapToGridOff(paragraph);
         XWPFRun run = paragraph.createRun();
         run.addBreak(BreakType.PAGE);
         return this;
@@ -156,6 +179,9 @@ public class WordBuilder {
         paragraph.setSpacingBefore(1);
         paragraph.setSpacingBetween(1, LineSpacingRule.AUTO);
         paragraph.setSpacingAfter(0);
+        // 关闭"如果定义了文档网格，则对齐到网格"，否则 Word/WPS 会把上述显式间距
+        // 与行距按文档网格取整渲染（表现为段前段后 0、单倍行距但实际显示不一致）
+        setSnapToGridOff(paragraph);
     }
 
     /**
@@ -225,6 +251,8 @@ public class WordBuilder {
     public WordBuilder picture(InputStream is, String filename, int width, int height) {
         try {
             XWPFParagraph paragraph = document.createParagraph();
+            // 关闭网格对齐，避免图片所在段落的行高被文档网格取整
+            setSnapToGridOff(paragraph);
             XWPFRun run = paragraph.createRun();
             run.addPicture(is, XWPFDocument.PICTURE_TYPE_PNG, filename, Units.toEMU(width), Units.toEMU(height));
             return this;
