@@ -177,6 +177,8 @@ public class PDFBuilder {
     public PDFBuilder blankRow() {
         try {
             Paragraph paragraph = new Paragraph();
+            // 与正文段落保持一致的显式默认间距（段前段后 0、单倍行距）
+            applyDefaultSpacing(paragraph);
             paragraph.add(Chunk.NEWLINE);
             this.document.add(paragraph);
         } catch (DocumentException e) {
@@ -685,6 +687,22 @@ public class PDFBuilder {
 
 
     /**
+     * 为段落设置统一的显式默认间距：段前 0、段后 0、单倍行距（1 倍字号）。
+     * <p>
+     * iText 的 Paragraph 默认行距为固定 16pt（约 1.33 倍 12pt 字号），并非单倍行距，
+     * 这里显式改为倍数行距 1.0（{@code setLeading(0, 1.0f)}），字号变化时行距自动跟随，
+     * 与 WordBuilder 中"段前段后 0、单倍行距"的默认保持一致；
+     * 后续通过 PDFStyle 设置的间距/行距（如 spacing/spacingBefore/spacingAfter/spacingBetween）会覆盖其中对应值。
+     *
+     * @param paragraph 段落
+     */
+    private void applyDefaultSpacing(Paragraph paragraph) {
+        paragraph.setSpacingBefore(0);
+        paragraph.setSpacingAfter(0);
+        paragraph.setLeading(0, 1.0f);
+    }
+
+    /**
      * 创建段落
      *
      * @param text
@@ -692,6 +710,8 @@ public class PDFBuilder {
      */
     private Paragraph createParagraph(String text, PDFStyle... pdfStyles) {
         Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
+        // 显式设置默认间距（段前段后 0、单倍行距），用户样式随后覆盖
+        applyDefaultSpacing(paragraph);
         if (pdfStyles != null) {
             for (PDFStyle pdfStyle : pdfStyles) {
                 if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
@@ -767,6 +787,8 @@ public class PDFBuilder {
 
         public ParagraphBuilder() {
             paragraph = new Paragraph();
+            // 与正文段落保持一致的显式默认间距（段前段后 0、单倍行距）
+            applyDefaultSpacing(paragraph);
         }
 
         public ParagraphBuilder text(String text, PDFStyle... pdfStyles) {
