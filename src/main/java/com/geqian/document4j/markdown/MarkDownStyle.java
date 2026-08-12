@@ -1,5 +1,7 @@
 package com.geqian.document4j.markdown;
 
+import java.util.function.Function;
+
 /**
  * @author geqian
  * @date 1:36 2024/1/31
@@ -69,6 +71,22 @@ public interface MarkDownStyle {
 
         public static final Font UNDER_LINE = new Font("<u>%s</u>");
 
+        // 取消加粗
+        public static final Font NOT_BOLD = new Font(text -> text.replaceAll("\\*\\*(.+?)\\*\\*", "$1"));
+
+        // 取消斜体（负向断言避免误删 ** 加粗标记）
+        public static final Font NOT_ITALIC = new Font(text -> text.replaceAll("(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)", "$1"));
+
+        // 取消下划线
+        public static final Font NOT_UNDER_LINE = new Font(text -> text.replaceAll("<u>(.+?)</u>", "$1"));
+
+        // 取消删除线
+        public static final Font NOT_DELETE_LINE = new Font(text -> text.replaceAll("~~(.+?)~~", "$1"));
+
+        // 取消代码样式
+        public static final Font NOT_CODE = new Font(text -> text.replaceAll("`(.+?)`", "$1"));
+
+
         public static Font fontColor(String color) {
             return new Font("<span style=\"color:" + color + ";\">%s</span>");
         }
@@ -77,16 +95,21 @@ public interface MarkDownStyle {
             return new Font("<span style=\"font-size:" + size + "px;\">%s</span>");
         }
 
-        private final String template;
+        private String template;
+
+        private Function<String, String> transformer;
 
         Font(String template) {
             this.template = template;
         }
 
+        Font(Function<String, String> transformer) {
+            this.transformer = transformer;
+        }
 
         @Override
         public String buildStyle(String text) {
-            return String.format(template, text);
+            return transformer != null ? transformer.apply(text) : String.format(template, text);
         }
     }
 }

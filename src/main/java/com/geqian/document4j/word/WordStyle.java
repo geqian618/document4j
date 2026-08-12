@@ -63,12 +63,11 @@ public interface WordStyle {
          * @param level 标题级别
          */
         private static void setHeading(XWPFParagraph paragraph, int level) {
-            if (level < 0 || level > 8) {
+            if (level < 1 || level > 8) {
                 throw new IllegalArgumentException("标题级别需为 1~8 的整数");
             }
             // 设置段落样式为对应级别的标题（例如"Heading1"）
-            // 注意：level 入参为大纲级别（0 代表一级），映射到 Word 内置样式名需 +1，否则会生成非法的 "Heading0"
-            paragraph.setStyle("Heading" + (level + 1));
+            paragraph.setStyle("Heading" + level);
 
             // 操作底层 XML 对象以设置大纲级别（必需步骤）
             // 获取或创建段落属性对象（CTPPr）
@@ -135,6 +134,41 @@ public interface WordStyle {
          * 文字阴影
          */
         public static final Font SHADOW = new Font(run -> run.setShadow(true));
+
+        /**
+         * 取消加粗
+         */
+        public static final Font NOT_BOLD = new Font(run -> run.setBold(false));
+
+        /**
+         * 取消斜体
+         */
+        public static final Font NOT_ITALIC = new Font(run -> run.setItalic(false));
+
+        /**
+         * 取消下划线（同时取消单、双下划线）
+         */
+        public static final Font NOT_UNDER_LINE = new Font(run -> run.setUnderline(UnderlinePatterns.NONE));
+
+        /**
+         * 取消双下划线（同取消下划线）
+         */
+        public static final Font NOT_DOUBLE_UNDER_LINE = new Font(run -> run.setUnderline(UnderlinePatterns.NONE));
+
+        /**
+         * 取消删除线
+         */
+        public static final Font NOT_DELETE_LINE = new Font(run -> run.setStrikeThrough(false));
+
+        /**
+         * 取消双删除线
+         */
+        public static final Font NOT_DOUBLE_DELETE_LINE = new Font(run -> run.setDoubleStrikethrough(false));
+
+        /**
+         * 取消文字阴影
+         */
+        public static final Font NOT_SHADOW = new Font(run -> run.setShadow(false));
 
         private final Consumer<XWPFRun> wrapper;
 

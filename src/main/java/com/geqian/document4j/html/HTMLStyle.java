@@ -59,6 +59,24 @@ public interface HTMLStyle {
         public static Font DASHED_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:dashed;");
         // 点下划线
         public static Font DOTTED_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:dotted;");
+        // 取消加粗（标题默认加粗时按需传入，追加在标题样式之后可覆盖 font-weight:bold）
+        public static Font NOT_BOLD = new Font("font-weight:normal;");
+        // 取消斜体
+        public static Font NOT_ITALIC = new Font("font-style:normal;");
+        // 取消上划线
+        public static Font NOT_OVER_LINE = new Font("text-decoration-line:none;");
+        // 取消下划线
+        public static Font NOT_UNDER_LINE = new Font("text-decoration-line:none;");
+        // 取消双下划线
+        public static Font NOT_DOUBLE_UNDER_LINE = new Font("text-decoration-line:none;");
+        // 取消虚下划线
+        public static Font NOT_DASHED_UNDER_LINE = new Font("text-decoration-line:none;");
+        // 取消点下划线
+        public static Font NOT_DOTTED_UNDER_LINE = new Font("text-decoration-line:none;");
+        // 取消删除线
+        public static Font NOT_DELETE_LINE = new Font("text-decoration-line:none;");
+        // 取消双删除线
+        public static Font NOT_DOUBLE_DELETE_LINE = new Font("text-decoration-line:none;");
 
         private final String style;
 

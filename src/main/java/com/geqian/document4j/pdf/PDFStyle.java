@@ -67,16 +67,40 @@ public interface PDFStyle {
          */
         public static final PDFStyle.Font UNDER_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.UNDERLINE));
 
-
         /**
          * 删除线
          */
-        public static final PDFStyle.Font DELETE_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.DEFAULTSIZE));
+        public static final PDFStyle.Font DELETE_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.STRIKETHRU));
 
         /**
          * 正常
          */
         public static final PDFStyle.Font NORMAL = new PDFStyle.Font(font -> font.setStyle(font.getStyle() | com.itextpdf.text.Font.NORMAL));
+
+        /**
+         * 取消加粗
+         */
+        public static final PDFStyle.Font NOT_BOLD = new PDFStyle.Font(font -> font.setStyle(font.getStyle() & ~com.itextpdf.text.Font.BOLD));
+
+        /**
+         * 取消斜体
+         */
+        public static final PDFStyle.Font NOT_ITALIC = new PDFStyle.Font(font -> font.setStyle(font.getStyle() & ~com.itextpdf.text.Font.ITALIC));
+
+        /**
+         * 取消斜体加粗
+         */
+        public static final PDFStyle.Font NOT_BOLD_ITALIC = new PDFStyle.Font(font -> font.setStyle(font.getStyle() & ~com.itextpdf.text.Font.BOLDITALIC));
+
+        /**
+         * 取消下划线
+         */
+        public static final PDFStyle.Font NOT_UNDER_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() & ~com.itextpdf.text.Font.UNDERLINE));
+
+        /**
+         * 取消删除线
+         */
+        public static final PDFStyle.Font NOT_DELETE_LINE = new PDFStyle.Font(font -> font.setStyle(font.getStyle() & ~com.itextpdf.text.Font.STRIKETHRU));
 
 
         private final Consumer<com.itextpdf.text.Font> wrapper;
@@ -261,4 +285,5 @@ public interface PDFStyle {
             });
         }
     }
+
 }
