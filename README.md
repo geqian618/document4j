@@ -337,3 +337,14 @@ public interface WordTableInterceptor extends WriteTableable {
 
 ### HTML 文档
 请参考上述 word 文档
+
+<br>
+<br>
+
+## 开源协议
+
+本项目基于 [MIT License](LICENSE) 开源。
+
+GitHub 仓库：https://github.com/geqian618/document4j
+
+> **依赖协议说明**：项目的 PDF 能力基于 iText（`com.itextpdf:itextpdf` 5.5.13.3）实现，iText 为 AGPL-3.0 协议。将本项目作为依赖集成或二次分发时，请一并遵守 iText 的 AGPL 协议要求（https://www.gnu.org/licenses/agpl-3.0.html）；如需在闭源商业产品中使用，请更换为商业授权版本或其他 PDF 组件。
