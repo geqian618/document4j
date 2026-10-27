@@ -77,10 +77,7 @@ public interface WordStyle {
                 ppr = paragraph.getCTP().addNewPPr();
             }
 
-            XWPFRun run = paragraph.getRuns().get(0);
-            if (run == null) {
-                run = paragraph.createRun();
-            }
+            XWPFRun run = paragraph.getRuns().isEmpty() ? paragraph.createRun() : paragraph.getRuns().get(0);
             // 字号递减
             run.setFontSize(22 - (level * 2));
             run.setBold(true);
@@ -101,8 +98,8 @@ public interface WordStyle {
             // 设置大纲级别（对应导航窗格中的层级）
             // 获取或创建大纲级别对象（CTDecimalNumber）
             CTDecimalNumber ctDecimalNumber = ppr.isSetOutlineLvl() ? ppr.getOutlineLvl() : ppr.addNewOutlineLvl();
-            // 0=正文，1=1级标题，依此类推
-            ctDecimalNumber.setVal(BigInteger.valueOf(level));
+            // OOXML 大纲级别从 0 开始（0 = 一级标题），决定导航窗格中的层级
+            ctDecimalNumber.setVal(BigInteger.valueOf(level - 1));
         }
     }
 
@@ -199,7 +196,26 @@ public interface WordStyle {
         }
 
         public static Font fontFamily(String fontFamily) {
-            return new Font(run -> run.setFontFamily(fontFamily));
+            return fontFamily(fontFamily, fontFamily);
+        }
+
+        /**
+         * 分别指定西文字体与东亚（中）文字体。
+         * <p>
+         * 只指定西文字体时，中文字符仍沿用 {@code fontFamily}（如 Calibri）会导致
+         * Word 用宋体替换、浏览器用雅黑替换，网页预览与本地 Word 显示不一致；
+         * 分开指定后两端的中文字体一致。
+         *
+         * @param fontFamily           西文字体
+         * @param eastAsiaFontFamily   东亚（中）文字体
+         */
+        public static Font fontFamily(String fontFamily, String eastAsiaFontFamily) {
+            return new Font(run -> {
+                run.setFontFamily(fontFamily, XWPFRun.FontCharRange.ascii);
+                run.setFontFamily(fontFamily, XWPFRun.FontCharRange.hAnsi);
+                run.setFontFamily(fontFamily, XWPFRun.FontCharRange.cs);
+                run.setFontFamily(eastAsiaFontFamily, XWPFRun.FontCharRange.eastAsia);
+            });
         }
 
     }

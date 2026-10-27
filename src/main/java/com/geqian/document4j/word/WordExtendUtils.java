@@ -26,8 +26,10 @@ public class WordExtendUtils {
      * @param outPutPath     输出路径
      */
     public static void fillTemplate(Map<String, String> placeholderMap, String templatePath, String outPutPath) {
-        try (FileOutputStream outputStream = new FileOutputStream(outPutPath);
-             XWPFDocument document = new XWPFDocument(Files.newInputStream(Paths.get(templatePath)))
+        // 输入流需显式声明在 try-with-resources 中：POI 读取完不会关闭传入的流
+        try (InputStream templateStream = Files.newInputStream(Paths.get(templatePath));
+             FileOutputStream outputStream = new FileOutputStream(outPutPath);
+             XWPFDocument document = new XWPFDocument(templateStream)
         ) {
             // 遍历word模板中的所有段落
             for (XWPFParagraph paragraph : document.getParagraphs()) {
@@ -58,7 +60,7 @@ public class WordExtendUtils {
             document.write(outputStream);
             log.info("模板填充完成!!!");
         } catch (IOException e) {
-            log.error("填充word模板发生异常", e);
+            throw new RuntimeException("填充word模板发生异常", e);
         }
     }
 
@@ -77,6 +79,19 @@ public class WordExtendUtils {
                 run.setText(text, 0);
                 log.info("填充占位符 " + placeholder + " ==> " + value);
             }
+        }
+        // 占位符可能被 Word 拆分到多个 run（拼写检查、中英文混排等都会触发拆分），
+        // 逐 run 替换无法命中；此时将段落全文合并回首 run 后整体替换。
+        // 副作用是丢失段内非占位符部分的分散样式，模板段落建议整段统一样式。
+        if (paragraph.getText() != null
+                && paragraph.getText().contains(placeholder)
+                && !paragraph.getRuns().isEmpty()) {
+            String replaced = paragraph.getText().replace(placeholder, value);
+            for (int i = paragraph.getRuns().size() - 1; i > 0; i--) {
+                paragraph.removeRun(i);
+            }
+            paragraph.getRuns().get(0).setText(replaced, 0);
+            log.info("填充占位符 " + placeholder + " ==> " + value);
         }
     }
 

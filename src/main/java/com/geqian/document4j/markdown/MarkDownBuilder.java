@@ -1,37 +1,25 @@
 package com.geqian.document4j.markdown;
 
-import com.geqian.document4j.common.annotation.TableField;
-import com.geqian.document4j.common.core.BaseTableInterceptor;
+import com.geqian.document4j.common.core.AbstractDocumentBuilder;
+import com.geqian.document4j.common.core.TableSupport;
 import com.geqian.document4j.common.core.WriteTableable;
 import com.geqian.document4j.common.extend.Converter;
-import com.geqian.document4j.common.extend.NoConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author geqian
  * @date 21:33 2024/1/30
  */
-public class MarkDownBuilder {
+public class MarkDownBuilder extends AbstractDocumentBuilder<MarkDownBuilder, MarkDownStyle> {
 
-    private final Logger log = LoggerFactory.getLogger(MarkDownBuilder.class);
-
-    private final StringBuffer stringBuffer;
-
-    private Map<String, String> enumMappings;
-
-    private Map<String, Converter> converters;
+    private final StringBuilder stringBuilder;
 
     private MarkDownBuilder() {
-        this.stringBuffer = new StringBuffer();
+        this.stringBuilder = new StringBuilder();
     }
 
     public static MarkDownBuilder create() {
@@ -43,11 +31,13 @@ public class MarkDownBuilder {
      * 添加目录
      *
      * @param hasCatalogue 是否添加目录
+     * @return
      */
-    public void addCatalogue(boolean hasCatalogue) {
+    public MarkDownBuilder addCatalogue(boolean hasCatalogue) {
         if (hasCatalogue) {
-            this.stringBuffer.insert(0, "[TOC]\n");
+            this.stringBuilder.insert(0, "[TOC]\n");
         }
+        return this;
     }
 
 
@@ -58,15 +48,11 @@ public class MarkDownBuilder {
      * @param heading
      * @return
      */
-    public MarkDownBuilder heading(String text, MarkDownStyle.Heading heading, MarkDownStyle.Font... styles) {
-        if (styles != null) {
-            for (MarkDownStyle.Font style : styles) {
-                if (style != null) {
-                    text = style.buildStyle(text);
-                }
-            }
+    public MarkDownBuilder heading(String text, MarkDownStyle heading, List<MarkDownStyle> styles) {
+        if (!(heading instanceof MarkDownStyle.Heading)) {
+            throw new IllegalArgumentException("MarkDownStyle.Heading cannot be null");
         }
-        stringBuffer.append(heading != null ? heading.buildStyle(text) : text);
+        stringBuilder.append(heading.buildStyle(applyStyles(text, styles)));
         return this;
     }
 
@@ -77,7 +63,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder blankRow() {
-        stringBuffer.append("\n\n");
+        stringBuilder.append("\n\n");
         return this;
     }
 
@@ -89,16 +75,53 @@ public class MarkDownBuilder {
      * @param styles
      * @return
      */
-    public MarkDownBuilder paragraph(String text, MarkDownStyle.Font... styles) {
+    public MarkDownBuilder paragraph(String text, List<MarkDownStyle> styles) {
+        stringBuilder.append(applyStyles(text, styles)).append("\n");
+        return this;
+    }
+
+    /**
+     * 分页（Markdown 无原生分页，输出 HTML 分页块）
+     */
+    public MarkDownBuilder newPage() {
+        stringBuilder.append("<div style=\"page-break-after:always;\"></div>\n");
+        return this;
+    }
+
+    /**
+     * 添加无序列表
+     */
+    public MarkDownBuilder list(List<String> elements, List<MarkDownStyle> styles) {
+        if (elements != null) {
+            for (String element : elements) {
+                stringBuilder.append("- ").append(applyStyles(element, styles)).append("\n");
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 添加图片，以 base64 内联；Markdown 图片语法不支持尺寸，尺寸参数忽略
+     */
+    public MarkDownBuilder picture(byte[] bytes, String filename, int width, int height) {
+        String src = "data:" + imageMimeType(filename) + ";base64," + Base64.getEncoder().encodeToString(bytes);
+        image(filename, src);
+        stringBuilder.append("\n");
+        return this;
+    }
+
+    /**
+     * 仅应用字体样式（对齐方式等样式不作用于文本）
+     */
+    private static String applyStyles(String text, List<MarkDownStyle> styles) {
         if (styles != null) {
-            for (MarkDownStyle.Font style : styles) {
-                if (style != null) {
+            for (MarkDownStyle style : styles) {
+                if (style instanceof MarkDownStyle.Font) {
                     text = style.buildStyle(text);
                 }
             }
         }
-        stringBuffer.append(text).append("\n");
-        return this;
+        return text;
     }
 
 
@@ -110,7 +133,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder image(String alt, String url) {
-        stringBuffer.append(String.format("![%s](%s)", alt, url));
+        stringBuilder.append(String.format("![%s](%s)", alt, url));
         return this;
     }
 
@@ -121,7 +144,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder divisionLine() {
-        stringBuffer.append("---\n");
+        stringBuilder.append("---\n");
         return this;
     }
 
@@ -133,7 +156,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder block(String text) {
-        stringBuffer.append(String.format("> %s\n", text));
+        stringBuilder.append(String.format("> %s\n", text));
         return this;
     }
 
@@ -144,7 +167,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder unorderedList(String... list) {
-        Arrays.stream(list).forEach(element -> stringBuffer.append(String.format("- %s\n", element)));
+        Arrays.stream(list).forEach(element -> stringBuilder.append(String.format("- %s\n", element)));
         return this;
     }
 
@@ -156,7 +179,7 @@ public class MarkDownBuilder {
      */
     public MarkDownBuilder orderedList(String... list) {
         for (int i = 0; i < list.length; i++) {
-            stringBuffer.append(String.format("%d. %s\n", i + 1, list[i]));
+            stringBuilder.append(String.format("%d. %s\n", i + 1, list[i]));
         }
         return this;
     }
@@ -165,12 +188,21 @@ public class MarkDownBuilder {
     /**
      * 链接
      *
-     * @param linkName
-     * @param link
-     * @return
+     * @param text 链接文本
+     * @param link 链接地址
      */
-    public MarkDownBuilder link(String linkName, String link) {
-        stringBuffer.append(String.format("[%s](%s)\n", linkName, link));
+    public MarkDownBuilder link(String text, String link) {
+        return link(text, link, Collections.<MarkDownStyle>emptyList());
+    }
+
+    /**
+     * 链接
+     *
+     * @param text 链接文本
+     * @param link 链接地址
+     */
+    public MarkDownBuilder link(String text, String link, List<MarkDownStyle> styles) {
+        stringBuilder.append(String.format("[%s](%s)\n", applyStyles(text, styles), link));
         return this;
     }
 
@@ -181,7 +213,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder link(String link) {
-        stringBuffer.append(String.format("<%s>\n", link));
+        stringBuilder.append(String.format("<%s>\n", link));
         return this;
     }
 
@@ -193,7 +225,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder raw(String raw) {
-        stringBuffer.append(raw).append("\n");
+        stringBuilder.append(raw).append("\n");
         return this;
     }
 
@@ -216,7 +248,7 @@ public class MarkDownBuilder {
      * @return
      */
     public MarkDownBuilder codeBlock(String type, String code) {
-        stringBuffer.append(String.format("```%s\n%s\n```\n", type, code));
+        stringBuilder.append(String.format("```%s\n%s\n```\n", type, code));
         return this;
     }
 
@@ -225,44 +257,26 @@ public class MarkDownBuilder {
      * 写入表格
      *
      * @param dataList
-     * @param alignment
+     * @param styles   对齐方式（MarkDownStyle.CellAlignment）
      * @return
      */
-    public <T extends WriteTableable> MarkDownBuilder table(List<T> dataList, MarkDownStyle.CellAlignment alignment) {
+    public MarkDownBuilder table(List<? extends WriteTableable> dataList, List<MarkDownStyle> styles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
             WriteTableable writeTableable = dataList.get(0);
 
-            //获取需要输出字段
-            List<Field> fields = getFieldList(writeTableable);
-
-            if (writeTableable instanceof BaseTableInterceptor) {
-                fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
-            }
-
-            //加载枚举映射关系
-            loadEnumMappings(fields);
-
-            //加载全部属性值转换器
-            loadConverters(fields);
-
-            //获取表头
-            List<String> tableHeaders = getTableHeaders(fields);
-
-            if (writeTableable instanceof BaseTableInterceptor) {
-                tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
-            }
+            TableData tableData = resolveTable(writeTableable);
 
             StringBuilder tableBuilder = new StringBuilder();
 
             //写入表头
-            writeTableHeaders(tableBuilder, tableHeaders, alignment);
+            writeTableHeaders(tableBuilder, tableData.headers, alignmentOf(styles));
 
             //写入表格主体数据
-            writeTableRows(tableBuilder, dataList, fields);
+            writeTableRows(tableBuilder, dataList, tableData.fields, tableData.enumMappings, tableData.converters);
 
-            stringBuffer.append(tableBuilder);
+            stringBuilder.append(tableBuilder);
         }
 
         return this;
@@ -273,16 +287,18 @@ public class MarkDownBuilder {
      * 写入表格
      *
      * @param data
-     * @param alignment
+     * @param styles 对齐方式（MarkDownStyle.CellAlignment）
      * @return
      */
-    public MarkDownBuilder table(Object[][] data, MarkDownStyle.CellAlignment alignment) {
+    public MarkDownBuilder table(Object[][] data, List<MarkDownStyle> styles) {
+        MarkDownStyle.CellAlignment alignment = alignmentOf(styles);
         StringBuilder tableBuilder = new StringBuilder();
         if (data != null && data.length > 0) {
             for (int i = 0; i < data.length; i++) {
                 Object[] rows = data[i];
                 for (Object row : rows) {
-                    tableBuilder.append("|").append(row);
+                    //null 写作空字符串，避免字面量 "null" 出现在文档中
+                    tableBuilder.append("|").append(escapeMdCell(row == null ? "" : String.valueOf(row)));
                 }
                 tableBuilder.append("|\n");
                 if (i == 0) {
@@ -293,13 +309,28 @@ public class MarkDownBuilder {
                 }
             }
         }
-        stringBuffer.append(tableBuilder);
+        stringBuilder.append(tableBuilder);
         return this;
     }
 
-    private <T extends WriteTableable> void writeTableRows(StringBuilder tableBuilder, List<T> dataList, List<Field> fields) {
+    /**
+     * 取出样式中的表格对齐方式
+     */
+    private static MarkDownStyle.CellAlignment alignmentOf(List<MarkDownStyle> styles) {
+        if (styles != null) {
+            for (MarkDownStyle style : styles) {
+                if (style instanceof MarkDownStyle.CellAlignment) {
+                    return (MarkDownStyle.CellAlignment) style;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void writeTableRows(StringBuilder tableBuilder, List<? extends WriteTableable> dataList, List<Field> fields,
+                                Map<String, String> enumMappings, Map<String, Converter> converters) {
         for (WriteTableable writeTableable : dataList) {
-            writeTableRow(tableBuilder, writeTableable, fields);
+            writeTableRow(tableBuilder, writeTableable, fields, enumMappings, converters);
         }
         tableBuilder.append("\n");
     }
@@ -311,44 +342,28 @@ public class MarkDownBuilder {
      * @param obj
      * @param fieldList
      */
-    private void writeTableRow(StringBuilder tableBuilder, WriteTableable obj, List<Field> fieldList) {
+    private void writeTableRow(StringBuilder tableBuilder, WriteTableable obj, List<Field> fieldList,
+                               Map<String, String> enumMappings, Map<String, Converter> converters) {
         for (Field field : fieldList) {
-            String cellValue = getCellValue(obj, field);
+            String cellValue = TableSupport.getCellValue(obj, field, enumMappings, converters);
             //拦截单元格
             if (obj instanceof MarkdownTableInterceptor) {
                 cellValue = ((MarkdownTableInterceptor) obj).interceptMdCellValue(cellValue, obj, field);
             }
-            tableBuilder.append("|").append(cellValue);
+            //竖线与换行会破坏 Markdown 表格结构，需转义
+            tableBuilder.append("|").append(escapeMdCell(cellValue));
         }
         tableBuilder.append("|\n");
     }
 
     /**
-     * 获取单元格值
-     *
-     * @param obj
-     * @param field
-     * @return
+     * 转义会破坏 Markdown 表格结构的字符：竖线改用转义形式，换行替换为 <br>
      */
-    private String getCellValue(WriteTableable obj, Field field) {
-        Object fieldValue;
-        try {
-            field.setAccessible(true);
-            fieldValue = field.get(obj);
-            //执行属性值枚举映射
-            Object enumValue = this.enumMappings.get(getFieldKey(field) + ":" + fieldValue);
-            if (enumValue != null) {
-                fieldValue = enumValue;
-            }
-            //执行属性值转换
-            Converter converter = this.converters.get(getFieldKey(field));
-            if (converter != null) {
-                fieldValue = converter.convert(fieldValue);
-            }
-        } catch (IllegalAccessException e) {
-            fieldValue = "";
+    private static String escapeMdCell(String value) {
+        if (value == null) {
+            return "";
         }
-        return String.valueOf(fieldValue);
+        return value.replace("|", "\\|").replace("\r\n", "\n").replace("\n", "<br>");
     }
 
 
@@ -356,12 +371,12 @@ public class MarkDownBuilder {
      * 构建 Markdown 文档
      */
     public String buildMarkdown() {
-        return stringBuffer.toString();
+        return stringBuilder.toString();
     }
 
 
     /**
-     * HTMl文档转换为字节数组
+     * Markdown 文档转换为字节数组
      *
      * @return
      */
@@ -370,100 +385,6 @@ public class MarkDownBuilder {
     }
 
 
-    /**
-     * HTML文档写入文件
-     *
-     * @param file
-     */
-    public void asFile(File file) {
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))) {
-            writer.write(buildMarkdown());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * HTML文档写入文件
-     *
-     * @param filePath
-     */
-    public void asFile(String filePath) {
-        asFile(new File(filePath));
-    }
-
-    /**
-     * HTML文档写入输出流
-     *
-     * @param outputStream
-     */
-    public void asOutputStream(OutputStream outputStream) {
-        try {
-            outputStream.write(asBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
-     * 获取表头
-     *
-     * @param fieldList
-     * @return
-     */
-    private List<String> getTableHeaders(List<Field> fieldList) {
-        //通过注解获取需要输出的属性别名
-        return fieldList.stream()
-                .map(field -> {
-                    TableField annotation = field.getAnnotation(TableField.class);
-                    return annotation != null && !Objects.equals("", annotation.value())
-                            ? annotation.value()
-                            : field.getName();
-                }).collect(Collectors.toList());
-    }
-
-    /**
-     * 获取需要写入表格的属性
-     *
-     * @param obj
-     * @return
-     */
-    private <T extends WriteTableable> List<Field> getFieldList(T obj) {
-
-        List<Class<?>> classes = new ArrayList<>();
-
-        Class<?> classType = obj.getClass();
-
-        //遍历获取父类class
-        while (!Objects.equals(classType, Object.class)) {
-            classes.add(classType);
-            classType = classType.getSuperclass();
-        }
-
-        // 获取子类及父类全部属性
-        List<Field> fields = classes.stream()
-                .map(pojoClass -> Stream.of(pojoClass.getDeclaredFields()).collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        // 属性中是否匹配到任意一个包含 TableField 注解
-        boolean anyMatch = fields.stream()
-                .anyMatch(field -> field.isAnnotationPresent(TableField.class));
-
-        // 如果使用了 TableField 注解，只获取包含 TableField 注解的属性，反之获取全部属性
-        if (anyMatch) {
-            fields = fields.stream()
-                    .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
-                    .collect(Collectors.toList());
-        }
-
-        return fields.stream().sorted((a, b) -> {
-            TableField before = a.getAnnotation(TableField.class);
-            TableField next = b.getAnnotation(TableField.class);
-            return (before == null ? Integer.MAX_VALUE : before.order()) - (next == null ? Integer.MAX_VALUE : next.order());
-        }).collect(Collectors.toList());
-    }
 
 
     /**
@@ -475,7 +396,7 @@ public class MarkDownBuilder {
     private void writeTableHeaders(StringBuilder tableBuilder, List<String> tableHeaders, MarkDownStyle.CellAlignment alignment) {
         if (tableHeaders != null && !tableHeaders.isEmpty()) {
             for (String header : tableHeaders) {
-                tableBuilder.append("|").append(header);
+                tableBuilder.append("|").append(escapeMdCell(header));
             }
             tableBuilder.append("|\n");
             for (int i = 0; i < tableHeaders.size(); i++) {
@@ -486,87 +407,17 @@ public class MarkDownBuilder {
     }
 
 
-    /**
-     * 加载全部属性值转换器
-     *
-     * @param fields
-     */
-    private void loadConverters(List<Field> fields) {
-        this.converters = new HashMap<>();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(TableField.class)) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                if (annotation.converter() != NoConverter.class) {
-                    try {
-                        Converter converter = annotation.converter().getConstructor().newInstance();
-                        this.converters.put(getFieldKey(field), converter);
-                    } catch (Exception e) {
-                        log.error("创建 Converter 转换器发生异常", e);
-                    }
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 加载全部枚举映射关系
-     *
-     * @param fields
-     * @return
-     */
-    private void loadEnumMappings(List<Field> fields) {
-        this.enumMappings = new HashMap<>();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(TableField.class)) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                String[] enums = annotation.enums();
-                if (enums.length > 0) {
-                    appendEnumMapping(getFieldKey(field), enums);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 追加一组枚举映射关系
-     *
-     * @param fieldKey
-     * @param enums
-     */
-    private void appendEnumMapping(String fieldKey, String[] enums) {
-        for (String enumStr : enums) {
-            String[] splitArray = enumStr.split("->");
-            if (splitArray.length != 2) {
-                throw new IllegalArgumentException("The convert property format of TableField is：oldValue -> newValue");
-            }
-            this.enumMappings.put(fieldKey + ":" + splitArray[0].trim(), splitArray[1].trim());
-        }
-    }
-
-    /**
-     * 获取类名+属性名
-     *
-     * @param field
-     * @return
-     */
-    private String getFieldKey(Field field) {
-        return field.getDeclaringClass().getName() + "." + field.getName();
-    }
-
-
     public class ParagraphBuilder {
 
-        private final StringBuffer subStringBuffer;
+        private final StringBuilder subStringBuilder;
 
         public ParagraphBuilder() {
-            this.subStringBuffer = new StringBuffer();
+            this.subStringBuilder = new StringBuilder();
         }
 
 
         public MarkDownBuilder endParagraph() {
-            MarkDownBuilder.this.stringBuffer.append(subStringBuffer).append("\n");
+            MarkDownBuilder.this.stringBuilder.append(subStringBuilder).append("\n");
             return MarkDownBuilder.this;
         }
 
@@ -578,7 +429,7 @@ public class MarkDownBuilder {
          * @return
          */
         public ParagraphBuilder raw(String raw) {
-            stringBuffer.append(raw);
+            subStringBuilder.append(raw);
             return this;
         }
 
@@ -598,7 +449,7 @@ public class MarkDownBuilder {
                     }
                 }
             }
-            subStringBuffer.append(text);
+            subStringBuilder.append(text);
             return this;
         }
 
@@ -611,7 +462,7 @@ public class MarkDownBuilder {
          * @return
          */
         public ParagraphBuilder link(String linkName, String link) {
-            subStringBuffer.append(String.format("[%s](%s)", linkName, link));
+            subStringBuilder.append(String.format("[%s](%s)", linkName, link));
             return this;
         }
 
@@ -623,7 +474,7 @@ public class MarkDownBuilder {
          * @return
          */
         public ParagraphBuilder link(String link) {
-            subStringBuffer.append(String.format("<%s>", link));
+            subStringBuilder.append(String.format("<%s>", link));
             return this;
         }
     }

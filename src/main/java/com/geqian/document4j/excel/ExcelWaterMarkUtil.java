@@ -8,8 +8,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -22,16 +20,13 @@ import java.io.*;
  */
 public class ExcelWaterMarkUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(ExcelWaterMarkUtil.class);
-
 
     public static byte[] addWaterMark(InputStream in, String waterMark) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             addWaterMark(in, out, waterMark);
             return out.toByteArray();
-        } catch (Exception e) {
-            log.error("EXCEL文档添加水印时发生异常", e);
-            return new byte[0];
+        } catch (IOException e) {
+            throw new RuntimeException("EXCEL文档添加水印时发生异常", e);
         }
     }
 
@@ -103,7 +98,7 @@ public class ExcelWaterMarkUtil {
             }
             workbook.write(out);
         } catch (Exception e) {
-            log.error("EXCEL文档添加水印时发生异常", e);
+            throw new RuntimeException("EXCEL文档添加水印时发生异常", e);
         }
     }
 

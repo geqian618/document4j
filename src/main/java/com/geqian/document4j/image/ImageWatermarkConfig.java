@@ -40,7 +40,10 @@ public class ImageWatermarkConfig {
     }
 
     public void setScale(Integer scale) {
-        this.scale = scale;
+        // null 会在缩放时自动拆箱 NPE，回退默认值
+        if (scale != null) {
+            this.scale = scale;
+        }
     }
 
     public Float getOpacity() {
@@ -48,7 +51,9 @@ public class ImageWatermarkConfig {
     }
 
     public void setOpacity(Float opacity) {
-        this.opacity = opacity;
+        if (opacity != null) {
+            this.opacity = opacity;
+        }
     }
 
     public String getFormatName() {
@@ -56,7 +61,9 @@ public class ImageWatermarkConfig {
     }
 
     public void setFormatName(String formatName) {
-        this.formatName = formatName;
+        if (formatName != null && !formatName.trim().isEmpty()) {
+            this.formatName = formatName;
+        }
     }
 
     public Integer getSpacing() {
@@ -64,6 +71,8 @@ public class ImageWatermarkConfig {
     }
 
     public void setSpacing(Integer spacing) {
-        this.spacing = spacing;
+        if (spacing != null) {
+            this.spacing = spacing;
+        }
     }
 }

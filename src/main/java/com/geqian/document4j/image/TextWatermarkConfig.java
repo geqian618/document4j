@@ -28,7 +28,10 @@ public class TextWatermarkConfig {
     }
 
     public void setOpacity(Float opacity) {
-        this.opacity = opacity;
+        // null 会在绘制时自动拆箱 NPE，回退默认值
+        if (opacity != null) {
+            this.opacity = opacity;
+        }
     }
 
     public Color getColor() {
@@ -52,7 +55,9 @@ public class TextWatermarkConfig {
     }
 
     public void setFormatName(String formatName) {
-        this.formatName = formatName;
+        if (formatName != null && !formatName.trim().isEmpty()) {
+            this.formatName = formatName;
+        }
     }
 
     public Integer getOffsetX() {
@@ -76,6 +81,8 @@ public class TextWatermarkConfig {
     }
 
     public void setSpacing(Integer spacing) {
-        this.spacing = spacing;
+        if (spacing != null) {
+            this.spacing = spacing;
+        }
     }
 }

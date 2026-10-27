@@ -1,6 +1,5 @@
 package com.geqian.document4j.word;
 
-import com.geqian.document4j.excel.ExcelWaterMarkUtil;
 import com.microsoft.schemas.office.office.CTLock;
 import com.microsoft.schemas.vml.*;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -27,7 +26,7 @@ import java.util.stream.Stream;
  */
 public class WordWaterMarkUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(ExcelWaterMarkUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(WordWaterMarkUtil.class);
 
     /**
      * word字体
@@ -72,9 +71,8 @@ public class WordWaterMarkUtil {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             addWaterMark(in, out, waterMark, rows, cols);
             return out.toByteArray();
-        } catch (Exception e) {
-            log.error("WORD文档添加水印时发生异常", e);
-            return new byte[0];
+        } catch (IOException e) {
+            throw new RuntimeException("WORD文档添加水印时发生异常", e);
         }
     }
 
@@ -100,9 +98,8 @@ public class WordWaterMarkUtil {
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             addWaterMark(in, out, waterMark, rows, cols);
             return out.toByteArray();
-        } catch (Exception e) {
-            log.error("WORD文档添加水印时发生异常", e);
-            return new byte[0];
+        } catch (IOException e) {
+            throw new RuntimeException("WORD文档添加水印时发生异常", e);
         }
     }
 
@@ -157,12 +154,16 @@ public class WordWaterMarkUtil {
         CTDocument1 document = doc.getDocument();
         CTBody body = document.getBody();
         CTSectPr section = body.getSectPr();
-        // 设置页面大小  当前A4大小
-        CTPageSz pageSize = section.getPgSz();
-        // 页面宽度，单位 pt
-        int pageWidth = ((BigInteger) pageSize.getW()).intValue() / 20;
-        // 页面高度，单位 pt
-        int pageHeight = ((BigInteger) pageSize.getH()).intValue() / 20;
+        // 无页面设置的文档按 A4（595x842pt）兜底，避免缺 sectPr/pgSz 时 NPE
+        CTPageSz pageSize = section == null ? null : section.getPgSz();
+        int pageWidth = 595;
+        int pageHeight = 842;
+        if (pageSize != null && pageSize.getW() != null && pageSize.getH() != null) {
+            // 页面宽度，单位 pt
+            pageWidth = ((BigInteger) pageSize.getW()).intValue() / 20;
+            // 页面高度，单位 pt
+            pageHeight = ((BigInteger) pageSize.getH()).intValue() / 20;
+        }
         // 水印宽度
         int waterMarkWidth = pageWidth / cols / WIDTH_PER_WORD;
         // 水印上下间隔高度
@@ -233,7 +234,7 @@ public class WordWaterMarkUtil {
         sb.append(";z-index: ").append(-251645952);
         sb.append(";mso-wrap-edited: ").append("f");
         // 设置水印的间隔，这是一个大坑，不能用top,必须要margin-top。
-        sb.append(";margin-top: ").append(marginTop);
+        sb.append(";margin-top: ").append(marginTop).append("pt");
         sb.append(";mso-position-horizontal-relative: ").append("page");
         sb.append(";mso-position-vertical-relative: ").append("page");
         sb.append(";mso-position-vertical: ").append("left");
@@ -246,14 +247,6 @@ public class WordWaterMarkUtil {
         StringBuilder buffer = new StringBuilder(pattern.length() * repeats);
         Stream.generate(() -> pattern).limit(repeats).forEach(buffer::append);
         return new String(buffer);
-    }
-
-
-    public static void main(String[] args) {
-        String inputPath = "D:\\Desktop\\个人简历.docx";
-        String outputPath = "D:\\Desktop\\个人简历-副本.docx";
-        String waterMark = "严禁复制";
-        WordWaterMarkUtil.addWaterMark(inputPath, outputPath, waterMark, 5, 4);
     }
 
 }

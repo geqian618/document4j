@@ -38,45 +38,45 @@ public interface HTMLStyle {
 
     class Font implements HTMLStyle {
         // 加粗字体
-        public static Font BOLD = new Font("font-weight:bold;");
+        public static final Font BOLD = new Font("font-weight:bold;");
         // 细字体
-        public static Font LIGHTER = new Font("font-weight:lighter;");
+        public static final Font LIGHTER = new Font("font-weight:lighter;");
         // 斜体
-        public static Font ITALIC = new Font("font-style:italic;");
+        public static final Font ITALIC = new Font("font-style:italic;");
         // 无修饰线条
-        public static Font NONE_LINE = new Font("text-decoration-line:none;");
+        public static final Font NONE_LINE = new Font("text-decoration-line:none;");
         // 上划线
-        public static Font OVER_LINE = new Font("text-decoration-line:overline;");
+        public static final Font OVER_LINE = new Font("text-decoration-line:overline;");
         // 下划线
-        public static Font UNDER_LINE = new Font("text-decoration-line:underline;");
+        public static final Font UNDER_LINE = new Font("text-decoration-line:underline;");
         // 删除线
-        public static Font DELETE_LINE = new Font("text-decoration-line:line-through;");
+        public static final Font DELETE_LINE = new Font("text-decoration-line:line-through;");
         // 双删除线
-        public static Font DOUBLE_DELETE_LINE = new Font("text-decoration-line:line-through;text-decoration-style:double;");
+        public static final Font DOUBLE_DELETE_LINE = new Font("text-decoration-line:line-through;text-decoration-style:double;");
         // 双下划线
-        public static Font DOUBLE_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:double;");
+        public static final Font DOUBLE_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:double;");
         // 虚下划线
-        public static Font DASHED_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:dashed;");
+        public static final Font DASHED_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:dashed;");
         // 点下划线
-        public static Font DOTTED_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:dotted;");
+        public static final Font DOTTED_UNDER_LINE = new Font("text-decoration-line:underline;text-decoration-style:dotted;");
         // 取消加粗（标题默认加粗时按需传入，追加在标题样式之后可覆盖 font-weight:bold）
-        public static Font NOT_BOLD = new Font("font-weight:normal;");
+        public static final Font NOT_BOLD = new Font("font-weight:normal;");
         // 取消斜体
-        public static Font NOT_ITALIC = new Font("font-style:normal;");
+        public static final Font NOT_ITALIC = new Font("font-style:normal;");
         // 取消上划线
-        public static Font NOT_OVER_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_OVER_LINE = new Font("text-decoration-line:none;");
         // 取消下划线
-        public static Font NOT_UNDER_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_UNDER_LINE = new Font("text-decoration-line:none;");
         // 取消双下划线
-        public static Font NOT_DOUBLE_UNDER_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_DOUBLE_UNDER_LINE = new Font("text-decoration-line:none;");
         // 取消虚下划线
-        public static Font NOT_DASHED_UNDER_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_DASHED_UNDER_LINE = new Font("text-decoration-line:none;");
         // 取消点下划线
-        public static Font NOT_DOTTED_UNDER_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_DOTTED_UNDER_LINE = new Font("text-decoration-line:none;");
         // 取消删除线
-        public static Font NOT_DELETE_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_DELETE_LINE = new Font("text-decoration-line:none;");
         // 取消双删除线
-        public static Font NOT_DOUBLE_DELETE_LINE = new Font("text-decoration-line:none;");
+        public static final Font NOT_DOUBLE_DELETE_LINE = new Font("text-decoration-line:none;");
 
         private final String style;
 
@@ -94,7 +94,7 @@ public interface HTMLStyle {
         }
 
         public static Font fontFamily(String fontFamily) {
-            return new Font(String.format("font-size:%s,serif;", fontFamily));
+            return new Font(String.format("font-family:%s,serif;", fontFamily));
         }
 
         public static Font fontColor(String fontColor) {

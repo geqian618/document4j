@@ -46,7 +46,7 @@ WordStyle.Paragraph alignRight = WordStyle.Paragraph.ALIGN_RIGHT;
 WordStyle.Paragraph firstLineIndent = WordStyle.Paragraph.firstLineIndent(2);
 
 // 一个段落中文本行间距倍数（字体大小为基数）
-WordStyle.Paragraph linedSpacing = WordStyle.Paragraph.lineSpacing(1);
+WordStyle.Paragraph linedSpacing = WordStyle.Paragraph.spacingBetween(1);
 ```
 
 
@@ -77,7 +77,7 @@ wordBuilder.asFile("D://desktop/demo.docx");
 byte[] bytes = wordBuilder.asBytes();
 
 // 构建并写入输出流
-wordBuilder.asStream(OutputStream out);
+wordBuilder.asOutputStream(OutputStream out);
 ```
 
 
@@ -338,6 +338,56 @@ public interface WordTableInterceptor extends WriteTableable {
 ### HTML 文档
 请参考上述 word 文档
 
+> 安全说明：HTML 文档的文本内容（段落、标题、表格单元格、链接文字）默认做 HTML 转义，
+> 防止来自用户输入的数据被当作标签执行（XSS）；需要输出富文本时请使用 `html(String)` 方法。
+
+<br>
+<br>
+
+## 扩展工具
+
+### Word 模板填充
+
+```java
+Map<String, String> placeholderMap = new HashMap<>();
+placeholderMap.put("${name}", "张三");
+placeholderMap.put("${date}", "2024-01-01");
+
+// 模板中的占位符需完整位于段落文本中；被 Word 拆分到多个文本 run 的占位符会自动合并后替换
+WordExtendUtils.fillTemplate(placeholderMap, "D://desktop/template.docx", "D://desktop/out.docx");
+```
+
+### PDF 加密
+
+```java
+// 设置用户密码与拥有者密码（允许打印与复制），失败会抛出异常
+byte[] encrypted = PDFExtendUtils.setPassword(pdfBytes, "userPassword", "ownerPassword");
+
+// 或基于文件路径
+PDFExtendUtils.setPassword("D://desktop/in.pdf", "D://desktop/out.pdf", "userPassword", "ownerPassword");
+```
+
+### PDF / Word / HTML / Excel / 图片 添加水印
+
+各格式水印工具均为静态方法，失败会抛出 RuntimeException（而非返回空字节数组）：
+
+```java
+// Word 平铺水印（支持一行多个、一页多行）
+byte[] result = WordWaterMarkUtil.addWaterMark(wordBytes, "内部资料");
+
+// PDF 平铺水印（水印内容不能为空）
+PDFWaterMarkUtil.addWaterMark(in, out, "内部资料");
+
+// HTML 文字水印
+HTMLWatermarkUtil.addFullTextWatermark(htmlBytes, out, "内部资料");
+
+// Excel 水印
+ExcelWaterMarkUtil.addWaterMark(excelBytes, "内部资料");
+
+// 图片水印（支持文字水印/图片水印/平铺水印，可配置透明度、偏移、缩放等）
+byte[] image = ImageWatermarkUtil.addTextWatermark("内部资料", in, new TextWatermarkConfig());
+```
+
 <br>
 <br>
 
@@ -347,4 +397,6 @@ public interface WordTableInterceptor extends WriteTableable {
 
 GitHub 仓库：https://github.com/geqian618/document4j
 
-> **依赖协议说明**：项目的 PDF 能力基于 iText（`com.itextpdf:itextpdf` 5.5.13.3）实现，iText 为 AGPL-3.0 协议。将本项目作为依赖集成或二次分发时，请一并遵守 iText 的 AGPL 协议要求（https://www.gnu.org/licenses/agpl-3.0.html）；如需在闭源商业产品中使用，请更换为商业授权版本或其他 PDF 组件。
+> **依赖协议说明**：项目的 PDF 能力基于 iText（`com.itextpdf:itextpdf` 5.5.13.4）实现，iText 为 AGPL-3.0 协议。将本项目作为依赖集成或二次分发时，请一并遵守 iText 的 AGPL 协议要求（https://www.gnu.org/licenses/agpl-3.0.html）；如需在闭源商业产品中使用，请更换为商业授权版本或其他 PDF 组件。
+>
+> **字体说明**：PDF 默认字体为 iText 内置的 STSong（由 `itext-asian` 依赖提供），项目不再随包分发任何字体文件；如需更高显示质量，可自行引入 OFL 协议的思源宋体/Noto Serif CJK 并通过 `PDFStyle.Font.fontFamily()` 指定。

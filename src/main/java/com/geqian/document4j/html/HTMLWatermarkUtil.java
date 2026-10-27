@@ -3,14 +3,10 @@ package com.geqian.document4j.html;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class HTMLWatermarkUtil {
-
-    private static final Logger log = LoggerFactory.getLogger(HTMLWatermarkUtil.class);
 
     private static final String charset = "UTF-8";
 
@@ -32,7 +28,7 @@ public class HTMLWatermarkUtil {
         try (InputStream inputStream = new ByteArrayInputStream(htmlBytes)) {
             addFullTextWatermark(inputStream, outputStream, watermark);
         } catch (IOException e) {
-            log.error("字节数组转字节流发生异常", e);
+            throw new RuntimeException("HTML添加水印时发生异常", e);
         }
     }
 
@@ -47,9 +43,8 @@ public class HTMLWatermarkUtil {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             addFullTextWatermark(htmlBytes, out, watermark);
             return out.toByteArray();
-        } catch (Exception e) {
-            log.error("添加水印发生异常", e);
-            return new byte[0];
+        } catch (IOException e) {
+            throw new RuntimeException("HTML添加水印时发生异常", e);
         }
     }
 
@@ -64,10 +59,16 @@ public class HTMLWatermarkUtil {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, charset))) {
             String html = readToString(source);
             Document doc = Jsoup.parse(html, "UTF-8");
+            // 水印文本拼入 JS 字符串字面量前必须转义，否则内容中的引号会使整段脚本语法错误，
+            // "</script>" 则会提前闭合脚本标签
+            String safeWatermark = watermark == null ? "" :
+                    watermark.replace("\\", "\\\\")
+                            .replace("'", "\\'")
+                            .replace("</script>", "<\\/script>");
             StringBuilder scriptBuilder = new StringBuilder();
             scriptBuilder.append("\n")
                     .append(watermarkScript)
-                    .append(String.format("let waterMark = new WaterMark(document.documentElement, '%s');", watermark))
+                    .append(String.format("let waterMark = new WaterMark(document.documentElement, '%s');", safeWatermark))
                     .append("\n")
                     .append("waterMark.create();")
                     .append("\n");
@@ -84,7 +85,7 @@ public class HTMLWatermarkUtil {
             // 确保数据写入
             writer.flush();
         } catch (IOException e) {
-            log.error("添加水印发生异常", e);
+            throw new RuntimeException("HTML添加水印时发生异常", e);
         }
     }
 
@@ -100,8 +101,7 @@ public class HTMLWatermarkUtil {
             addFullTextWatermark(inputStream, out, watermark);
             return out.toByteArray();
         } catch (IOException e) {
-            log.error("添加水印发生异常", e);
-            return new byte[0];
+            throw new RuntimeException("HTML添加水印时发生异常", e);
         }
     }
 

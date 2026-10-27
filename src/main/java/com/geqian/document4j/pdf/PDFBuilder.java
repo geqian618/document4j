@@ -1,18 +1,15 @@
 package com.geqian.document4j.pdf;
 
-import com.geqian.document4j.common.annotation.TableField;
-import com.geqian.document4j.common.core.BaseTableInterceptor;
+import com.geqian.document4j.common.core.AbstractDocumentBuilder;
+import com.geqian.document4j.common.core.TableSupport;
 import com.geqian.document4j.common.core.WriteTableable;
 import com.geqian.document4j.common.extend.Converter;
-import com.geqian.document4j.common.extend.NoConverter;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,7 +19,7 @@ import java.util.stream.Stream;
  * <dependency>
  * <groupId>com.itextpdf</groupId>
  * <artifactId>itextpdf</artifactId>
- * <version>5.2.0</version>
+ * <version>5.5.13.4</version>
  * </dependency>
  *
  * <dependency>
@@ -34,9 +31,7 @@ import java.util.stream.Stream;
  * @author geqian
  * @date 15:46 2024/1/16
  */
-public class PDFBuilder {
-
-    private final Logger log = LoggerFactory.getLogger(PDFBuilder.class);
+public class PDFBuilder extends AbstractDocumentBuilder<PDFBuilder, PDFStyle> {
 
     private final Document document;
 
@@ -44,18 +39,13 @@ public class PDFBuilder {
 
     private final OutputStream outputStream;
 
-    private Map<String, String> enumMappings;
-
     private final Stack<Map.Entry<Integer, PdfOutline>> stack;
-
-    private Map<String, Converter> converters;
 
     private PDFBuilder(OutputStream outputStream) {
         try {
             this.document = new Document(PageSize.A4);
-            float padding = PageSize.A4.getWidth() * 0.1f;
-            // 设置左右填充为页面宽度的 10%
-            document.setMargins(padding, padding, (float) (0.8 * padding), (float) (0.8 * padding));
+            // 与 Word 中文版默认页面设置一致：A4，上下页边距 2.54cm（72pt），左右 3.17cm（90pt）
+            document.setMargins(90f, 90f, 72f, 72f);
             this.outputStream = outputStream;
             pdfWriter = PdfWriter.getInstance(this.document, this.outputStream);
             this.stack = new Stack<>();
@@ -132,23 +122,23 @@ public class PDFBuilder {
      * @return
      * @throws DocumentException
      */
-    public PDFBuilder heading(String text, PDFStyle.Heading heading, PDFStyle... styles) {
-        if (heading == null) {
+    public PDFBuilder heading(String text, PDFStyle heading, List<PDFStyle> styles) {
+        if (!(heading instanceof PDFStyle.Heading)) {
             throw new IllegalArgumentException("Title level cannot be null");
         }
-        int length = (styles == null) ? 0 : styles.length;
-        PDFStyle[] newStyles = new PDFStyle[length + 1];
-        newStyles[0] = heading;
-        if (length > 0) {
-            System.arraycopy(styles, 0, newStyles, 1, length);
+        int level = ((PDFStyle.Heading) heading).getLevel();
+        List<PDFStyle> allStyles = new ArrayList<>();
+        allStyles.add(heading);
+        if (styles != null) {
+            allStyles.addAll(styles);
         }
         // 锚点
         String anchor = UUID.randomUUID().toString();
-        Chunk anchorChunk = new Chunk(text, createFont(newStyles));
+        Chunk anchorChunk = new Chunk(text, createFont(allStyles));
         anchorChunk.setLocalDestination(anchor);
         // 应用段落级样式（如 spacing/对齐等），与 paragraph() 保持一致；否则传入的 PDFStyle.Paragraph 样式在标题上不生效
         Paragraph paragraph = new Paragraph(anchorChunk);
-        for (PDFStyle pdfStyle : newStyles) {
+        for (PDFStyle pdfStyle : allStyles) {
             if (pdfStyle != null && PDFStyle.Paragraph.class.isAssignableFrom(pdfStyle.getClass())) {
                 pdfStyle.buildStyle(paragraph);
             }
@@ -157,14 +147,14 @@ public class PDFBuilder {
             document.add(paragraph);
             // 使用锚点名
             PdfAction action = PdfAction.gotoLocalPage(anchor, true);
-            while (!stack.isEmpty() && stack.peek().getKey() >= heading.getLevel()) {
+            while (!stack.isEmpty() && stack.peek().getKey() >= level) {
                 stack.pop();
             }
             PdfOutline parent = stack.peek().getValue();
             PdfOutline pdfOutline = new PdfOutline(parent, action, text);
-            stack.push(new AbstractMap.SimpleEntry<>(heading.getLevel(), pdfOutline));
+            stack.push(new AbstractMap.SimpleEntry<>(level, pdfOutline));
         } catch (DocumentException e) {
-            log.error("添加标题时发生异常", e);
+            throw new RuntimeException("添加标题时发生异常", e);
         }
         return this;
     }
@@ -182,7 +172,7 @@ public class PDFBuilder {
             paragraph.add(Chunk.NEWLINE);
             this.document.add(paragraph);
         } catch (DocumentException e) {
-            log.error("添加空白行发生异常", e);
+            throw new RuntimeException("添加空白行发生异常", e);
         }
         return this;
     }
@@ -206,7 +196,7 @@ public class PDFBuilder {
      * @param pdfStyles
      * @return
      */
-    public PDFBuilder list(List<String> elements, PDFStyle... pdfStyles) {
+    public PDFBuilder list(List<String> elements, List<PDFStyle> pdfStyles) {
         try {
             com.itextpdf.text.List list = new com.itextpdf.text.List();
             for (String element : elements) {
@@ -214,7 +204,7 @@ public class PDFBuilder {
             }
             this.document.add(list);
         } catch (DocumentException e) {
-            log.error("添加列表发生异常", e);
+            throw new RuntimeException("添加列表发生异常", e);
         }
         return this;
     }
@@ -227,12 +217,38 @@ public class PDFBuilder {
      * @param pdfStyles
      * @return
      */
-    public PDFBuilder paragraph(String text, PDFStyle... pdfStyles) {
+    public PDFBuilder paragraph(String text, List<PDFStyle> pdfStyles) {
         try {
             Paragraph paragraph = createParagraph(text, pdfStyles);
             this.document.add(paragraph);
         } catch (DocumentException e) {
-            log.error("添加段落异常", e);
+            throw new RuntimeException("添加段落异常", e);
+        }
+        return this;
+    }
+
+    /**
+     * 添加链接
+     */
+    public PDFBuilder link(String text, String link, List<PDFStyle> pdfStyles) {
+        try {
+            Paragraph paragraph = createParagraph(text, pdfStyles);
+            ((Chunk) paragraph.get(0)).setAnchor(link);
+            this.document.add(paragraph);
+        } catch (DocumentException e) {
+            throw new RuntimeException("添加链接发生异常", e);
+        }
+        return this;
+    }
+
+    /**
+     * 添加分割线
+     */
+    public PDFBuilder divisionLine() {
+        try {
+            this.document.add(new LineSeparator(1f, 100f, BaseColor.BLACK, Element.ALIGN_CENTER, -2f));
+        } catch (DocumentException e) {
+            throw new RuntimeException("添加分割线发生异常", e);
         }
         return this;
     }
@@ -252,10 +268,17 @@ public class PDFBuilder {
             image.scaleToFit(width, height);
             this.document.add(image);
         } catch (Exception e) {
-            log.error("添加图片发生异常", e);
-            return this;
+            throw new RuntimeException("添加图片发生异常", e);
         }
         return this;
+    }
+
+    /**
+     * 添加图片（PDF 不使用文件名，等价于 {@link #picture(byte[], int, int)}）
+     */
+    @Override
+    public PDFBuilder picture(byte[] bytes, String filename, int width, int height) {
+        return picture(bytes, width, height);
     }
 
 
@@ -264,51 +287,30 @@ public class PDFBuilder {
      *
      * @param dataList 数据列表
      */
-    public PDFBuilder table(List<? extends WriteTableable> dataList, PDFStyle... pdfStyles) {
+    public PDFBuilder table(List<? extends WriteTableable> dataList, List<PDFStyle> pdfStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
             WriteTableable writeTableable = dataList.get(0);
 
-            //获取需要输出字段
-            List<Field> fields = getFieldList(writeTableable);
+            TableData tableData = resolveTable(writeTableable);
 
-            if (writeTableable instanceof BaseTableInterceptor) {
-                fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
-            }
-
-            int colums = fields.size();
-
-            PdfPTable table = createTable(colums);
+            PdfPTable table = createTable(tableData.fields.size());
 
             if (writeTableable instanceof PDFTableInterceptor) {
                 ((PDFTableInterceptor) writeTableable).interceptPdfTable(table);
             }
 
-            //加载枚举映射关系
-            loadEnumMappings(fields);
-
-            //加载全部属性值转换器
-            loadConverters(fields);
-
-            //获取表头
-            List<String> tableHeaders = getTableHeaders(fields);
-
-            if (writeTableable instanceof BaseTableInterceptor) {
-                tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
-            }
-
             //写入表头
-            writeTableHeaders(table, tableHeaders, writeTableable, pdfStyles);
+            writeTableHeaders(table, tableData.headers, writeTableable, pdfStyles);
 
             //写入表格主体数据
-            writeTableRows(table, dataList, fields, pdfStyles);
+            writeTableRows(table, dataList, tableData.fields, tableData.enumMappings, tableData.converters, pdfStyles);
 
             try {
                 this.document.add(table);
             } catch (DocumentException e) {
-                log.error("添加表格发生异常", e);
-                return this;
+                throw new RuntimeException("添加表格发生异常", e);
             }
         }
         return this;
@@ -320,7 +322,7 @@ public class PDFBuilder {
      *
      * @param rows 数据列表
      */
-    public PDFBuilder table(Object[][] rows, PDFStyle... pdfStyles) throws Exception {
+    public PDFBuilder table(Object[][] rows, List<PDFStyle> pdfStyles) {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -334,12 +336,17 @@ public class PDFBuilder {
                 PdfPTable table = createTable(column);
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < rows[i].length; j++) {
-                        String cellValue = String.valueOf(rows[i][j]);
-                        PdfPCell cell = createCell(cellValue, pdfStyles);
+                        Object cellValue = rows[i][j];
+                        //null 写作空字符串，避免字面量 "null" 出现在文档中
+                        PdfPCell cell = createCell(cellValue == null ? "" : String.valueOf(cellValue), pdfStyles);
                         table.addCell(cell);
                     }
                 }
-                this.document.add(table);
+                try {
+                    this.document.add(table);
+                } catch (DocumentException e) {
+                    throw new RuntimeException("添加表格发生异常", e);
+                }
             }
         }
         return this;
@@ -370,110 +377,12 @@ public class PDFBuilder {
      * @return
      */
     public byte[] asBytes() {
-        try {
-            closeResources(this.document, this.pdfWriter);
+        closeResources(this.document, this.pdfWriter);
+        if (outputStream instanceof ByteArrayOutputStream) {
             return ((ByteArrayOutputStream) outputStream).toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-    }
-
-
-    /**
-     * PDF文档写入文件
-     *
-     * @return
-     */
-    public void asFile(File file) {
-        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(file.toPath()))) {
-            outputStream.write(asBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
-     * PDF 文档写入文件
-     *
-     * @return
-     */
-    public void asFile(String filePath) {
-        asFile(new File(filePath));
-    }
-
-
-    /**
-     * PDF文档写入到输出流
-     *
-     * @return
-     */
-    public void asOutputStream(OutputStream outputStream) {
-        try {
-            outputStream.write(asBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
-     * 加载全部属性值转换器
-     *
-     * @param fields
-     */
-    private void loadConverters(List<Field> fields) {
-        this.converters = new HashMap<>();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(TableField.class)) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                if (annotation.converter() != NoConverter.class) {
-                    try {
-                        Converter converter = annotation.converter().getConstructor().newInstance();
-                        this.converters.put(getFieldKey(field), converter);
-                    } catch (Exception e) {
-                        log.error("创建 Converter 转换器发生异常", e);
-                    }
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 加载全部枚举映射关系
-     *
-     * @param fields
-     * @return
-     */
-    private void loadEnumMappings(List<Field> fields) {
-        this.enumMappings = new HashMap<>();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(TableField.class)) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                String[] enums = annotation.enums();
-                if (enums.length > 0) {
-                    appendEnumMapping(getFieldKey(field), enums);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 追加一组枚举映射关系
-     *
-     * @param fieldKey
-     * @param enums
-     */
-    private void appendEnumMapping(String fieldKey, String[] enums) {
-        for (String enumStr : enums) {
-            String[] splitArray = enumStr.split("->");
-            if (splitArray.length != 2) {
-                throw new IllegalArgumentException("The convert property format of TableField is：oldValue -> newValue");
-            }
-            this.enumMappings.put(fieldKey + ":" + splitArray[0].trim(), splitArray[1].trim());
-        }
+        throw new IllegalStateException(
+                "create(OutputStream) 创建的实例 PDF 已直接写入该流，请使用 build() 收尾；asBytes()/asFile()/asOutputStream() 仅支持 create() 创建的实例");
     }
 
 
@@ -500,7 +409,7 @@ public class PDFBuilder {
      * @param tableHeaders
      * @param pdfStyles
      */
-    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, PDFStyle... pdfStyles) {
+    private void writeTableHeaders(PdfPTable table, List<String> tableHeaders, WriteTableable obj, List<PDFStyle> pdfStyles) {
 
         for (String header : tableHeaders) {
             PdfPCell cell = createCell(header, pdfStyles);
@@ -519,9 +428,10 @@ public class PDFBuilder {
      * @param fields
      * @param pdfStyles
      */
-    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields, PDFStyle... pdfStyles) {
+    private void writeTableRows(PdfPTable table, List<? extends WriteTableable> dataList, List<Field> fields,
+                                Map<String, String> enumMappings, Map<String, Converter> converters, List<PDFStyle> pdfStyles) {
         for (WriteTableable writeTableable : dataList) {
-            writeTableRow(table, writeTableable, fields, pdfStyles);
+            writeTableRow(table, writeTableable, fields, enumMappings, converters, pdfStyles);
         }
     }
 
@@ -534,9 +444,10 @@ public class PDFBuilder {
      * @param fieldList
      * @param pdfStyles
      */
-    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList, PDFStyle... pdfStyles) {
+    private void writeTableRow(PdfPTable table, WriteTableable obj, List<Field> fieldList,
+                               Map<String, String> enumMappings, Map<String, Converter> converters, List<PDFStyle> pdfStyles) {
         for (Field field : fieldList) {
-            String cellValue = getCellValue(obj, field);
+            String cellValue = TableSupport.getCellValue(obj, field, enumMappings, converters);
             PdfPCell cell = createCell(cellValue, pdfStyles);
             //拦截单元格
             if (obj instanceof PDFTableInterceptor) {
@@ -545,95 +456,6 @@ public class PDFBuilder {
             table.addCell(cell);
         }
     }
-
-    /**
-     * 获取单元格值
-     *
-     * @param obj
-     * @param field
-     * @return
-     */
-    private String getCellValue(WriteTableable obj, Field field) {
-        Object fieldValue;
-        try {
-            field.setAccessible(true);
-            fieldValue = field.get(obj);
-            //执行属性值枚举映射
-            Object enumValue = this.enumMappings.get(getFieldKey(field) + ":" + fieldValue);
-            if (enumValue != null) {
-                fieldValue = enumValue;
-            }
-            //执行属性值转换
-            Converter converter = this.converters.get(getFieldKey(field));
-            if (converter != null) {
-                fieldValue = converter.convert(fieldValue);
-            }
-        } catch (IllegalAccessException e) {
-            fieldValue = "";
-        }
-        return String.valueOf(fieldValue);
-    }
-
-
-    /**
-     * 获取表头
-     *
-     * @param fieldList
-     * @return
-     */
-    private List<String> getTableHeaders(List<Field> fieldList) {
-        //通过注解获取需要输出的属性别名
-        return fieldList.stream()
-                .map(field -> {
-                    TableField annotation = field.getAnnotation(TableField.class);
-                    return annotation != null && !Objects.equals("", annotation.value())
-                            ? annotation.value()
-                            : field.getName();
-                }).collect(Collectors.toList());
-    }
-
-    /**
-     * 获取需要写入表格的属性
-     *
-     * @param obj
-     * @return
-     */
-    private <T> List<Field> getFieldList(T obj) {
-
-        List<Class<?>> classes = new ArrayList<>();
-
-        Class<?> classType = obj.getClass();
-
-        //遍历获取父类class
-        while (!Objects.equals(classType, Object.class)) {
-            classes.add(classType);
-            classType = classType.getSuperclass();
-        }
-
-        // 获取子类及父类全部属性
-        List<Field> fields = classes.stream()
-                .map(pojoClass -> Stream.of(pojoClass.getDeclaredFields()).collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        // 属性中是否匹配到任意一个包含 TableField 注解
-        boolean anyMatch = fields.stream()
-                .anyMatch(field -> field.isAnnotationPresent(TableField.class));
-
-        // 如果使用了 TableField 注解，只获取包含 TableField 注解的属性，反之获取全部属性
-        if (anyMatch) {
-            fields = fields.stream()
-                    .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
-                    .collect(Collectors.toList());
-        }
-
-        return fields.stream().sorted((a, b) -> {
-            TableField before = a.getAnnotation(TableField.class);
-            TableField next = b.getAnnotation(TableField.class);
-            return (before == null ? Integer.MAX_VALUE : before.order()) - (next == null ? Integer.MAX_VALUE : next.order());
-        }).collect(Collectors.toList());
-    }
-
 
     /**
      * 设置表格样式
@@ -651,35 +473,12 @@ public class PDFBuilder {
     }
 
     /**
-     * 获取类名+属性名
-     *
-     * @param field
-     * @return
-     */
-    private String getFieldKey(Field field) {
-        return field.getDeclaringClass().getName() + "." + field.getName();
-    }
-
-
-    /**
      * 关闭资源
      */
     private void closeResources(Document document, PdfWriter pdfWriter) {
         if (document != null) {
             document.close();
         }
-        if (pdfWriter != null) {
-            pdfWriter.close();
-        }
-    }
-
-
-    /**
-     * 关闭资源
-     *
-     * @param pdfWriter
-     */
-    private void closePdfWriter(PdfWriter pdfWriter) {
         if (pdfWriter != null) {
             pdfWriter.close();
         }
@@ -708,7 +507,7 @@ public class PDFBuilder {
      * @param text
      * @return
      */
-    private Paragraph createParagraph(String text, PDFStyle... pdfStyles) {
+    private Paragraph createParagraph(String text, List<PDFStyle> pdfStyles) {
         Paragraph paragraph = new Paragraph(text, createFont(pdfStyles));
         // 显式设置默认间距（段前段后 0、单倍行距），用户样式随后覆盖
         applyDefaultSpacing(paragraph);
@@ -728,7 +527,7 @@ public class PDFBuilder {
      *
      * @return
      */
-    private Font createFont(PDFStyle... pdfStyles) {
+    private Font createFont(List<PDFStyle> pdfStyles) {
         String fontFamily = null;
         Font font;
         try {
@@ -741,12 +540,14 @@ public class PDFBuilder {
             }
             font = fontFamily != null ?
                     FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED)
-                    : FontFactory.getFont("fonts/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-        } catch (Exception ignored) {
-            font = FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+                    // 默认使用 iText 内置中文字体 STSong（itext-asian 提供），不再依赖随包分发的字体文件
+                    : FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        } catch (Exception e) {
+            font = new Font();
         }
         font.setStyle(Font.NORMAL);
-        font.setSize(Font.DEFAULTSIZE);
+        // 与 Word 默认正文字号一致：11 磅（iText 默认 12 磅）
+        font.setSize(11);
         if (pdfStyles != null) {
             for (PDFStyle pdfStyle : pdfStyles) {
                 if (pdfStyle != null && (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass()) || PDFStyle.Heading.class.isAssignableFrom(pdfStyle.getClass()))) {
@@ -764,7 +565,7 @@ public class PDFBuilder {
      * @param pdfStyles
      * @return
      */
-    private PdfPCell createCell(String text, PDFStyle... pdfStyles) {
+    private PdfPCell createCell(String text, List<PDFStyle> pdfStyles) {
         PdfPCell cell = new PdfPCell(new Phrase(text, createFont(pdfStyles)));
         // 设置单元格的水平和垂直对齐方式
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -792,7 +593,7 @@ public class PDFBuilder {
         }
 
         public ParagraphBuilder text(String text, PDFStyle... pdfStyles) {
-            Chunk chunk = new Chunk(text, createFont(pdfStyles));
+            Chunk chunk = new Chunk(text, createFont(pdfStyles == null ? Collections.<PDFStyle>emptyList() : Arrays.asList(pdfStyles)));
             paragraph.add(chunk);
             if (pdfStyles != null) {
                 for (PDFStyle pdfStyle : pdfStyles) {

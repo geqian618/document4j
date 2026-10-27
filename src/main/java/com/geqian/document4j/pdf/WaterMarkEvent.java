@@ -22,6 +22,10 @@ public class WaterMarkEvent implements PdfPageEvent {
     private final Font font;
 
     public WaterMarkEvent(Font font, String watermark) {
+        if (watermark == null || watermark.trim().isEmpty()) {
+            // 空水印会使文本宽度为 0，平铺循环步长为 0 将死循环
+            throw new IllegalArgumentException("水印内容不能为空");
+        }
         this.watermark = watermark;
         this.font = font;
     }

@@ -1,10 +1,9 @@
 package com.geqian.document4j.word;
 
-import com.geqian.document4j.common.annotation.TableField;
-import com.geqian.document4j.common.core.BaseTableInterceptor;
-import com.geqian.document4j.common.extend.Converter;
-import com.geqian.document4j.common.extend.NoConverter;
+import com.geqian.document4j.common.core.AbstractDocumentBuilder;
+import com.geqian.document4j.common.core.TableSupport;
 import com.geqian.document4j.common.core.WriteTableable;
+import com.geqian.document4j.common.extend.Converter;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,20 +21,28 @@ import java.util.stream.Stream;
  * @author geqian
  * @date 15:18 2024/3/9
  */
-public class WordBuilder {
+public class WordBuilder extends AbstractDocumentBuilder<WordBuilder, WordStyle> {
 
     private final Logger log = LoggerFactory.getLogger(WordBuilder.class);
 
     private final XWPFDocument document;
 
-    private Map<String, String> enumMappings;
-
-    private Map<String, Converter> converters;
+    /**
+     * Word 中文版默认正文字体（主题字体 minorEastAsia）
+     */
+    private static final String DEFAULT_FONT = "等线";
 
     private WordBuilder(XWPFDocument document) {
         this.document = document;
+        XWPFStyles styles = document.getStyles();
+        // 仅对新建文档写入默认样式；模板自带样式时保持模板定义
+        if (styles == null) {
+            styles = document.createStyles();
+            ensureDocumentDefaults(styles);
+            ensureNormalStyle(styles);
+        }
         // 确保标题样式已定义，使 Word/WPS 导航窗格能按层次识别标题
-        ensureHeadingStyles();
+        ensureHeadingStyles(styles);
     }
 
     /**
@@ -119,17 +125,18 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder heading(String text, WordStyle.Heading heading, WordStyle... wordStyles) {
-        //创建段落
-        XWPFParagraph paragraph = document.createParagraph();
+    public WordBuilder heading(String text, WordStyle heading, List<WordStyle> styles) {
+        if (!(heading instanceof WordStyle.Heading)) {
+            throw new IllegalArgumentException("WordStyle.Heading cannot be null");
+        }
         // 标题样式最先应用，用户自定义样式（如 spacing/spacingBefore/Font 等）随后应用，
         // 以覆盖标题的默认值（如段前段后间距、字号等），否则 Heading 会覆盖用户传入的样式
-        WordStyle[] styles = new WordStyle[(wordStyles == null ? 0 : wordStyles.length) + 1];
-        styles[0] = heading;
-        if (wordStyles != null) {
-            System.arraycopy(wordStyles, 0, styles, 1, wordStyles.length);
+        List<WordStyle> allStyles = new ArrayList<>();
+        allStyles.add(heading);
+        if (styles != null) {
+            allStyles.addAll(styles);
         }
-        this.paragraph(paragraph, text, styles);
+        this.paragraph(document.createParagraph(), text, allStyles);
         return this;
     }
 
@@ -139,7 +146,7 @@ public class WordBuilder {
      *
      * @return
      */
-    public WordBuilder paragraph(String text, WordStyle... wordStyles) {
+    public WordBuilder paragraph(String text, List<WordStyle> wordStyles) {
         //创建段落
         XWPFParagraph paragraph = document.createParagraph();
         this.paragraph(paragraph, text, wordStyles);
@@ -147,23 +154,75 @@ public class WordBuilder {
     }
 
     /**
+     * 添加无序列表（每项一个段落）
+     */
+    public WordBuilder list(List<String> elements, List<WordStyle> wordStyles) {
+        if (elements != null) {
+            for (String element : elements) {
+                paragraph("• " + (element == null ? "" : element), wordStyles);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 添加链接
+     */
+    public WordBuilder link(String text, String link, List<WordStyle> wordStyles) {
+        XWPFParagraph paragraph = document.createParagraph();
+        applyDefaultSpacing(paragraph);
+        XWPFRun run = paragraph.createHyperlinkRun(link);
+        run.setText(text);
+        // Word 默认超链接样式：蓝色下划线
+        run.setColor("0563C1");
+        run.setUnderline(UnderlinePatterns.SINGLE);
+        applyStyles(paragraph, run, wordStyles);
+        return this;
+    }
+
+    /**
+     * 添加分割线（段落底边框）
+     */
+    public WordBuilder divisionLine() {
+        XWPFParagraph paragraph = document.createParagraph();
+        applyDefaultSpacing(paragraph);
+        CTPPr ppr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
+        CTPBdr borders = ppr.isSetPBdr() ? ppr.getPBdr() : ppr.addNewPBdr();
+        CTBorder bottom = borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom();
+        bottom.setVal(STBorder.SINGLE);
+        // 0.75 磅（1/8 磅为单位）
+        bottom.setSz(BigInteger.valueOf(6));
+        bottom.setSpace(BigInteger.valueOf(1));
+        bottom.setColor("000000");
+        return this;
+    }
+
+    /**
      * 添加段落文本
      *
      * @return
      */
-    private void paragraph(XWPFParagraph paragraph, String text, WordStyle... wordStyles) {
+    private void paragraph(XWPFParagraph paragraph, String text, List<WordStyle> wordStyles) {
         // 显式设置段落行距与段后间距，避免 Word 与 WPS 因各自内置 Normal 样式默认值
         // （Word：段后 8 磅、1.08 倍行距；WPS：段后 0、单倍行距）不同而导致显示不一致
         applyDefaultSpacing(paragraph);
         //创建段落文本
         XWPFRun run = paragraph.createRun();
         run.setText(text);
-        if (wordStyles != null) {
-            for (WordStyle wordStyle : wordStyles) {
-                if (wordStyle != null) {
-                    boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Heading.class.isAssignableFrom(wordStyle.getClass());
-                    wordStyle.buildStyle(isParagraph ? paragraph : run);
-                }
+        applyStyles(paragraph, run, wordStyles);
+    }
+
+    /**
+     * 应用样式：段落级样式作用于段落，其余（字体样式）作用于文本
+     */
+    private void applyStyles(XWPFParagraph paragraph, XWPFRun run, List<WordStyle> wordStyles) {
+        if (wordStyles == null) {
+            return;
+        }
+        for (WordStyle wordStyle : wordStyles) {
+            if (wordStyle != null) {
+                boolean isParagraph = WordStyle.Paragraph.class.isAssignableFrom(wordStyle.getClass()) || WordStyle.Heading.class.isAssignableFrom(wordStyle.getClass());
+                wordStyle.buildStyle(isParagraph ? paragraph : run);
             }
         }
     }
@@ -176,12 +235,60 @@ public class WordBuilder {
      * @param paragraph 段落
      */
     private void applyDefaultSpacing(XWPFParagraph paragraph) {
-        paragraph.setSpacingBefore(1);
+        paragraph.setSpacingBefore(0);
         paragraph.setSpacingBetween(1, LineSpacingRule.AUTO);
         paragraph.setSpacingAfter(0);
         // 关闭"如果定义了文档网格，则对齐到网格"，否则 Word/WPS 会把上述显式间距
         // 与行距按文档网格取整渲染（表现为段前段后 0、单倍行距但实际显示不一致）
         setSnapToGridOff(paragraph);
+    }
+
+    /**
+     * 写入与 Office Word 一致的文档默认格式（docDefaults）：等线 11pt，段后 8 磅、1.08 倍行距。
+     * <p>
+     * POI 新建的文档没有 docDefaults，Word 会按内置默认值渲染，
+     * 而网页预览（docx-preview 等）按浏览器默认值渲染（Times New Roman 16px、无段后间距），
+     * 未显式设置样式的文本在两端的显示因此不一致；显式写入 Word 的默认值后两端渲染一致。
+     */
+    private void ensureDocumentDefaults(XWPFStyles styles) {
+        CTStyles ctStyles = styles.getCtStyles();
+        if (ctStyles.isSetDocDefaults()) {
+            return;
+        }
+        CTDocDefaults docDefaults = ctStyles.addNewDocDefaults();
+
+        CTRPr rPr = docDefaults.addNewRPrDefault().addNewRPr();
+        CTFonts fonts = rPr.addNewRFonts();
+        fonts.setAscii(DEFAULT_FONT);
+        fonts.setHAnsi(DEFAULT_FONT);
+        fonts.setEastAsia(DEFAULT_FONT);
+        fonts.setCs(DEFAULT_FONT);
+        // 11 磅（半磅为单位）
+        rPr.addNewSz().setVal(BigInteger.valueOf(22));
+        rPr.addNewSzCs().setVal(BigInteger.valueOf(22));
+
+        CTSpacing spacing = docDefaults.addNewPPrDefault().addNewPPr().addNewSpacing();
+        // 段后 8 磅（1/20 磅为单位）、1.08 倍行距（240 * 1.08 ≈ 259）
+        spacing.setAfter(BigInteger.valueOf(160));
+        spacing.setLine(BigInteger.valueOf(259));
+        spacing.setLineRule(STLineSpacingRule.AUTO);
+    }
+
+    /**
+     * 定义默认段落样式 Normal（正文），使 Word 样式面板与预览均以该样式作为基准。
+     * 具体格式继承 docDefaults。
+     */
+    private void ensureNormalStyle(XWPFStyles styles) {
+        if (styles.getStyle("Normal") != null) {
+            return;
+        }
+        CTStyle ctStyle = CTStyle.Factory.newInstance();
+        ctStyle.setType(STStyleType.PARAGRAPH);
+        ctStyle.setStyleId("Normal");
+        ctStyle.setDefault(true);
+        ctStyle.addNewName().setVal("Normal");
+        ctStyle.addNewQFormat();
+        styles.addStyle(new XWPFStyle(ctStyle));
     }
 
     /**
@@ -192,11 +299,7 @@ public class WordBuilder {
      * Word/WPS 无法将该段落识别为标题样式（样式面板显示为"正文"），标题无法按层次稳定显示。
      * 此方法在样式缺失时补充标准标题样式定义；模板或其他来源已自带 Heading1 时跳过，避免覆盖。
      */
-    private void ensureHeadingStyles() {
-        XWPFStyles styles = document.getStyles();
-        if (styles == null) {
-            styles = document.createStyles();
-        }
+    private void ensureHeadingStyles(XWPFStyles styles) {
         // 模板或其他来源已定义标题样式时，直接复用
         if (styles.getStyle("Heading1") != null) {
             return;
@@ -267,22 +370,17 @@ public class WordBuilder {
      *
      * @param dataList 数据列表
      */
-    public WordBuilder table(List<? extends WriteTableable> dataList, WordStyle... wordStyles) {
+    public WordBuilder table(List<? extends WriteTableable> dataList, List<WordStyle> wordStyles) {
 
         if (dataList != null && !(dataList = dataList.stream().filter(Objects::nonNull).collect(Collectors.toList())).isEmpty()) {
 
             WriteTableable writeTableable = dataList.get(0);
 
-            //获取需要输出字段
-            List<Field> fields = getFieldList(writeTableable);
-
-            if (writeTableable instanceof BaseTableInterceptor) {
-                fields = ((BaseTableInterceptor) writeTableable).interceptFields(writeTableable.getClass(), fields);
-            }
+            TableData tableData = resolveTable(writeTableable);
 
             int rows = dataList.size() + 1;
 
-            int columns = fields.size();
+            int columns = tableData.fields.size();
 
             XWPFTable table = createTable(rows, columns);
 
@@ -290,27 +388,14 @@ public class WordBuilder {
                 ((WordTableInterceptor) writeTableable).interceptWordTable(table);
             }
 
-            //加载枚举映射关系
-            loadEnumMappings(fields);
-
-            //加载全部属性值转换器
-            loadConverters(fields);
-
-            //获取表头
-            List<String> tableHeaders = getTableHeaders(fields);
-
-            if (writeTableable instanceof BaseTableInterceptor) {
-                tableHeaders = ((BaseTableInterceptor) writeTableable).interceptTableHeaders(tableHeaders, writeTableable.getClass());
-            }
-
             //写入表头
-            writeTableHeaders(table, tableHeaders, writeTableable, fields, wordStyles);
+            writeTableHeaders(table, tableData.headers, writeTableable, tableData.fields, wordStyles);
 
             //表格内容开始行数
             int startRow = 1;
 
             //写入表格主体数据
-            writeTableRows(table, startRow, dataList, fields, wordStyles);
+            writeTableRows(table, startRow, dataList, tableData.fields, tableData.enumMappings, tableData.converters, wordStyles);
         }
         return this;
     }
@@ -321,7 +406,7 @@ public class WordBuilder {
      *
      * @param rows 数据列表
      */
-    public WordBuilder table(Object[][] rows, WordStyle... wordStyles) {
+    public WordBuilder table(Object[][] rows, List<WordStyle> wordStyles) {
         int row;
         int column;
         if (rows != null && (rows = Stream.of(rows).filter(Objects::nonNull).toArray(Object[][]::new)).length > 0) {
@@ -336,7 +421,9 @@ public class WordBuilder {
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < rows[i].length; j++) {
                         XWPFParagraph paragraph = table.getRow(i).getCell(j).getParagraphs().get(0);
-                        paragraph(paragraph, String.valueOf(rows[i][j]), wordStyles);
+                        Object cellValue = rows[i][j];
+                        //null 写作空字符串，避免字面量 "null" 出现在文档中
+                        paragraph(paragraph, cellValue == null ? "" : String.valueOf(cellValue), wordStyles);
                     }
                 }
             }
@@ -371,41 +458,48 @@ public class WordBuilder {
 
 
     /**
-     * word文档写入文件
-     *
-     * @return
-     */
-    public void asFile(File file) {
-        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(file.toPath()))) {
-            asOutputStream(outputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
-     * word文档写入文件
-     *
-     * @return
-     */
-    public void asFile(String filePath) {
-        asFile(new File(filePath));
-    }
-
-
-    /**
      * word文档写入输出流
      */
+    @Override
     public void asOutputStream(OutputStream outputStream) {
         try {
+            //写出前确保文档带有页面设置，保证各端渲染一致
+            ensureDefaultSectionProperties();
             document.write(outputStream);
         } catch (IOException e) {
-            throw new RuntimeException("构建PDF文件时发生异常", e);
+            throw new RuntimeException("构建Word文件时发生异常", e);
         } finally {
             //关闭word文档对象
             closeResources(document);
         }
+    }
+
+
+    /**
+     * 确保文档包含 sectPr 页面设置（A4 纵向、上下页边距 1440 缇/2.54cm、左右 1800 缇/3.17cm）。
+     * <p>
+     * POI 新建的文档默认没有 sectPr，MS Word/WPS 会按自身内置默认页边距渲染，
+     * 而部分预览组件（如 docx-preview）不会补充默认值，内容会贴着页面边缘渲染；
+     * 显式写入与 Word 默认值一致的页面设置，保证各端渲染一致。
+     * 模板等来源已自带页面设置时跳过，避免覆盖。
+     */
+    private void ensureDefaultSectionProperties() {
+        CTBody body = document.getDocument().getBody();
+        if (body == null || body.isSetSectPr()) {
+            return;
+        }
+        CTSectPr sectPr = body.addNewSectPr();
+        CTPageSz pageSize = sectPr.addNewPgSz();
+        pageSize.setW(BigInteger.valueOf(11906));
+        pageSize.setH(BigInteger.valueOf(16838));
+        CTPageMar pageMargin = sectPr.addNewPgMar();
+        pageMargin.setTop(BigInteger.valueOf(1440));
+        pageMargin.setBottom(BigInteger.valueOf(1440));
+        pageMargin.setLeft(BigInteger.valueOf(1800));
+        pageMargin.setRight(BigInteger.valueOf(1800));
+        pageMargin.setHeader(BigInteger.valueOf(851));
+        pageMargin.setFooter(BigInteger.valueOf(992));
+        pageMargin.setGutter(BigInteger.ZERO);
     }
 
 
@@ -426,77 +520,6 @@ public class WordBuilder {
             ind = ppr.addNewInd();
         }
         ind.setFirstLineChars(BigInteger.valueOf(100L * indent));
-    }
-
-
-    /**
-     * 加载全部属性值转换器
-     *
-     * @param fields
-     */
-    private void loadConverters(List<Field> fields) {
-        this.converters = new HashMap<>();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(TableField.class)) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                if (annotation.converter() != NoConverter.class) {
-                    try {
-                        Converter converter = annotation.converter().getConstructor().newInstance();
-                        this.converters.put(getFieldKey(field), converter);
-                    } catch (Exception e) {
-                        log.error("加载转换器发生异常", e);
-                    }
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 获取类名+属性名
-     *
-     * @param field
-     * @return
-     */
-    private String getFieldKey(Field field) {
-        return field.getDeclaringClass().getName() + "." + field.getName();
-    }
-
-
-    /**
-     * 加载全部枚举映射关系
-     *
-     * @param fields
-     * @return
-     */
-    private void loadEnumMappings(List<Field> fields) {
-        this.enumMappings = new HashMap<>();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(TableField.class)) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                String[] enums = annotation.enums();
-                if (enums.length > 0) {
-                    appendEnumMapping(getFieldKey(field), enums);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 追加一组枚举映射关系
-     *
-     * @param fieldKey
-     * @param enums
-     */
-    private void appendEnumMapping(String fieldKey, String[] enums) {
-        for (String enumStr : enums) {
-            String[] splitArray = enumStr.split("->");
-            if (splitArray.length != 2) {
-                throw new IllegalArgumentException("The convert property format of TableField is：oldValue -> newValue");
-            }
-            this.enumMappings.put(fieldKey + ":" + splitArray[0].trim(), splitArray[1].trim());
-        }
     }
 
 
@@ -524,7 +547,7 @@ public class WordBuilder {
      * @param tableHeaders
      * @param wordStyles
      */
-    private void writeTableHeaders(XWPFTable table, List<String> tableHeaders, WriteTableable obj, List<Field> fields, WordStyle... wordStyles) {
+    private void writeTableHeaders(XWPFTable table, List<String> tableHeaders, WriteTableable obj, List<Field> fields, List<WordStyle> wordStyles) {
 
         for (int i = 0; i < tableHeaders.size(); i++) {
 
@@ -548,9 +571,10 @@ public class WordBuilder {
      * @param fields
      * @param wordStyles
      */
-    private void writeTableRows(XWPFTable table, int startRow, List<? extends WriteTableable> dataList, List<Field> fields, WordStyle... wordStyles) {
+    private void writeTableRows(XWPFTable table, int startRow, List<? extends WriteTableable> dataList, List<Field> fields,
+                                Map<String, String> enumMappings, Map<String, Converter> converters, List<WordStyle> wordStyles) {
         for (int i = 0; i < dataList.size(); i++) {
-            writeTableRow(table, i + startRow, dataList.get(i), fields, wordStyles);
+            writeTableRow(table, i + startRow, dataList.get(i), fields, enumMappings, converters, wordStyles);
         }
     }
 
@@ -564,11 +588,12 @@ public class WordBuilder {
      * @param fieldList
      * @param wordStyles
      */
-    private void writeTableRow(XWPFTable table, int rowIndex, WriteTableable obj, List<Field> fieldList, WordStyle... wordStyles) {
+    private void writeTableRow(XWPFTable table, int rowIndex, WriteTableable obj, List<Field> fieldList,
+                               Map<String, String> enumMappings, Map<String, Converter> converters, List<WordStyle> wordStyles) {
         for (int i = 0; i < fieldList.size(); i++) {
             XWPFTableCell cell = table.getRow(rowIndex).getCell(i);
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
-            String cellValue = getCellValue(obj, fieldList.get(i));
+            String cellValue = TableSupport.getCellValue(obj, fieldList.get(i), enumMappings, converters);
             paragraph(paragraph, cellValue, wordStyles);
             //拦截单元格
             if (obj instanceof WordTableInterceptor) {
@@ -578,33 +603,19 @@ public class WordBuilder {
     }
 
     /**
-     * 获取单元格值
+     * 应用单线边框并显式写入边框宽度、间距与颜色
      *
-     * @param obj
-     * @param field
-     * @return
+     * @param border 边框元素
      */
-    private String getCellValue(WriteTableable obj, Field field) {
-        Object fieldValue;
-        try {
-            field.setAccessible(true);
-            fieldValue = field.get(obj);
-            //执行属性值枚举映射
-            Object enumValue = this.enumMappings.get(getFieldKey(field) + ":" + fieldValue);
-            if (enumValue != null) {
-                fieldValue = enumValue;
-            }
-            //执行属性值转换
-            Converter converter = this.converters.get(getFieldKey(field));
-            if (converter != null) {
-                fieldValue = converter.convert(fieldValue);
-            }
-        } catch (IllegalAccessException e) {
-            fieldValue = "";
-        }
-        return String.valueOf(fieldValue);
+    private void applySingleBorder(CTBorder border) {
+        border.setVal(STBorder.SINGLE);
+        // OOXML 规范中缺失 w:sz/w:space/w:color 时由阅读端按默认值渲染（0.5 磅黑色实线），
+        // 但部分预览组件（如 docx-preview）不会补默认值，缺失这些属性时边框不渲染，需显式写入。
+        // w:sz 单位为 1/8 磅，4 表示 0.5 磅
+        border.setSz(BigInteger.valueOf(4));
+        border.setSpace(BigInteger.valueOf(0));
+        border.setColor("000000");
     }
-
 
     /**
      * 设置表格样式
@@ -632,97 +643,30 @@ public class WordBuilder {
 
         // 设置表格边框线条类型（createTable 默认已生成边框，需复用已有元素，避免重复添加）
         CTTblBorders borders = tblPr.isSetTblBorders() ? tblPr.getTblBorders() : tblPr.addNewTblBorders();
-        CTBorder topBorder = borders.isSetTop() ? borders.getTop() : borders.addNewTop();
-        topBorder.setVal(STBorder.SINGLE);
-        CTBorder bottomBorder = borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom();
-        bottomBorder.setVal(STBorder.SINGLE);
-        CTBorder leftBorder = borders.isSetLeft() ? borders.getLeft() : borders.addNewLeft();
-        leftBorder.setVal(STBorder.SINGLE);
-        CTBorder rightBorder = borders.isSetRight() ? borders.getRight() : borders.addNewRight();
-        rightBorder.setVal(STBorder.SINGLE);
-        CTBorder insideHBorder = borders.isSetInsideH() ? borders.getInsideH() : borders.addNewInsideH();
-        insideHBorder.setVal(STBorder.SINGLE);
-        CTBorder insideVBorder = borders.isSetInsideV() ? borders.getInsideV() : borders.addNewInsideV();
-        insideVBorder.setVal(STBorder.SINGLE);
+        applySingleBorder(borders.isSetTop() ? borders.getTop() : borders.addNewTop());
+        applySingleBorder(borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom());
+        applySingleBorder(borders.isSetLeft() ? borders.getLeft() : borders.addNewLeft());
+        applySingleBorder(borders.isSetRight() ? borders.getRight() : borders.addNewRight());
+        applySingleBorder(borders.isSetInsideH() ? borders.getInsideH() : borders.addNewInsideH());
+        applySingleBorder(borders.isSetInsideV() ? borders.getInsideV() : borders.addNewInsideV());
 
         // 设置单元格边距：上下 70 缇，左右 108 缇（0.19cm，OOXML 标准表格默认边距）
-        // 左右边距必须显式指定：Word 与 WPS 对缺失 left/right 的默认值处理不同，
-        // 不显式写入会导致单元格文本距边框的位置在两软件中不一致
+        // 必须写成 left/right：start/end 是 Strict 命名，Word 能识别，
+        // 但 docx-preview 等网页预览组件只解析 left/right，缺失时预览中文字紧贴边框
         CTTblCellMar cellMar = tblPr.isSetTblCellMar() ? tblPr.getTblCellMar() : tblPr.addNewTblCellMar();
         CTTblWidth top = cellMar.isSetTop() ? cellMar.getTop() : cellMar.addNewTop();
         top.setType(STTblWidth.DXA);
         top.setW(BigInteger.valueOf(70));
-        CTTblWidth start = cellMar.isSetStart() ? cellMar.getStart() : cellMar.addNewStart();
-        start.setType(STTblWidth.DXA);
-        start.setW(BigInteger.valueOf(108));
+        CTTblWidth left = cellMar.isSetLeft() ? cellMar.getLeft() : cellMar.addNewLeft();
+        left.setType(STTblWidth.DXA);
+        left.setW(BigInteger.valueOf(108));
         CTTblWidth bottom = cellMar.isSetBottom() ? cellMar.getBottom() : cellMar.addNewBottom();
         bottom.setType(STTblWidth.DXA);
         bottom.setW(BigInteger.valueOf(70));
-        CTTblWidth end = cellMar.isSetEnd() ? cellMar.getEnd() : cellMar.addNewEnd();
-        end.setType(STTblWidth.DXA);
-        end.setW(BigInteger.valueOf(108));
+        CTTblWidth right = cellMar.isSetRight() ? cellMar.getRight() : cellMar.addNewRight();
+        right.setType(STTblWidth.DXA);
+        right.setW(BigInteger.valueOf(108));
     }
-
-    /**
-     * 获取表头
-     *
-     * @param fieldList
-     * @return
-     */
-    private List<String> getTableHeaders(List<Field> fieldList) {
-        //通过注解获取需要输出的属性别名
-        return fieldList.stream()
-                .map(field -> {
-                    TableField annotation = field.getAnnotation(TableField.class);
-                    return annotation != null && !Objects.equals("", annotation.value())
-                            ? annotation.value()
-                            : field.getName();
-                }).collect(Collectors.toList());
-    }
-
-    /**
-     * 获取需要写入表格的属性
-     *
-     * @param obj
-     * @return
-     */
-    private <T extends WriteTableable> List<Field> getFieldList(T obj) {
-
-        List<Class<?>> classes = new ArrayList<>();
-
-        Class<?> classType = obj.getClass();
-
-        //遍历获取父类class
-        while (!Objects.equals(classType, Object.class)) {
-            classes.add(classType);
-            classType = classType.getSuperclass();
-        }
-
-        // 获取子类及父类全部属性
-        List<Field> fields = classes.stream()
-                .map(pojoClass -> Stream.of(pojoClass.getDeclaredFields()).collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        // 属性中是否匹配到任意一个包含 TableField 注解
-        boolean anyMatch = fields.stream()
-                .anyMatch(field -> field.isAnnotationPresent(TableField.class));
-
-        // 如果使用了 TableField 注解，只获取包含 TableField 注解的属性，反之获取全部属性
-        if (anyMatch) {
-            fields = fields.stream()
-                    .filter(field -> field.isAnnotationPresent(TableField.class) && !field.getAnnotation(TableField.class).exclude())
-                    .collect(Collectors.toList());
-        }
-
-        return fields.stream().sorted((a, b) -> {
-            TableField before = a.getAnnotation(TableField.class);
-            TableField next = b.getAnnotation(TableField.class);
-            return (before == null ? Integer.MAX_VALUE : before.order()) - (next == null ? Integer.MAX_VALUE : next.order());
-        }).collect(Collectors.toList());
-
-    }
-
 
     /**
      * 关闭资源
@@ -750,7 +694,7 @@ public class WordBuilder {
         }
 
         public ParagraphBuilder text(String text, WordStyle... wordStyles) {
-            WordBuilder.this.paragraph(paragraph, text, wordStyles);
+            WordBuilder.this.paragraph(paragraph, text, wordStyles == null ? Collections.<WordStyle>emptyList() : Arrays.asList(wordStyles));
             return this;
         }
 

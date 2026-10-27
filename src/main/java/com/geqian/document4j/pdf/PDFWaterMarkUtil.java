@@ -18,9 +18,7 @@ import java.io.*;
  */
 public class PDFWaterMarkUtil {
 
-
     private static final Logger log = LoggerFactory.getLogger(PDFWaterMarkUtil.class);
-
 
     /**
      * 添加水印
@@ -33,9 +31,8 @@ public class PDFWaterMarkUtil {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             addWaterMark(in, out, watermark);
             return out.toByteArray();
-        } catch (Exception e) {
-            log.error("PDF文档添加水印时发生异常", e);
-            return new byte[0];
+        } catch (IOException e) {
+            throw new RuntimeException("PDF文档添加水印时发生异常", e);
         }
     }
 
@@ -47,6 +44,10 @@ public class PDFWaterMarkUtil {
      * @param watermark
      */
     public static void addWaterMark(InputStream is, OutputStream os, String watermark) {
+        if (watermark == null || watermark.trim().isEmpty()) {
+            // 空水印会使文本宽度为 0，下方填充循环步长为 0 将死循环
+            throw new IllegalArgumentException("水印内容不能为空");
+        }
         PdfReader reader = null;
         PdfStamper stamper = null;
         try {
@@ -90,11 +91,10 @@ public class PDFWaterMarkUtil {
                 under.endText();
                 under.restoreState();
             }
-            stamper.close();
-            reader.close();
         } catch (Exception e) {
-            log.error("PDF文档添加水印时发生异常", e);
+            throw new RuntimeException("PDF文档添加水印时发生异常", e);
         } finally {
+            // stamper.close() 负责把加密/水印后的内容写出，必须在关闭 reader 之前执行
             closeResource(stamper, reader);
         }
     }
@@ -111,8 +111,8 @@ public class PDFWaterMarkUtil {
         try (FileInputStream is = new FileInputStream(inputPath);
              FileOutputStream os = new FileOutputStream(outputPath)) {
             addWaterMark(is, os, waterMark);
-        } catch (Exception e) {
-            log.error("PDF文档添加水印时发生异常", e);
+        } catch (IOException e) {
+            throw new RuntimeException("PDF文档添加水印时发生异常", e);
         }
     }
 
@@ -127,43 +127,28 @@ public class PDFWaterMarkUtil {
              ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             addWaterMark(is, os, waterMark);
             return os.toByteArray();
-        } catch (Exception e) {
-            log.error("PDF文档添加水印时发生异常", e);
-            return new byte[0];
+        } catch (IOException e) {
+            throw new RuntimeException("PDF文档添加水印时发生异常", e);
         }
     }
 
 
     /**
-     * 创建字体
+     * 创建水印字体（STSong 由 itext-asian 依赖提供）
      *
      * @return
      */
-    private static com.itextpdf.text.Font createFont(PDFStyle... pdfStyles) {
-        String fontFamily = null;
-        com.itextpdf.text.Font font;
+    private static Font createFont() {
+        Font font;
         try {
-            for (PDFStyle pdfStyle : pdfStyles) {
-                if (pdfStyle instanceof PDFStyle.Font && (fontFamily = ((PDFStyle.Font) pdfStyle).getFamilyStyle()) != null) {
-                    break;
-                }
-            }
-            font = fontFamily != null ?
-                    FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED)
-                    : FontFactory.getFont("fonts/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-        } catch (Exception ignored) {
             font = FontFactory.getFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        } catch (Exception e) {
+            font = new Font();
         }
-        font.setStyle(com.itextpdf.text.Font.NORMAL);
+        font.setStyle(Font.NORMAL);
         font.setSize(Font.DEFAULTSIZE);
-        for (PDFStyle pdfStyle : pdfStyles) {
-            if (PDFStyle.Font.class.isAssignableFrom(pdfStyle.getClass())) {
-                pdfStyle.buildStyle(font);
-            }
-        }
         return font;
     }
-
 
     /**
      * 关闭资源
@@ -176,14 +161,15 @@ public class PDFWaterMarkUtil {
             try {
                 stamper.close();
             } catch (Exception e) {
-                log.error("pdf文档添加水印,关闭PdfStamper时发生异常", e);
+                // 主流程异常时已向上抛出，这里只记录二次关闭的失败
+                log.error("PDF添加水印，关闭PdfStamper时发生异常", e);
             }
         }
         if (reader != null) {
             try {
                 reader.close();
             } catch (Exception e) {
-                log.error("pdf文档添加水印,关闭PdfReader时发生异常", e);
+                log.error("PDF添加水印，关闭PdfReader时发生异常", e);
             }
         }
     }
